@@ -1,6 +1,7 @@
 const DIAGRAM_WIDTH = 1460;
 const DIAGRAM_HEIGHT = 700;
-const NODE_CARD_WIDTH = 208;
+const NODE_CARD_WIDTH = 166;
+const PATH_LABEL_HORIZONTAL_PADDING = 10;
 const MISSING_VALUE = "—";
 const NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"];
 const NODE_POSITIONS = {
@@ -54,6 +55,16 @@ const HOP_STATE_TONE = {
   not_applicable: "muted",
 };
 const HOP_TONE_PRIORITY = { down: 5, warn: 4, active: 3, ok: 2, idle: 1, muted: 0 };
+const ROUTE_ACTIVE_STATES = { PRIMARY: true, BYPASS_ACTIVE: true };
+const ROUTE_LINK_GROUPS = {
+  "host-agent": "shared",
+  "agent-r1": "primary",
+  "r1-r2": "primary",
+  "r2-monitor": "primary",
+  "agent-r1b": "backup",
+  "r1b-r2b": "backup",
+  "r2b-monitor": "backup",
+};
 
 const summaryMetrics = document.querySelector("#summary-metrics");
 const dataPath = document.querySelector("#data-path");
@@ -159,6 +170,32 @@ function hopTone(state) {
   return HOP_STATE_TONE[state] || "muted";
 }
 
+function monitorRouteSummary(adapted) {
+  return getNested(adapted, ["nodesById", "monitor", "runtime", "details", "detail", "last_route_summary"], null);
+}
+
+function routeGroupForLink(link) {
+  return ROUTE_LINK_GROUPS[link.id] || "unknown";
+}
+
+function isKnownRouteSummary(summary) {
+  if (!summary || typeof summary !== "object") return false;
+  if (summary.active_route !== "primary" && summary.active_route !== "backup") return false;
+  return ROUTE_ACTIVE_STATES[summary.route_state] === true;
+}
+
+function routeActiveForLink(link, summary) {
+  const group = routeGroupForLink(link);
+  if (!isKnownRouteSummary(summary)) return "unknown";
+  if (group === "shared") return "shared";
+  return group === summary.active_route ? "true" : "false";
+}
+
+function overviewToneForLink(rawHopState, rawTone, routeActive) {
+  if (routeActive === "false" && rawHopState === "acknowledged" && rawTone === "ok") return "inactive";
+  return rawTone;
+}
+
 function markerForTone(tone) {
   if (tone === "down") return "url(#arrow-red)";
   if (tone === "warn") return "url(#arrow-orange)";
@@ -167,7 +204,8 @@ function markerForTone(tone) {
   return "url(#arrow-gray)";
 }
 
-function linkStatusLabel(link, hopState) {
+function linkStatusLabel(link, hopState, routeActive) {
+  if (hopState === "acknowledged" && routeActive === "false") return "비활성 경로";
   if (hopState === "acknowledged") return `${link.label} 완료`;
   if (hopState === "request_sent" || hopState === "request_received") return `${link.label} 중`;
   if (hopState === "pending") return ackWaitLabel(link);
@@ -178,7 +216,7 @@ function linkStatusLabel(link, hopState) {
   if (hopState === "delivery_failed" || hopState === "rejected") return "전달 실패";
   if (hopState === "invalid_response") return "응답 이상";
   if (hopState === "idle") return `${link.label} 대기`;
-  if (hopState === "paused") return "일시정지";
+  if (hopState === "paused") return "정지";
   if (hopState === "not_started") return "시작 전";
   if (hopState === "not_applicable") return "해당 없음";
   return "상태 확인 중";
@@ -198,12 +236,24 @@ function retryLabel(link) {
   return "재시도 중";
 }
 
-function livenessTone(value) {
-  return value === "live" ? "is-live" : "is-muted";
+function connectionTone(value) {
+  return value === "live" ? "is-connected" : "is-disconnected";
+}
+
+function connectionLabel(value) {
+  return value === "live" ? "연결됨" : "단절됨";
 }
 
 function stateBadgeTone(value) {
   return value === "RUNNING" || value === "실행 중" ? "" : "is-muted";
+}
+
+function reportedStateTone(value) {
+  return value === "RUNNING" || value === "실행 중" ? "is-running" : "is-muted";
+}
+
+function reportedStateLabel(value) {
+  return value === "일시정지" ? "정지" : value;
 }
 
 function isNodeRunning(node) {
@@ -338,7 +388,7 @@ function renderSummary(adapted) {
   const retryTotal = adapted.nodes.filter(function relay(node) { return node.role === "Relay"; }).reduce(function sum(total, node) { return total + Number(node.retry_total || 0); }, 0);
   const monitor = adapted.nodesById.monitor;
   const duplicateTotal = getNested(monitor, ["runtime", "details", "duplicate_count"], getNested(monitor, ["runtime", "details", "detail", "duplicate_count"], 0));
-  const cards = [["관찰 노드", adapted.nodes.length], ["live lamp", liveCount], ["retry", retryTotal], ["duplicate", duplicateTotal]];
+  const cards = [["관찰 노드", adapted.nodes.length], ["연결됨", liveCount], ["retry", retryTotal], ["duplicate", duplicateTotal]];
   summaryMetrics.innerHTML = cards.map(function card(pair) {
     return `<div class="summary-metric"><span>${escapeHtml(pair[0])}</span><strong>${escapeHtml(pair[1])}</strong></div>`;
   }).join("");
@@ -346,19 +396,23 @@ function renderSummary(adapted) {
 
 function renderPaths(adapted) {
   dataPath.innerHTML = "";
+  const routeSummary = monitorRouteSummary(adapted);
   MAIN_LINKS.forEach(function renderLink(link) {
     const path = buildMainPath(link, adapted.nodesById);
     const labelPosition = linkLabelPosition(link, adapted.nodesById);
     const hopState = linkHopState(link, adapted.nodesById);
-    const tone = hopTone(hopState);
-    const label = linkStatusLabel(link, hopState);
-    const labelWidth = Math.max(78, label.length * 12 + 22);
+    const rawTone = hopTone(hopState);
+    const routeActive = routeActiveForLink(link, routeSummary);
+    const tone = overviewToneForLink(hopState, rawTone, routeActive);
+    const label = linkStatusLabel(link, hopState, routeActive);
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.dataset.linkId = link.id;
     group.dataset.hopState = hopState;
+    group.dataset.rawHopTone = rawTone;
+    group.dataset.routeActive = routeActive;
     group.dataset.hopTone = tone;
     const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    title.textContent = `${label}: ${hopState}`;
+    title.textContent = `${label}: raw=${hopState}/${rawTone}, route=${routeActive}, overview=${tone}`;
     const halo = document.createElementNS("http://www.w3.org/2000/svg", "path");
     halo.setAttribute("d", path);
     halo.setAttribute("class", "path-halo");
@@ -377,9 +431,7 @@ function renderPaths(adapted) {
     labelGroup.setAttribute("class", "path-status-label");
     labelGroup.setAttribute("transform", `translate(${labelPosition.x}, ${labelPosition.y})`);
     const labelBackground = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    labelBackground.setAttribute("x", String(-labelWidth / 2));
     labelBackground.setAttribute("y", "-14");
-    labelBackground.setAttribute("width", String(labelWidth));
     labelBackground.setAttribute("height", "24");
     labelBackground.setAttribute("rx", "12");
     const labelText = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -393,6 +445,10 @@ function renderPaths(adapted) {
     labelGroup.appendChild(labelText);
     group.appendChild(labelGroup);
     dataPath.appendChild(group);
+    const measuredTextWidth = labelText.getComputedTextLength();
+    const labelWidth = Math.ceil(measuredTextWidth + PATH_LABEL_HORIZONTAL_PADDING * 2);
+    labelBackground.setAttribute("x", String(-labelWidth / 2));
+    labelBackground.setAttribute("width", String(labelWidth));
   });
 }
 
@@ -412,14 +468,14 @@ function renderNodes(adapted) {
     }).join("");
     card.innerHTML = `
       <div class="node-card-top">
-        ${livenessLamp(node.observed_liveness)}
+        ${reportedStateLamp(node.reported_state)}
+        ${connectionLamp(node.observed_liveness)}
       </div>
       <div class="node-title-block">
         <div class="node-name">${escapeHtml(node.displayName)}</div>
         <div class="node-role-line">${escapeHtml(node.role)}</div>
       </div>
       <div class="node-info-box">
-        ${nodeInfoRow("상태", stateBadge(node.reported_state), true)}
         ${chips || nodeInfoRow("핵심 신호", cardSignal(node))}
       </div>
     `;
@@ -427,12 +483,17 @@ function renderNodes(adapted) {
   });
 }
 
-function livenessLamp(value) {
-  return `<span class="lamp-wrap" data-liveness-tone="${value === "live" ? "green" : "gray"}"><i class="lamp ${livenessTone(value)}"></i>${escapeHtml(value)}</span>`;
+function connectionLamp(value) {
+  return `<span class="lamp-wrap connection-lamp" data-liveness-state="${escapeHtml(value)}" data-connection-tone="${value === "live" ? "connected" : "disconnected"}"><i class="lamp ${connectionTone(value)}"></i>${connectionLabel(value)}</span>`;
+}
+
+function reportedStateLamp(value) {
+  const tone = stateBadgeTone(value) ? "not-running" : "running";
+  return `<span class="lamp-wrap state-lamp" data-reported-state-tone="${tone}"><i class="lamp ${reportedStateTone(value)}"></i>${escapeHtml(reportedStateLabel(value))}</span>`;
 }
 
 function stateBadge(value) {
-  return `<span class="state-badge ${stateBadgeTone(value)}" data-reported-state-tone="${stateBadgeTone(value) ? "unknown" : "running"}">${escapeHtml(value)}</span>`;
+  return `<span class="state-badge ${stateBadgeTone(value)}" data-reported-state-tone="${stateBadgeTone(value) ? "unknown" : "running"}">${escapeHtml(reportedStateLabel(value))}</span>`;
 }
 
 function nodeInfoRow(label, value, valueIsHtml) {
@@ -482,8 +543,8 @@ function renderDetail(adapted) {
       </div>
       <div class="detail-meta">
         <span>role · ${escapeHtml(node.role)}</span>
-        <span>${livenessLamp(node.observed_liveness)}</span>
-        <span>${stateBadge(node.reported_state)}</span>
+        <span>${reportedStateLamp(node.reported_state)}</span>
+        <span>${connectionLamp(node.observed_liveness)}</span>
         <span>last_seen · ${escapeHtml(node.last_seen)}</span>
       </div>
     </div>

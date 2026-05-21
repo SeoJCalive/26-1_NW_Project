@@ -20,7 +20,6 @@
         <section class="diagram-card" aria-label="구조 다이어그램">
           <div class="diagram-heading">
             <h2>구조 다이어그램</h2>
-            <span>primary + backup data-plane chain</span>
           </div>
           <div class="diagram-scroll">
             <div id="diagram-canvas" class="diagram-canvas" data-testid="diagram-overlay-host">
@@ -44,7 +43,7 @@
                 </defs>
                 <g id="data-path" data-testid="data-path"></g>
               </svg>
-              <div class="path-label">Primary: Host -&gt; Agent -&gt; R1 -&gt; R2 -&gt; Monitor · Backup: Agent -&gt; R1B -&gt; R2B -&gt; Monitor</div>
+              <div class="path-label">primary + backup data-plane chain</div>
               <div id="node-layer" class="node-layer"></div>
               <aside id="detail-inspector" class="detail-inspector-overlay" data-testid="node-detail-inspector" data-overlay="diagram" data-detail-state="closed" hidden>
                 <div id="detail-inspector-inner" class="detail-inspector-inner"></div>
@@ -63,7 +62,7 @@
               <span class="control-group-title">전체</span>
               <div class="command-buttons">
                 <button data-command="start">전체 시작</button>
-                <button data-command="pause">전체 일시정지</button>
+                <button data-command="pause">전체 정지</button>
                 <button data-command="reset">전체 초기화</button>
               </div>
             </div>
