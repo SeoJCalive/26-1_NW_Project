@@ -2,12 +2,14 @@
 
 이 문서는 이 저장소의 **첫 진입점 README**다. 먼저 여기서 실행 방법과 런타임 구성을 확인하고, 더 자세한 기술 기준·의도·작업 맥락·배경은 아래 `문서 안내`의 각 문서로 이동하면 된다.
 
-이 프로젝트는 Python 표준 라이브러리만 사용하여 다음 6개 역할을 유지하는 네트워크 교육용 데모를 구현한다.
+이 프로젝트는 Python 표준 라이브러리만 사용하여 primary 경로와 constrained backup 경로를 가진 네트워크 교육용 데모를 구현한다.
 
 - Host Simulator
 - Local Agent
 - Relay R1
 - Relay R2
+- Relay R1B
+- Relay R2B
 - Monitor
 - Controller/UI
 
@@ -37,7 +39,8 @@
 
 - host 상태 기반 event 생성
 - JSON `EVENT` / `ACK` / `CONTROL` / `STATUS`
-- `R1 -> R2 -> Monitor` forwarding
+- primary `Agent -> R1 -> R2 -> Monitor` forwarding
+- backup `Agent -> R1B -> R2B -> Monitor` forwarding
 - hop-by-hop ACK
 - `2s` hop ACK timeout, 최대 `3`회 retry
 - `event_id` 기반 duplicate suppression
@@ -56,7 +59,7 @@ python main.py
 이 명령은 다음을 한 번에 수행한다.
 
 - Controller/UI viewer 시작
-- Host / Agent / R1 / R2 / Monitor 역할 프로세스 자동 실행
+- Host / Agent / R1 / R2 / R1B / R2B / Monitor 역할 프로세스 자동 실행
 
 Monitor는 별도 tmux나 별도 관찰 세션으로 띄우지 않고, 다른 node와 같은 supervisor-managed role로 실행한다.
 
@@ -92,6 +95,8 @@ python main.py --role host
 python main.py --role agent
 python main.py --role relay-r1
 python main.py --role relay-r2
+python main.py --role relay-r1b
+python main.py --role relay-r2b
 python main.py --role monitor
 ```
 
@@ -107,6 +112,8 @@ standalone role / standalone controller UI도 기본적으로 shared control tok
 - Relay R1: `9103`
 - Relay R2: `9104`
 - Monitor: `9105`
+- Relay R1B: `9106`
+- Relay R2B: `9107`
 - Controller/UI: `9110`
 
 ## 자주 쓰는 실행 예시
@@ -130,7 +137,7 @@ controller가 수신한 `STATUS_REPORT` / `STATUS`와 각 node의 `detail.traffi
 python -m web_ui.server --web-port 8080
 ```
 
-이 명령은 기본적으로 Controller/Gateway status surface와 Host / Agent / R1 / R2 / Monitor role 프로세스를 함께 시작한다.
+이 명령은 기본적으로 Controller/Gateway status surface와 Host / Agent / R1 / R2 / R1B / R2B / Monitor role 프로세스를 함께 시작한다.
 이미 별도 runtime을 띄운 상태에서 Web UI만 붙이려면 다음처럼 role supervisor를 끈다.
 
 ```bash
@@ -163,10 +170,14 @@ fault latency off
 ackdrop
 delay r1 1.5
 delay r2 1.5
+delay r1b 1.5
+delay r2b 1.5
 focus local-agent
 focus host
 focus agent
 focus r1
+focus r1b
+focus r2b
 focus monitor
 overview
 focus all
@@ -176,10 +187,10 @@ exit
 
 `focus`는 controller/UI 내부 화면 전환 명령이다.
 노드에 `CONTROL` 메시지를 보내지 않으며, 유효한 대상은
-`host`, `agent`, `r1`, `r2`, `monitor`다.
+`host`, `agent`, `r1`, `r2`, `r1b`, `r2b`, `monitor`다.
 `host`는 `host-simulator`, `agent`는 `local-agent`로 전환한다.
 `overview`와 `focus all`은 전체 요약 화면으로 돌아간다.
-`quit`와 `exit`는 현재 controller/viewer를 정상 종료하며, 기본 viewer 모드에서는 supervisor가 자동 실행한 Host / Agent / R1 / R2 / Monitor role도 함께 정리한다.
+`quit`와 `exit`는 현재 controller/viewer를 정상 종료하며, 기본 viewer 모드에서는 supervisor가 자동 실행한 Host / Agent / R1 / R2 / R1B / R2B / Monitor role도 함께 정리한다.
 
 별도 controller 터미널은 viewer / controller UI와 **같은 shared control token**을 사용해야 제어 요청이 수락된다.
 보안상 viewer 화면은 token 값을 그대로 출력하지 않는다.
@@ -191,6 +202,7 @@ exit
 - version 1에서는 recovery를 필수로 구현하지 않는다.
 - Web UI 팔레트의 fault 제어는 초 단위 일회성 주입보다 사용자가 직접 켜고 끄는 `fault cpu|service|latency on|off` 흐름을 우선 노출한다. 기존 `fault cpu 6` 형태는 controller client 호환 명령으로 유지된다.
 - 기본 scripted demo는 Monitor ACK를 한 번 드롭하여 retry / dedup 흐름을 보이게 한다.
+- primary hop 실패가 관찰되면 Agent는 같은 `event_id`로 backup 경로(`R1B -> R2B`)를 시도한다. 임의 mesh나 `R1 -> R2B`, `R1B -> R2` 교차 경로는 사용하지 않는다.
 - 상위 hop의 응답 대기 시간은 하위 hop의 전체 retry 창보다 길게 잡아, 하위 relay가 아직 정상 처리 중일 때 상위 relay가 먼저 실패하지 않도록 했다.
 - relay delay 명령은 데모 timing model을 유지하기 위해 내부적으로 최대 `3.0`초까지만 반영된다.
 - supervisor가 자동으로 띄운 역할 프로세스는 `[NW] : <node>` 형식의 라벨로 표시된다.

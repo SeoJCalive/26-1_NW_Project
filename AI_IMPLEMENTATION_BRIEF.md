@@ -61,14 +61,14 @@
 - live preview 자산은 `docs/reference/ui-preview/` 아래에 둔다.
 - preview 기준안은 `docs/reference/ui-preview/preview.revised.jsx`와 `docs/reference/ui-preview/preview.revised.html`만 유지하고, 이전 시안은 `docs/archive/ui-preview/preview.jsx`로 archive 한다.
 - `docs/reference/ui-preview/preview.revised.jsx`는 현재 Web UI runtime frontend의 visual source of truth다. production runtime 앱 자체는 아니지만, `web_ui/static` frontend는 이 파일의 layout / palette / typography / component hierarchy를 plain HTML/CSS/JS로 porting해야 한다.
-- `docs/reference/ui-preview/preview.revised.jsx`는 node-first 기준으로 재정리되었다. 그래프 node id는 실제 data-plane 계약에 맞춰 `host-simulator`, `local-agent`, `r1`, `r2`, `monitor`만 사용하고, `observed_liveness` lamp / `reported_state` / activity / traffic을 분리한다. 상세 inspector는 기본 닫힘이며 node 클릭 시 약 1/3 폭으로 열리고 `X`로 닫힌다. Host / Agent / Relay / Monitor 상세는 각 role별 renderer로 나뉘며, synthetic note/reason/activity log나 `비고`/`설명` 서술 섹션을 두지 않는다.
+- `docs/reference/ui-preview/preview.revised.jsx`는 node-first 기준으로 재정리되었다. 현재 runtime frontend는 실제 data-plane 계약에 맞춰 `host-simulator`, `local-agent`, `r1`, `r2`, `r1b`, `r2b`, `monitor`를 표시하고, `observed_liveness` lamp / `reported_state` / activity / traffic을 분리한다. 상세 inspector는 기본 닫힘이며 node 클릭 시 약 1/3 폭으로 열리고 `X`로 닫힌다. Host / Agent / Relay / Monitor 상세는 각 role별 renderer로 나뉘며, synthetic note/reason/activity log나 `비고`/`설명` 서술 섹션을 두지 않는다.
 - `docs/reference/ui-preview/preview.revised.jsx`는 `reported_state` 전용 badge tone, node-card boxed key/value rows, diagram 내부 non-resizing detail overlay로 갱신되었다. Detail overlay는 `data-detail-state="open|closing"`와 `detailInspectorIn` open animation / closing transition을 제공한다. Diagram canvas는 외부 preview card 폭을 강제 추종하지 않고 자연스러운 content 폭 기준으로 조정했으며, detail overlay는 고정 높이 안에서 `overflow-y: auto` 내부 스크롤을 사용한다. 검증은 `.sisyphus/evidence/node_first_preview.spec.py`와 `task-4-reported-card-overlay-*` evidence가 담당한다. 최종 Oracle 재검토는 PASS였고, 남은 주의점은 기존 preview URL이 stale content를 제공할 수 있다는 환경 리스크뿐이다.
 - `docs/reference/ui-preview/WEB_UI_SPEC.md`는 Web UI runtime frontend의 visual acceptance contract다. 현재 runtime은 `1460x700` diagram canvas, absolute node cards, SVG data path, in-canvas detail inspector overlay, slate/sky/cyan/emerald palette, system-ui typography, role별 detail renderer를 기준으로 삼는다. runtime 자료 출처는 controller / gateway의 `STATUS_REPORT` / `detail.traffic`이지만, visual structure는 preview parity를 먼저 만족해야 한다.
-- `web_ui/` runtime surface를 추가했다. 실행은 `python -m web_ui.server --web-port 8080`이며, 기본적으로 controller/gateway status surface와 local role supervisor를 함께 띄운다. Web UI는 `GET /api/state`에서 `ControllerUI.runtime_state_snapshot()` 결과를 읽고, `POST /api/control`로 기존 viewer/controller 명령 문자열을 전달한다. 다만 현재 `web_ui/static` frontend는 preview visual parity를 크게 벗어난 상태라 reset 대상이다. `web_ui/server.py`, `/api/state`, `/api/control`, `ControllerUI.runtime_state_snapshot()` wiring은 유지하고, `web_ui/static/index.html`, `app.css`, `app.js`는 preview parity 기준으로 사실상 재작성한다.
+- `web_ui/` runtime surface를 추가했다. 실행은 `python -m web_ui.server --web-port 8080`이며, 기본적으로 controller/gateway status surface와 local role supervisor를 함께 띄운다. Web UI는 `GET /api/state`에서 `ControllerUI.runtime_state_snapshot()` 결과를 읽고, `POST /api/control`로 기존 viewer/controller 명령 문자열을 전달한다. `web_ui/static` frontend reset은 완료되었고, `web_ui/server.py`, `/api/state`, `/api/control`, `ControllerUI.runtime_state_snapshot()` wiring은 유지한다.
 - 이번 세션에서 `web_ui/static/index.html`, `web_ui/static/app.css`, `web_ui/static/app.js`를 `preview.revised.jsx` parity 기준으로 reset했다. frontend는 `1460x700` diagram canvas, absolute node cards, SVG data path, diagram 내부 detail inspector overlay, liveness lamp / reported state badge 분리, Monitor 현재 상황 요약 우선 표시를 plain HTML/CSS/JS로 구현한다. `/api/state` normalized node view는 frontend adapter에서 preview-shaped model로 변환하며, `/api/control` command 버튼은 기존 command-line API에만 연결한다. `web_ui/server.py`와 `ControllerUI.runtime_state_snapshot()`는 변경하지 않았다. 검증 evidence는 `/tmp/opencode/web-ui-runtime-parity.png`이며, reference HTML은 CDN 로딩 문제로 새 screenshot 생성이 실패할 수 있으므로 source `preview.revised.jsx` 추출값과 live DOM/screenshot을 함께 확인한다.
 - 이번 세션에서 Web UI node card를 중간 밀도 overview 기준으로 재조정했다. 카드에는 top liveness lamp, node display name, role line, `reported_state` row, role별 activity row 1~2개를 둔다. Host card는 CPU / 메모리 값을 직접 보여주고, 의미가 약한 `latest` footer와 간략 영어 `short` label은 제거했다. `node_id`, 중복 role row, 반복 `observed_liveness` row, 상세 counter, traffic / hop / peer 상세는 detail inspector로 넘긴다. 기본 card shadow와 장식은 과하지 않게 유지하고 선택 상태만 더 강하게 보이게 했다. `WEB_UI_SPEC.md`도 같은 기준으로 갱신했으며, 최신 browser evidence는 `/tmp/opencode/node-cards-balanced.png`다.
 - Web UI 상단의 별도 브라우저 표면 안내 섹션은 현재 화면에 필요 없는 보조 설명으로 판단해 제거했다. 첫 화면은 summary header 바로 아래 diagram이 먼저 오고, 명령 팔레트는 diagram 아래에 둔다. 팔레트 내부에서는 `명령 팔레트` 제목과 `runtime-status`가 버튼 group 위쪽 한 줄 슬롯을 차지한다.
-- Web UI diagram canvas는 노드가 다닥다닥 붙어 보이지 않도록 `1460x700`으로 넓히고, Host / Agent / R1 / R2 / Monitor 좌표를 더 넓게 재배치했다. node-layer는 canvas 전체를 따라가며, card 간 최소 간격이 생기도록 조정했다.
+- Web UI diagram canvas는 노드가 다닥다닥 붙어 보이지 않도록 `1460x700`으로 넓히고, Host / Agent / R1 / R2 / R1B / R2B / Monitor 좌표를 primary/backup 흐름이 구분되게 배치했다. node-layer는 canvas 전체를 따라가며, card 간 최소 간격이 생기도록 조정했다.
 - Web UI SVG 연결선은 더 이상 고정 topology 장식만이 아니라 runtime `hop_state`를 반영한다. 각 link는 양끝 node의 `detail.traffic.next_peer` / `previous_peer`를 읽고, `acknowledged`, active, warn, down, idle, muted tone 중 더 위험한 상태를 우선해 선 색/점선/흐름을 바꾼다. 선 사이 라벨도 `hop_state`에서 파생하며 `상태 수집 완료`, `EVENT 전달 중`, `R2 ACK 대기`, `Monitor 재전송 중`, `ACK 드롭`, `응답 시간초과`, `상태 확인 중` 같은 역할+상태 문구로 표시한다.
 - Web UI 명령 팔레트는 duration fault 버튼을 수동 fault 스위치로 바꾼다. `fault cpu|service|latency on|off`가 Host fault를 켜고 끄며, 각 node 스위치는 되돌리기 어려운 `kill`이 아니라 기존 `start <node>` / `pause <node>` 제어를 사용한다. 기존 `fault <type> <sec>`는 controller/script 호환 경로로 유지한다.
 - Web UI 명령 팔레트의 `runtime-status`는 상태 문구가 길어져도 아래 control group을 밀지 않는 고정 슬롯으로 유지한다. 팔레트는 모든 버튼을 같은 폭/형태로 맞추지 않고, 전체 제어 / 장애 스위치 / 노드 스위치 / 전달 실험의 역할이 보이도록 group surface와 공간 배분을 다르게 둔다. 긴 node 이름은 잘리지 않아야 하며, node 스위치 영역은 보조 명령보다 넓게 배치한다.
@@ -77,11 +77,11 @@
 - control/status plane은 shared token을 유지하되, 앞으로는 더 명확한 envelope / gateway 경계로 정리하는 방향을 현재 기준으로 삼는다.
 - 이후 UI는 node와 직접 결합하는 peer가 아니라 controller / gateway surface 뒤의 소비자 계층으로 계속 해석한다.
 - 프로젝트의 다음 구조 단계는 `1) node-first TUI -> Web UI`, `2) 우회 경로 / critical fault`, `3) Linux / Windows 분리 실행`, `4) 실질 recovery` 순서로 본다.
-- item 1은 이미 진행 중인 현재 작업 축으로 보고, item 2와 item 3은 다음 구조 설계 대상으로 올린다.
+- item 1은 현재 TUI/Web UI sibling surface로 진행 중이다. item 2는 constrained backup chain으로 구현 완료했다. 남은 구조 설계 대상은 item 3 multi-host와 추가 critical-fault 의미론이다.
 - recovery는 위 단계가 정리된 뒤에 다루며, 현재 기준에서는 선행 주제로 올리지 않는다.
 - integrated viewer는 summary-first overview로 유지하고, structured traffic forensic view는 focused node monitor로 분리한다.
 - standalone controller UI는 `--focus-node <node>` mode를 지원하며, 이 mode에서 각 node의 upstream/downstream structured snapshot을 본다.
-- controller/UI는 실행 중 `viewer>` 프롬프트에서 `focus host|agent|r1|r2|monitor`, `overview`, `focus all`을 지원한다. `host`는 `host-simulator`, `agent`는 `local-agent`로 해석한다. 이 명령은 local UI state만 바꾸며 노드에 `CONTROL` 메시지를 보내지 않는다.
+- controller/UI는 실행 중 `viewer>` 프롬프트에서 `focus host|agent|r1|r2|r1b|r2b|monitor`, `overview`, `focus all`을 지원한다. `host`는 `host-simulator`, `agent`는 `local-agent`로 해석한다. 이 명령은 local UI state만 바꾸며 노드에 `CONTROL` 메시지를 보내지 않는다.
 - focused monitor의 `최근 노드 활동`은 전역 node activity가 아니라 현재 focus 대상 node 활동만 최대 10줄 표시한다.
 - `focus node: monitor`는 다른 node의 technical lane dump가 아니라 Monitor가 기록한 event, host state, 전달 건강도, 확인 응답/재시도 상태를 사람이 읽는 최종 상황판으로 표시한다. TUI는 제거하지 않고, 터미널 폭과 한글 display width를 계산해 넓은 화면에서는 안전한 박스형 상황판을 쓰며 좁은 화면에서는 compact box / 섹션 / plain safe line으로 자동 fallback한다. 깨지기 쉬운 `신호 흐름` ASCII 도식은 계속 쓰지 않는다.
 - interactive TUI는 `viewer>` 프롬프트를 bottom row에 직접 렌더링한다. 빈 Enter는 no-op으로 전체 화면을 다시 열지 않고, 방향키 escape sequence는 명령어로 기록하지 않고 버린다.
@@ -95,7 +95,7 @@
 
 ### 아키텍처 한 줄 요약
 
-프로세스가 분리된 6역할 교육용 네트워크 데모이며, 현재는 TUI와 Web UI가 같은 controller/gateway runtime state를 서로 다른 화면으로 표현하는 sibling surface 구조다.
+프로세스가 분리된 primary+backup 7-node 교육용 네트워크 데모이며, 현재는 TUI와 Web UI가 같은 controller/gateway runtime state를 서로 다른 화면으로 표현하는 sibling surface 구조다.
 
 ### 이번 정리에서 확정한 방향
 
@@ -114,14 +114,14 @@
 - control/status 경로는 shared `control_token`을 사용하되, runtime status는 raw `STATUS` 대신 authenticated `STATUS_REPORT` wrapper로 controller에 전달해 token을 visible status payload에서 제거했다.
 - supervisor는 child role에 token을 argv가 아니라 `NW_CONTROL_TOKEN` environment variable로 전달하고, viewer는 token 값을 화면에 직접 출력하지 않는다.
 - standalone role / standalone controller UI / external controller client는 기본적으로 token이 필요하고, 무인증 제어는 명시적 `--allow-unauthenticated-control` opt-in으로만 허용한다.
-- Monitor는 별도 tmux 관찰 세션으로 띄우는 대상이 아니라 Host / Agent / R1 / R2와 같은 supervisor-managed role node로 취급한다.
+- Monitor는 별도 tmux 관찰 세션으로 띄우는 대상이 아니라 Host / Agent / R1 / R2 / R1B / R2B와 같은 supervisor-managed role node로 취급한다.
 - controller/viewer의 `exit`는 `quit`와 같은 정상 종료 명령이며, external controller client도 shutdown 요청을 controller/viewer에 전달한 뒤 종료한다.
 - token 방향은 옵션 2+3을 따른다.
   - shared token은 유지한다.
   - token은 data plane이 아니라 control/status plane 경계로 본다.
   - 이후 UI는 controller / gateway surface 뒤에 둔다.
 - item 1인 node-first TUI 모니터링은 이미 진행 중인 작업 축이다.
-- item 2인 우회 경로 / critical fault 구조와 item 3인 Linux / Windows 분리 실행은 다음 구조 설계 대상이다.
+- item 2인 우회 경로는 constrained backup chain 해석으로 현재 구현 완료이며, 남은 구조 설계 대상은 item 3 Linux / Windows 분리 실행과 별도 명세가 필요한 추가 critical-fault 의미론이다.
 - 이후 설계와 구현은 single-path, single-host, UI-as-node 가정을 영구 구조처럼 굳히지 않는 방향을 따라야 한다.
 - Host/Agent/Relay/Monitor publisher는 모두 structured `detail.traffic` snapshot을 내보내며, integrated viewer는 hop summary만, focused monitor는 상세 lane payload를 렌더링한다.
 - focused monitor 대상은 controller/UI 내부 명령으로 전환할 수 있으므로, 여러 focused controller를 서로 다른 port에 동시에 띄우는 방식은 기본 사용 경로가 아니다.
@@ -131,15 +131,19 @@
 - Agent가 Host 자료를 받는데 R1 전달이 느리거나 실패해 보이면, 먼저 R2/Monitor까지 열린 full topology인지 확인한다. R1은 downstream ACK를 받아야 Agent에 ACK를 돌려주므로 R1만 살아 있어서는 충분하지 않다.
 - focused monitor에서 Agent -> R1 구간을 볼 때는 R1의 `upstream 수신` note / previous peer snapshot이 먼저 보이고, 이후 R1 -> R2 processing delay와 downstream ACK가 이어져야 정상이다.
 - no-arg viewer에서 fault를 주입하지 않아도 Host tick 변화가 Agent의 `HOST_STATE_UPDATE` EVENT로 relay chain을 통과해야 정상이다.
+- constrained backup routing 구현이 완료되었다. Agent는 primary `local-agent -> r1` 실패 시 같은 `event_id`로 `local-agent -> r1b -> r2b -> monitor` backup 경로를 순차 시도한다. Relay는 route mismatch를 거부하고 `forwarded` route trace를 downstream payload에 추가한다. Monitor는 backup event의 upstream을 `r2b`로 기록하고 `last_route_summary`, `last_fault_localization`, `last_route_trace`를 TUI/Web UI에 제공한다.
+- TUI focused Monitor와 Web UI Monitor detail은 route summary, fault localization, route trace를 표시한다. 표현은 `관찰 실패 hop`, `의심 node`, `confidence`, `basis` 중심이며 hard node failure로 단정하지 않는다.
+- 2026-05-21 Web UI 상황별 브라우저 검증을 완료했다. Evidence는 `.sisyphus/evidence/web-ui-situations/`에 있으며 `task-1-harness`부터 `task-8-focus-overview`까지 모두 PASS다. 실제 Playwright/headless Chromium으로 startup topology, primary normal route, `pause r1` 후 backup failover, ACK drop/retry visibility, `delay r1|r2|r1b|r2b 1.5`, pause/reset/kill lifecycle, node inspector focus를 검증했다. 최종 검증에서 `python -m unittest discover -s tests`, `python -m py_compile main.py nw_demo/*.py web_ui/*.py tests/*.py`, `node --check web_ui/static/app.js`가 통과했다. 검증 전 기존 stale 5-node Web UI runtime(`:28083`, control `:29110`)이 현재 7-node backup UI 검증을 방해하고 있어 `/api/control`의 `exit`로 정상 종료했다.
+- 2026-05-21 추가 Web UI node sequence / middle-off 브라우저 검증을 완료했다. Evidence는 `.sisyphus/evidence/web-ui-situations/task-9-*`부터 `task-16-*`와 `.sisyphus/evidence/web-ui-situations/node-sequence-middle-off-summary.md`에 있으며 전체 PASS다. 실제 Playwright/headless Chromium으로 `--no-supervisor` 순차 role process 기동, `start/pause/reset` 논리 제어, `pause/kill r2`, `pause/kill r1`, `pause/kill r1b`, `pause/kill r2b`, SVG link `data-link-id`/`data-hop-state`/`data-hop-tone`, Monitor route summary/fault localization/route trace 정보 경계를 검증했다. 최종 리뷰에서 지적된 `kill r1` primary link stale evidence와 backup-failed Monitor same-event assertion을 강화해 재실행했고 PASS다. 최종 검증에서 `python -m unittest discover -s tests`, `python -m py_compile main.py nw_demo/*.py web_ui/*.py tests/*.py`, `node --check web_ui/static/app.js`가 통과했고 QA 포트 `18080`, `19110`, `9101`-`9107`은 cleanup 후 비어 있었다.
 
 ## 열린 이슈
 
-- Web UI runtime frontend reset은 완료되었다. 이후 작업에서는 `web_ui/server.py`와 API wiring을 유지하고, `web_ui/static`이 `preview.revised.jsx` parity를 계속 지키는지 browser screenshot으로 검증해야 한다. TUI 출력 파싱으로 돌아가면 안 된다.
+- Web UI runtime frontend reset 및 constrained backup 표시의 현재 구현은 `.sisyphus/evidence/web-ui-situations/final-summary.md` 기준 PASS다. 이후 `web_ui/server.py`, API wiring, `web_ui/static` 표시 구조를 바꾸면 같은 browser DOM/text assertion + screenshot evidence로 다시 검증해야 한다. TUI 출력 파싱으로 돌아가면 안 된다.
 - `docs/reference/ui-preview/`의 preview 자산은 controller/runtime과 분리해 보존하되, `preview.revised.jsx`는 현재 frontend visual source of truth로 취급한다.
-- item 2에서 우회 구조를 먼저 route abstraction으로 기록할지, 곧바로 concrete bypass node 이름까지 박을지 최종 선택이 남아 있다.
+- item 2의 현재 선택은 concrete backup node `r1b` / `r2b`와 route abstraction(`primary`, `backup`, `route_trace`)을 함께 쓰는 constrained backup chain이다. 임의 mesh나 cross-path routing은 여전히 비목표다.
 - item 3에서 multi-host runtime config와 location metadata를 어떤 shape로 canonicalize할지 정리가 더 필요하다.
 - 이후 세션에서 런타임이나 문서 기준이 바뀌면, 이 파일의 "최근 결정"과 "현재 기준"을 함께 갱신해야 한다.
-- 남은 구현/검증 단계는 item 2와 item 3의 구조 설계를 기술 기준으로 더 구체화하는 일이다.
+- 남은 구현/검증 단계는 item 3 multi-host 구조와 추가 critical-fault 의미론을 기술 기준으로 더 구체화하는 일이다.
 - 현재 known verification gap은 local LSP diagnostics뿐이며, `basedpyright-langserver`가 설치되어 있지 않아 실행할 수 없다.
 
 ## 다음 세션 시작 체크리스트
@@ -147,7 +151,7 @@
 1. 먼저 [`README.md`](./README.md)를 읽고 현재 런타임 사실이 여전히 같은지 확인한다.
 2. 작업이 구현 범위/구조 판단과 관련되면 [`IMPLEMENTATION_SPEC.md`](./IMPLEMENTATION_SPEC.md)를 확인한다.
 3. 작업이 UI, 표현, 사용자 의도 해석과 관련되면 [`INTENT_ALIGNMENT_NOTE.md`](./INTENT_ALIGNMENT_NOTE.md)를 확인한다.
-4. item 2 작업을 시작할 때는 우회 경로 / critical fault를 node 추가보다 route abstraction 관점에서 먼저 설계할지 확인한다.
+4. 추가 critical-fault 작업을 시작할 때는 현재 constrained backup chain 위에 어떤 fault 의미론을 더할지 먼저 확인한다.
 5. item 3 작업을 시작할 때는 localhost 전제와 local supervisor 전제를 어디까지 분리할지 먼저 확인한다.
 6. focused monitor와 integrated overview가 같은 정보를 다른 깊이로 보여준다는 surface 분리 원칙을 유지하는지 확인한다.
 7. 그 다음 이 파일의 `최근 결정`, `열린 이슈`를 읽고 이번 세션의 출발점을 정한다.

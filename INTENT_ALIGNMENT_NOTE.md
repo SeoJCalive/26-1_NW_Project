@@ -167,8 +167,8 @@ runtime data source는 controller / gateway로 바꾸되, 화면의 layout, pale
 
 ### 비타협 요소
 
-1. 6개 역할 구조 유지
-2. `R1`, `R2` 두 relay 유지
+1. Host / Agent / R1 / R2 / R1B / R2B / Monitor 역할 구조 유지
+2. primary relay(`R1`, `R2`)와 backup relay(`R1B`, `R2B`) 유지
 3. `Controller/UI`는 데이터 경로 밖
 4. 교육적 가시성 우선
 5. node별 monitoring 경험 유지

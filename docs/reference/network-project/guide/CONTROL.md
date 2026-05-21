@@ -10,7 +10,7 @@
 python main.py
 ```
 
-이 명령은 terminal viewer를 시작하고 Host / Agent / R1 / R2 / Monitor 역할 프로세스를 supervisor-managed child process로 자동 실행한다. Monitor는 별도 tmux 관찰 세션이 아니라 일반 node 역할 중 하나다.
+이 명령은 terminal viewer를 시작하고 Host / Agent / R1 / R2 / R1B / R2B / Monitor 역할 프로세스를 supervisor-managed child process로 자동 실행한다. Monitor는 별도 tmux 관찰 세션이 아니라 일반 node 역할 중 하나다.
 
 비대화형 환경에서 자동 demo를 강제로 실행하려면 다음을 사용한다.
 
@@ -55,6 +55,8 @@ host-simulator
 local-agent
 r1
 r2
+r1b
+r2b
 monitor
 ```
 
@@ -70,6 +72,8 @@ python main.py --role host --control-token demo123
 python main.py --role agent --control-token demo123
 python main.py --role relay-r1 --control-token demo123
 python main.py --role relay-r2 --control-token demo123
+python main.py --role relay-r1b --control-token demo123
+python main.py --role relay-r2b --control-token demo123
 python main.py --role monitor --control-token demo123
 ```
 
@@ -107,10 +111,14 @@ fault latency off
 ackdrop
 delay r1 1.5
 delay r2 1.5
+delay r1b 1.5
+delay r2b 1.5
 focus host
 focus agent
 focus r1
 focus r2
+focus r1b
+focus r2b
 focus monitor
 focus all
 quit
@@ -139,13 +147,13 @@ exit
 
 `ackdrop`은 Monitor가 다음 ACK를 한 번 드롭하게 만들어 retry / duplicate suppression 흐름을 보기 위한 demo 명령이다.
 
-`delay r1|r2 [sec]`는 relay 처리 지연을 조정한다. 시간을 생략하면 기본 `0.75`초이며, demo timing model상 내부 반영은 최대 `3.0`초로 제한된다.
+`delay r1|r2|r1b|r2b [sec]`는 relay 처리 지연을 조정한다. 시간을 생략하면 기본 `0.75`초이며, demo timing model상 내부 반영은 최대 `3.0`초로 제한된다.
 
 `focus <node>`는 viewer/controller UI 내부 화면만 특정 node monitor로 전환한다. node에 `CONTROL` 메시지를 보내지 않는다.
 
 `overview`와 `focus all`은 전체 요약 화면으로 돌아간다.
 
-`quit`와 `exit`는 현재 controller/viewer를 정상 종료한다. 기본 viewer 모드에서는 supervisor가 자동 실행한 Host / Agent / R1 / R2 / Monitor role도 함께 정리된다. 외부 controller terminal에서 `exit`를 입력하면 viewer/controller에 shutdown 요청을 보낸 뒤 client도 종료한다.
+`quit`와 `exit`는 현재 controller/viewer를 정상 종료한다. 기본 viewer 모드에서는 supervisor가 자동 실행한 Host / Agent / R1 / R2 / R1B / R2B / Monitor role도 함께 정리된다. 외부 controller terminal에서 `exit`를 입력하면 viewer/controller에 shutdown 요청을 보낸 뒤 client도 종료한다.
 
 ## Node 이름과 Alias
 
@@ -156,6 +164,8 @@ host-simulator
 local-agent
 r1
 r2
+r1b
+r2b
 monitor
 all
 ```
@@ -167,6 +177,8 @@ host -> host-simulator
 agent -> local-agent
 relay-r1 -> r1
 relay-r2 -> r2
+relay-r1b -> r1b
+relay-r2b -> r2b
 ```
 
 `focus` 명령에서는 `host`와 `agent` alias를 자주 사용한다.
@@ -179,6 +191,8 @@ Local Agent:    9102
 Relay R1:       9103
 Relay R2:       9104
 Monitor:        9105
+Relay R1B:      9106
+Relay R2B:      9107
 Controller/UI:  9110
 ```
 
