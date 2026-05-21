@@ -521,6 +521,9 @@ Monitor는 데이터 경로의 최종 node/sink이며, 별도 tmux 관찰 세션
 - `observed_liveness`는 controller가 `last_seen` 기준으로 파생한 관찰 상태다.
 - `hop_state`는 이웃 node와의 request/response 상호작용 결과다.
 - 이 세 축은 서로 대체하지 않는다.
+- Web UI overview의 SVG data-path tone은 위 `hop_state`를 그대로 지우지 않고, Monitor가 마지막으로 수신한 `last_route_summary`의 현재 active route 증거를 별도 projection 축으로 함께 본다. DOM에서는 raw hop 상태(`data-hop-state`), raw hop tone(`data-raw-hop-tone`), route membership verdict(`data-route-active`), 최종 overview tone(`data-hop-tone`)을 분리한다.
+- `last_route_summary`는 마지막으로 Monitor에 도달한 route evidence이며 wire-level continuous liveness proof가 아니다. 따라서 route-aware overview projection은 `active_route`가 `primary` 또는 `backup`이고 `route_state`가 `PRIMARY` 또는 `BYPASS_ACTIVE`일 때만 적용한다. missing / malformed / invalid / `FAILED` / `DEGRADED` summary에서는 `data-route-active="unknown"`으로 두고 최종 overview tone은 raw hop tone과 같아야 한다.
+- inactive route projection은 raw `acknowledged` + raw `ok`인 오래된 성공 기록만 inactive/stale overview tone으로 낮출 수 있다. raw `down`, `warn`, `active`, `paused`, `timeout`, `connection_error`, `delivery_failed`, `rejected` 같은 현재 실패 또는 진행 신호는 inactive projection으로 가리면 안 된다.
 
 #### partial-topology / hop taxonomy 규칙
 - configured peer가 있지만 controller가 아직 그 peer의 `STATUS`를 한 번도 보지 못했고,
