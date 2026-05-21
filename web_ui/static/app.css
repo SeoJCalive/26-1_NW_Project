@@ -282,6 +282,16 @@ button {
   stroke-dasharray: none;
 }
 
+[data-recent-transfer="true"] .path-halo {
+  stroke: var(--cyan-200);
+  animation: recentTransferHalo 1.5s ease-out infinite;
+}
+
+[data-recent-transfer="true"] .path-line {
+  stroke-dasharray: 14 10;
+  animation: recentTransferFlow 1.25s linear infinite;
+}
+
 [data-hop-tone="active"] .path-halo { stroke: var(--sky-200); }
 [data-hop-tone="active"] .path-line {
   stroke: var(--sky-500);
@@ -310,6 +320,26 @@ button {
 [data-hop-tone="inactive"] .path-line {
   stroke: var(--slate-500);
   stroke-dasharray: 4 10;
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="stale"] .path-halo {
+  stroke: var(--slate-200);
+  opacity: 0.58;
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="stale"] .path-line {
+  stroke: var(--slate-500);
+  stroke-dasharray: 10 10;
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="offline"] .path-halo {
+  stroke: var(--slate-300);
+  opacity: 0.5;
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="offline"] .path-line {
+  stroke: var(--slate-600);
+  stroke-dasharray: 3 9;
 }
 
 .path-status-label rect {
@@ -366,6 +396,20 @@ button {
 }
 
 [data-hop-tone="inactive"] .path-status-label text { fill: var(--slate-600); }
+
+[data-link-freshness-overlay="true"][data-link-freshness="stale"] .path-status-label rect {
+  fill: rgba(241, 245, 249, 0.96);
+  stroke: var(--slate-300);
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="stale"] .path-status-label text { fill: var(--slate-600); }
+
+[data-link-freshness-overlay="true"][data-link-freshness="offline"] .path-status-label rect {
+  fill: rgba(226, 232, 240, 0.96);
+  stroke: var(--slate-400);
+}
+
+[data-link-freshness-overlay="true"][data-link-freshness="offline"] .path-status-label text { fill: var(--slate-700); }
 
 .path-label {
   position: absolute;
@@ -895,6 +939,17 @@ tbody tr:last-child td { border-bottom: 0; }
 @keyframes pathFlow {
   from { stroke-dashoffset: 36; }
   to { stroke-dashoffset: 0; }
+}
+
+@keyframes recentTransferFlow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes recentTransferHalo {
+  0% { opacity: 0.42; stroke-width: 18; }
+  45% { opacity: 0.86; stroke-width: 21; }
+  100% { opacity: 0.52; stroke-width: 18; }
 }
 
 @keyframes detailInspectorIn {
