@@ -29,6 +29,7 @@ const FAULT_CONTROLS = [
 ];
 const POWER_START_COOLDOWN_MS = 6000;
 const POWER_STOP_COOLDOWN_MS = 4000;
+const RECENT_TRANSFER_HOLD_MS = 3000;
 const MAIN_LINKS = [
   { id: "host-agent", from: "host-simulator", to: "local-agent", label: "상태 수집", labelOffsetY: -22 },
   { id: "agent-r1", from: "local-agent", to: "r1", label: "EVENT 전달", labelOffsetY: -24 },
@@ -57,6 +58,8 @@ const HOP_STATE_TONE = {
   not_applicable: "muted",
 };
 const HOP_TONE_PRIORITY = { down: 5, warn: 4, active: 3, ok: 2, idle: 1, muted: 0 };
+const FRESH_ENDPOINT_STATES = new Set(["live", "kill_requested"]);
+const RECENT_TRANSFER_STATES = { request_sent: true, request_received: true };
 const ROUTE_ACTIVE_STATES = { PRIMARY: true, BYPASS_ACTIVE: true };
 const ROUTE_LINK_GROUPS = {
   "host-agent": "shared",
@@ -201,6 +204,57 @@ function routeActiveForLink(link, summary) {
 function overviewToneForLink(rawHopState, rawTone, routeActive) {
   if (routeActive === "false" && rawHopState === "acknowledged" && rawTone === "ok") return "inactive";
   return rawTone;
+}
+
+function linkEndpointFreshness(link, nodesById) {
+  const fromNode = nodesById[link.from];
+  const toNode = nodesById[link.to];
+  if (!fromNode || !toNode) return "unknown";
+  const states = [fromNode.observed_liveness, toNode.observed_liveness];
+  if (states[0] === "offline" || states[1] === "offline") return "offline";
+  if (states[0] === "stale" || states[1] === "stale") return "stale";
+  if (FRESH_ENDPOINT_STATES.has(states[0]) && FRESH_ENDPOINT_STATES.has(states[1])) return "fresh";
+  return "unknown";
+}
+
+function isFreshnessOverlayAllowed(tone, linkFreshness, lifecycleOverride) {
+  if (lifecycleOverride) return false;
+  if (linkFreshness !== "stale" && linkFreshness !== "offline") return false;
+  return tone === "ok" || tone === "idle";
+}
+
+function freshnessOverlayLabel(linkFreshness) {
+  if (linkFreshness === "stale") return "최근 상태 없음";
+  if (linkFreshness === "offline") return "엔드포인트 오프라인";
+  return null;
+}
+
+function captureAgeMs(capture) {
+  if (!capture || typeof capture !== "object") return null;
+  const capturedAt = Date.parse(capture.captured_at);
+  if (!Number.isFinite(capturedAt)) return null;
+  return Math.max(0, Date.now() - capturedAt);
+}
+
+function collectRecentTransfers(node, peerId, result) {
+  const recent = trafficOf(node).recent;
+  if (!Array.isArray(recent)) return;
+  recent.forEach(function collect(item) {
+    if (!item || item.peer_node_id !== peerId || !RECENT_TRANSFER_STATES[item.hop_state]) return;
+    const ageMs = captureAgeMs(item.capture);
+    if (ageMs === null || ageMs > RECENT_TRANSFER_HOLD_MS) return;
+    result.push({ state: item.hop_state, flow: item.flow, phase: getNested(item, ["capture", "phase"], null), ageMs: ageMs });
+  });
+}
+
+function recentTransferForLink(link, nodesById) {
+  const candidates = [];
+  collectRecentTransfers(nodesById[link.from], link.to, candidates);
+  collectRecentTransfers(nodesById[link.to], link.from, candidates);
+  if (!candidates.length) return null;
+  return candidates.reduce(function chooseNewest(current, next) {
+    return next.ageMs < current.ageMs ? next : current;
+  });
 }
 
 function pathLifecycleOverride() {
@@ -457,11 +511,14 @@ function renderPaths(adapted) {
   MAIN_LINKS.forEach(function renderLink(link) {
     const path = buildMainPath(link, adapted.nodesById);
     const labelPosition = linkLabelPosition(link, adapted.nodesById);
-    const hopState = lifecycleOverride ? lifecycleOverride.hopState : linkHopState(link, adapted.nodesById);
-    const rawTone = lifecycleOverride ? lifecycleOverride.rawTone : hopTone(hopState);
+    const hopState = linkHopState(link, adapted.nodesById);
+    const rawTone = hopTone(hopState);
     const routeActive = lifecycleOverride ? lifecycleOverride.routeActive : routeActiveForLink(link, routeSummary);
     const tone = lifecycleOverride ? lifecycleOverride.tone : overviewToneForLink(hopState, rawTone, routeActive);
-    const label = lifecycleOverride ? lifecycleOverride.label : linkStatusLabel(link, hopState, routeActive);
+    const linkFreshness = linkEndpointFreshness(link, adapted.nodesById);
+    const freshnessOverlay = isFreshnessOverlayAllowed(tone, linkFreshness, lifecycleOverride);
+    const label = freshnessOverlay ? freshnessOverlayLabel(linkFreshness) : lifecycleOverride ? lifecycleOverride.label : linkStatusLabel(link, hopState, routeActive);
+    const recentTransfer = !lifecycleOverride && tone === "ok" && linkFreshness === "fresh" ? recentTransferForLink(link, adapted.nodesById) : null;
     const shouldFlow = lifecycleOverride ? lifecycleOverride.flow : tone === "active" || tone === "warn";
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.dataset.linkId = link.id;
@@ -469,8 +526,16 @@ function renderPaths(adapted) {
     group.dataset.rawHopTone = rawTone;
     group.dataset.routeActive = routeActive;
     group.dataset.hopTone = tone;
+    group.dataset.displayHopState = lifecycleOverride ? lifecycleOverride.hopState : hopState;
+    group.dataset.linkFreshness = linkFreshness;
+    group.dataset.linkFreshnessOverlay = freshnessOverlay ? "true" : "false";
+    group.dataset.recentTransfer = recentTransfer ? "true" : "false";
+    if (recentTransfer) {
+      group.dataset.recentTransferState = recentTransfer.state;
+      group.dataset.recentTransferFlow = recentTransfer.flow || "unknown";
+    }
     const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    title.textContent = `${label}: raw=${hopState}/${rawTone}, route=${routeActive}, overview=${tone}`;
+    title.textContent = `${label}: raw=${hopState}/${rawTone}, route=${routeActive}, overview=${tone}, freshness=${linkFreshness}/${freshnessOverlay ? "overlay" : "no-overlay"}${recentTransfer ? `, recent=${recentTransfer.state}/${recentTransfer.phase || recentTransfer.flow || "unknown"}` : ""}`;
     const halo = document.createElementNS("http://www.w3.org/2000/svg", "path");
     halo.setAttribute("d", path);
     halo.setAttribute("class", "path-halo");
