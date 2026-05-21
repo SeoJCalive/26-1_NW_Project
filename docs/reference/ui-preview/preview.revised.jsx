@@ -794,7 +794,7 @@ function NodeCard({ node, selected, onSelect }) {
             type="button"
             onClick={() => onSelect(node.id)}
             data-testid={`node-card-${node.id}`}
-            className={`absolute w-[208px] rounded-xl border bg-white p-3 text-left shadow-sm transition-all ${selected ? "border-sky-300 ring-2 ring-sky-100 shadow-md" : "border-slate-200 hover:border-cyan-300 hover:shadow-md"}`}
+            className={`absolute w-[166px] rounded-xl border bg-white p-3 text-left shadow-sm transition-all ${selected ? "border-sky-300 ring-2 ring-sky-100 shadow-md" : "border-slate-200 hover:border-cyan-300 hover:shadow-md"}`}
             style={{ left: `${node.position.x}px`, top: `${node.position.y}px` }}
         >
             <div className="mb-2 flex items-center justify-between gap-2">
@@ -866,7 +866,7 @@ function ControlPanel() {
             <div className="mb-3 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-xs leading-5 text-sky-800">focus / overview는 화면 전환이며, 아래 버튼은 static preview 의미만 보여줍니다.</div>
             <div className="grid grid-cols-3 gap-2">
                 <button className="flex items-center justify-center gap-1 rounded bg-emerald-500 px-2 py-2 text-xs font-semibold text-white"><PlayIcon className="h-3 w-3" />시작</button>
-                <button className="flex items-center justify-center gap-1 rounded border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700"><PauseIcon className="h-3 w-3" />일시정지</button>
+                <button className="flex items-center justify-center gap-1 rounded border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700"><PauseIcon className="h-3 w-3" />정지</button>
                 <button className="flex items-center justify-center gap-1 rounded border border-slate-300 bg-white px-2 py-2 text-xs font-semibold text-slate-700"><RotateCcwIcon className="h-3 w-3" />초기화</button>
             </div>
             <div className="mt-3 grid gap-2 text-xs">

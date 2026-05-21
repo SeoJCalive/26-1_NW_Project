@@ -167,15 +167,18 @@ node card의 geometry와 density는 preview의 compact card 기준을 따르되,
 ### 7.1 reported_state
 
 node가 스스로 보고한 실행 상태다.
+node card에서는 표 안의 `상태` row가 아니라 카드 상단의 초록 계열 상태 램프로 표시한다.
 
 - 실행 중
-- 일시정지
+- 정지
 - 중지
 - 알 수 없음
 
 ### 7.2 observed_liveness
 
 controller / gateway가 `last_seen` 기준으로 파생한 관찰 상태다.
+사용자-facing card 문구는 작업 상태처럼 보이는 `live`가 아니라 연결 의미로 표시한다.
+`live`는 파란 연결 램프의 `연결됨`, 그 외 관찰 상태는 `단절됨`으로 요약한다.
 
 - live
 - stale
