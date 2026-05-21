@@ -75,9 +75,14 @@ Web UI control palette는 사용자 조작 의미가 바로 드러나야 한다.
 - fault 제어는 `fault cpu|service|latency on|off` 형태의 수동 스위치를 우선 노출한다.
 - node 제어는 각 node별 `start <node>` / `pause <node>` 스위치를 제공한다.
 - `kill <node>`는 되돌리기 어려운 shutdown 제어이므로 기본 Web UI 스위치로 사용하지 않는다.
+- diagram heading 우측의 전원 버튼은 Web UI가 직접 supervisor를 가진 local runtime에서만 node role 프로세스 전체를 켜고 끄는 lifecycle control이다. Web UI HTTP surface는 유지하고 node role process만 start / terminate 한다.
+- 일반 Web UI supervisor mode에서는 node listen port를 빈 포트로 동적 할당한다. 전원 버튼이 다시 켤 때도 fixed `9101-9107`에 의존하지 않으며, UI는 `유동 포트` 힌트를 표시한다.
+- 전원 버튼은 start / stop 전환 중 예상 소요 시간만큼 비활성화되어야 한다. 현재 기준은 start 약 6초, stop 약 4초이며, 연속 클릭으로 중복 start/stop을 보내면 안 된다.
+- `--fixed-node-ports` 실행처럼 고정 node port를 쓰는 경우에는 켜기 전에 node listen port 점유를 확인하고, 다른 프로세스가 먼저 점유한 경우에는 일부 node만 올라가는 상태를 만들지 말고 실패 메시지를 보여준다.
 - 기존 duration 기반 fault 명령은 controller/script 호환 경로로 남더라도 Web UI의 주 조작면에는 초 단위 버튼으로 노출하지 않는다.
 - 팔레트의 `runtime-status`는 갱신 문구 길이에 따라 아래 control 요소를 밀어내지 않도록 고정 슬롯으로 점유한다.
 - 팔레트는 모든 버튼을 같은 폭/같은 형태로 강제하지 않고, 전체 제어 / 장애 스위치 / 노드 스위치 / 전달 실험의 역할이 구분되도록 group surface와 공간 배분을 다르게 둔다.
+- 장애 스위치는 CPU / service / latency 토글을 한 줄에 압축하지 않고 세로로 나열해, 켜짐/꺼짐 상태와 라벨이 각 항목별로 읽히게 한다.
 - 긴 node 이름은 잘리지 않아야 하며, node 스위치 영역은 다른 보조 명령보다 넓게 배치한다.
 
 Web UI가 우선 소비해야 하는 자료 축은 다음이다.

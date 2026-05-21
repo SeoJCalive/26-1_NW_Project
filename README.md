@@ -107,6 +107,9 @@ standalone role / standalone controller UI도 기본적으로 shared control tok
 
 ## 기본 포트
 
+아래 포트는 standalone role 실행과 `--fixed-node-ports` Web UI 실행의 기본값이다.
+일반 Web UI supervisor 실행(`python -m web_ui.server --web-port 8080`)은 node role process에 빈 포트를 자동 할당해, 기존 `9101-9107` 점유와 충돌하지 않게 한다.
+
 - Host Simulator: `9101`
 - Local Agent: `9102`
 - Relay R1: `9103`
@@ -138,6 +141,8 @@ python -m web_ui.server --web-port 8080
 ```
 
 이 명령은 기본적으로 Controller/Gateway status surface와 Host / Agent / R1 / R2 / R1B / R2B / Monitor role 프로세스를 함께 시작한다.
+이때 node role process의 listen port는 Web UI runtime이 빈 포트로 자동 할당하고, controller와 child role에 같은 endpoint map을 전달한다.
+문서의 기본 node port `9101-9107`을 강제로 쓰려면 `--fixed-node-ports`를 함께 사용한다.
 이미 별도 runtime을 띄운 상태에서 Web UI만 붙이려면 다음처럼 role supervisor를 끈다.
 
 ```bash
