@@ -203,6 +203,31 @@ function overviewToneForLink(rawHopState, rawTone, routeActive) {
   return rawTone;
 }
 
+function pathLifecycleOverride() {
+  const state = getNested(latestState, ["node_power", "state"], null);
+  if (state === "stopped") {
+    return {
+      hopState: "stopped",
+      rawTone: "muted",
+      routeActive: "lifecycle",
+      tone: "inactive",
+      label: "전원 꺼짐",
+      flow: false,
+    };
+  }
+  if (state === "transitioning") {
+    return {
+      hopState: "transitioning",
+      rawTone: "muted",
+      routeActive: "lifecycle",
+      tone: "inactive",
+      label: "전원 전환 중",
+      flow: false,
+    };
+  }
+  return null;
+}
+
 function markerForTone(tone) {
   if (tone === "down") return "url(#arrow-red)";
   if (tone === "warn") return "url(#arrow-orange)";
@@ -428,14 +453,16 @@ function renderSummary(adapted) {
 function renderPaths(adapted) {
   dataPath.innerHTML = "";
   const routeSummary = monitorRouteSummary(adapted);
+  const lifecycleOverride = pathLifecycleOverride();
   MAIN_LINKS.forEach(function renderLink(link) {
     const path = buildMainPath(link, adapted.nodesById);
     const labelPosition = linkLabelPosition(link, adapted.nodesById);
-    const hopState = linkHopState(link, adapted.nodesById);
-    const rawTone = hopTone(hopState);
-    const routeActive = routeActiveForLink(link, routeSummary);
-    const tone = overviewToneForLink(hopState, rawTone, routeActive);
-    const label = linkStatusLabel(link, hopState, routeActive);
+    const hopState = lifecycleOverride ? lifecycleOverride.hopState : linkHopState(link, adapted.nodesById);
+    const rawTone = lifecycleOverride ? lifecycleOverride.rawTone : hopTone(hopState);
+    const routeActive = lifecycleOverride ? lifecycleOverride.routeActive : routeActiveForLink(link, routeSummary);
+    const tone = lifecycleOverride ? lifecycleOverride.tone : overviewToneForLink(hopState, rawTone, routeActive);
+    const label = lifecycleOverride ? lifecycleOverride.label : linkStatusLabel(link, hopState, routeActive);
+    const shouldFlow = lifecycleOverride ? lifecycleOverride.flow : tone === "active" || tone === "warn";
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.dataset.linkId = link.id;
     group.dataset.hopState = hopState;
@@ -455,7 +482,7 @@ function renderPaths(adapted) {
     line.setAttribute("stroke-width", "5");
     line.setAttribute("stroke-linecap", "round");
     line.setAttribute("marker-end", markerForTone(tone));
-    if (tone === "active" || tone === "warn") {
+    if (shouldFlow) {
       line.classList.add("path-flow");
     }
     const labelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
