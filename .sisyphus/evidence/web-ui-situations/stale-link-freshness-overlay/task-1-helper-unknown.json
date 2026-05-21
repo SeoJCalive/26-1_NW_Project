@@ -1,0 +1,16 @@
+{
+  "step": 1,
+  "scope": "frontend-only endpoint freshness helper",
+  "helper": "linkEndpointFreshness(link, nodesById)",
+  "executed_checks": ["node --check web_ui/static/app.js"],
+  "fixture_requirements_for_task_5": [
+    {"from": "live", "to": "stale", "expected": "stale"},
+    {"from": "offline", "to": "stale", "expected": "offline"},
+    {"from": "live", "to": "offline", "expected": "offline"},
+    {"from": "live", "to": "unknown", "expected": "unknown"},
+    {"from": "live", "to": null, "expected": "unknown"},
+    {"from": "live", "to": "unexpected", "expected": "unknown"},
+    {"from": "missing endpoint", "to": "live", "expected": "unknown"}
+  ],
+  "note": "No helper result is claimed here without the later real browser fixture matrix."
+}

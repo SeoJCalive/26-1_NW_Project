@@ -1,0 +1,12 @@
+{
+  "step": 1,
+  "scope": "frontend-only endpoint freshness helper",
+  "helper": "linkEndpointFreshness(link, nodesById)",
+  "executed_checks": ["node --check web_ui/static/app.js"],
+  "fixture_requirements_for_task_5": [
+    {"from": "live", "to": "live", "expected": "fresh"},
+    {"from": "live", "to": "kill_requested", "expected": "fresh"},
+    {"from": "kill_requested", "to": "kill_requested", "expected": "fresh"}
+  ],
+  "note": "Task 1 records fixture requirements only; browser DOM execution is intentionally deferred to Task 5."
+}
