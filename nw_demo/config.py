@@ -1,6 +1,10 @@
+import json
+import os
+
 HOST_ID = "host-1"
 AGENT_ID = "agent-1"
 PROCESS_LABEL_PREFIX = "[NW] :"
+NODE_ENDPOINTS_ENV_VAR = "NW_NODE_ENDPOINTS"
 
 BASE_TICK_SECONDS = 1.0
 BASE_AGENT_POLL_SECONDS = 1.0
@@ -28,6 +32,20 @@ NODE_ENDPOINTS = {
     "r1b": (DEFAULT_HOST, RELAY_R1B_PORT),
     "r2b": (DEFAULT_HOST, RELAY_R2B_PORT),
 }
+
+
+def runtime_node_endpoints() -> dict[str, tuple[str, int]]:
+    raw = os.environ.get(NODE_ENDPOINTS_ENV_VAR)
+    if not raw:
+        return dict(NODE_ENDPOINTS)
+    parsed = json.loads(raw)
+    endpoints: dict[str, tuple[str, int]] = {}
+    for node_id, value in parsed.items():
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError(f"invalid node endpoint for {node_id}: {value!r}")
+        host, port = value
+        endpoints[str(node_id)] = (str(host), int(port))
+    return endpoints
 
 ROLE_TO_NODE_ID = {
     "host": "host-simulator",

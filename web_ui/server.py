@@ -6,6 +6,7 @@ import json
 import os
 import secrets
 import signal
+import socket
 import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -21,6 +22,9 @@ from nw_demo.system import LocalProcessSupervisor
 
 CONTROL_TOKEN_ENV_VAR = "NW_CONTROL_TOKEN"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+POWER_START_LOCK_SECONDS = 6.0
+POWER_STOP_LOCK_SECONDS = 4.0
+POWER_STOP_DRAIN_SECONDS = 1.5
 
 
 class WebRuntime:
@@ -33,6 +37,7 @@ class WebRuntime:
         web_port: int,
         control_token: str,
         start_roles: bool,
+        dynamic_node_ports: bool,
     ) -> None:
         self.control_host = control_host
         self.control_port = control_port
@@ -40,19 +45,25 @@ class WebRuntime:
         self.web_port = web_port
         self.control_token = control_token
         self.start_roles = start_roles
+        self.dynamic_node_ports = dynamic_node_ports and start_roles
+        self.node_endpoints = allocate_node_endpoints(control_host) if self.dynamic_node_ports else config.runtime_node_endpoints()
         self.controller = ControllerUI(
             control_host=control_host,
             control_port=control_port,
-            node_endpoints=config.NODE_ENDPOINTS,
+            node_endpoints=self.node_endpoints,
             control_token=control_token,
             public_external_control=False,
         )
-        self.supervisor = LocalProcessSupervisor(control_host, control_port, control_token) if start_roles else None
+        self.supervisor = (
+            LocalProcessSupervisor(control_host, control_port, control_token, node_endpoints=self.node_endpoints) if start_roles else None
+        )
         self.loop: asyncio.AbstractEventLoop | None = None
         self.control_server: asyncio.AbstractServer | None = None
         self.http_server: ThreadingHTTPServer | None = None
         self.http_thread: threading.Thread | None = None
         self._stop_event = asyncio.Event()
+        self._power_lock: asyncio.Lock = asyncio.Lock()
+        self._power_transition_until: float = 0.0
 
     async def start(self) -> None:
         self.loop = asyncio.get_running_loop()
@@ -100,13 +111,55 @@ class WebRuntime:
             self.loop.call_soon_threadsafe(self._stop_event.set)
 
     def snapshot(self) -> dict[str, Any]:
-        return self.controller.runtime_state_snapshot()
+        snapshot = self.controller.runtime_state_snapshot()
+        node_power = self.node_power_status()
+        if node_power["state"] == "stopped":
+            for node in snapshot.get("nodes", []):
+                if isinstance(node, dict):
+                    node["observed_liveness"] = "offline"
+                    node["note"] = "Web UI 전원 꺼짐"
+        snapshot["node_power"] = node_power
+        return snapshot
+
+    def node_power_status(self) -> dict[str, Any]:
+        now = self.loop.time() if self.loop is not None else 0.0
+        if self.supervisor is None:
+            state = "external"
+        elif self._power_transition_until > now:
+            state = "transitioning"
+        elif self.supervisor.is_running():
+            state = "running"
+        else:
+            state = "stopped"
+        return {
+            "state": state,
+            "can_control": self.supervisor is not None,
+            "lock_remaining_sec": max(0.0, self._power_transition_until - now),
+            "dynamic_ports": self.dynamic_node_ports,
+            "node_endpoints": endpoint_payload(self.node_endpoints),
+        }
+
+    def node_port_conflicts(self) -> list[dict[str, Any]]:
+        conflicts: list[dict[str, Any]] = []
+        for node_id, endpoint in self.node_endpoints.items():
+            host, port = endpoint
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                probe.settimeout(0.2)
+                if probe.connect_ex((host, port)) == 0:
+                    conflicts.append({"node_id": node_id, "host": host, "port": port})
+        return conflicts
 
     def submit_command_line(self, line: str) -> dict[str, Any]:
         if self.loop is None:
             return {"ok": False, "reason": "runtime_not_started"}
         future = asyncio.run_coroutine_threadsafe(self._submit_command_line(line), self.loop)
         return future.result(timeout=3.0)
+
+    def set_node_power(self, action: str) -> dict[str, Any]:
+        if self.loop is None:
+            return {"ok": False, "reason": "runtime_not_started"}
+        future = asyncio.run_coroutine_threadsafe(self._set_node_power(action), self.loop)
+        return future.result(timeout=POWER_START_LOCK_SECONDS + POWER_STOP_LOCK_SECONDS)
 
     async def _submit_command_line(self, line: str) -> dict[str, Any]:
         requests, should_exit, local_message = build_requests(line)
@@ -118,6 +171,37 @@ class WebRuntime:
         if should_exit:
             self._stop_event.set()
         return {"ok": True, "command": line, "should_exit": should_exit}
+
+    async def _set_node_power(self, action: str) -> dict[str, Any]:
+        if self.supervisor is None:
+            return {"ok": False, "reason": "supervisor_disabled", "node_power": self.node_power_status()}
+        if action not in {"start", "stop"}:
+            return {"ok": False, "reason": "invalid_action", "node_power": self.node_power_status()}
+        async with self._power_lock:
+            now = self.loop.time() if self.loop is not None else 0.0
+            if self._power_transition_until > now:
+                return {"ok": False, "reason": "transition_in_progress", "node_power": self.node_power_status()}
+            if action == "start":
+                if not self.supervisor.is_running():
+                    conflicts = self.node_port_conflicts()
+                    if conflicts:
+                        self.controller._record_activity("Web UI 전원 버튼: node port 점유로 시작을 중단했습니다", "system")
+                        return {
+                            "ok": False,
+                            "reason": "port_conflict",
+                            "conflicts": conflicts,
+                            "node_power": self.node_power_status(),
+                        }
+                self._power_transition_until = now + POWER_START_LOCK_SECONDS
+                await self.supervisor.start()
+                self.controller._record_activity("Web UI 전원 버튼: node role 프로세스를 시작했습니다", "system")
+                return {"ok": True, "action": action, "lock_sec": POWER_START_LOCK_SECONDS, "node_power": self.node_power_status()}
+
+            self._power_transition_until = now + POWER_STOP_LOCK_SECONDS
+            await asyncio.sleep(POWER_STOP_DRAIN_SECONDS)
+            await self.supervisor.stop()
+            self.controller._record_activity("Web UI 전원 버튼: node role 프로세스를 안전 종료했습니다", "system")
+            return {"ok": True, "action": action, "lock_sec": POWER_STOP_LOCK_SECONDS, "node_power": self.node_power_status()}
 
 
 def make_handler(runtime: WebRuntime):
@@ -139,6 +223,9 @@ def make_handler(runtime: WebRuntime):
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+            if parsed.path == "/api/power":
+                self._handle_power_post()
+                return
             if parsed.path != "/api/control":
                 self._send_json({"ok": False, "reason": "not_found"}, HTTPStatus.NOT_FOUND)
                 return
@@ -152,6 +239,21 @@ def make_handler(runtime: WebRuntime):
                 return
             try:
                 result = runtime.submit_command_line(line.strip())
+            except Exception as error:
+                result = {"ok": False, "reason": str(error)}
+            self._send_json(result, HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST)
+
+        def _handle_power_post(self) -> None:
+            payload = self._read_json_body()
+            if not isinstance(payload, dict):
+                self._send_json({"ok": False, "reason": "invalid_json"}, HTTPStatus.BAD_REQUEST)
+                return
+            action = payload.get("action")
+            if not isinstance(action, str):
+                self._send_json({"ok": False, "reason": "missing_action"}, HTTPStatus.BAD_REQUEST)
+                return
+            try:
+                result = runtime.set_node_power(action.strip().lower())
             except Exception as error:
                 result = {"ok": False, "reason": str(error)}
             self._send_json(result, HTTPStatus.OK if result.get("ok") else HTTPStatus.BAD_REQUEST)
@@ -203,7 +305,32 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--control-token", default=None)
     parser.add_argument("--duration", type=float, default=None)
     parser.add_argument("--no-supervisor", action="store_true", help="Do not start local node role processes.")
+    parser.add_argument(
+        "--fixed-node-ports",
+        action="store_true",
+        help="Use documented fixed node ports instead of allocating free ports for the supervised Web UI runtime.",
+    )
     return parser.parse_args()
+
+
+def allocate_node_endpoints(host: str) -> dict[str, tuple[str, int]]:
+    endpoints: dict[str, tuple[str, int]] = {}
+    sockets: list[socket.socket] = []
+    try:
+        for node_id in config.NODE_ORDER:
+            reserved = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            reserved.bind((host, 0))
+            reserved.listen(1)
+            sockets.append(reserved)
+            endpoints[node_id] = (host, reserved.getsockname()[1])
+    finally:
+        for reserved in sockets:
+            reserved.close()
+    return endpoints
+
+
+def endpoint_payload(endpoints: dict[str, tuple[str, int]]) -> dict[str, dict[str, int | str]]:
+    return {node_id: {"host": host, "port": port} for node_id, (host, port) in endpoints.items()}
 
 
 async def async_main() -> None:
@@ -216,6 +343,7 @@ async def async_main() -> None:
         web_port=args.web_port,
         control_token=control_token,
         start_roles=not args.no_supervisor,
+        dynamic_node_ports=not args.fixed_node_ports,
     )
     loop = asyncio.get_running_loop()
     for signum in (signal.SIGINT, signal.SIGTERM):

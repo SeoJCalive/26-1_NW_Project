@@ -158,7 +158,7 @@ def main() -> None:
                 f"Standalone role '{node_id}'는 control token이 필요합니다. --control-token, NW_CONTROL_TOKEN 또는 --allow-unauthenticated-control을 사용하세요."
             )
         set_process_label(node_id)
-        default_host, default_port = config.NODE_ENDPOINTS[node_id]
+        default_host, default_port = config.runtime_node_endpoints()[node_id]
         asyncio.run(
             run_role(
                 role=args.role,
