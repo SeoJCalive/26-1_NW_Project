@@ -155,6 +155,7 @@
 - 일반 Web UI supervisor mode는 node role process의 listen port를 빈 포트로 동적 할당한다. Web UI controller와 child role들은 같은 endpoint map을 공유하므로, fixed `9101-9107` 점유와 충돌하지 않는다. 문서화된 fixed port가 필요하면 `--fixed-node-ports`를 명시한다.
 - node 전원 전환은 중복 클릭을 막기 위해 start 약 `6s`, stop 약 `4s`의 transition lock을 둔다.
 - fixed node port mode에서 node 전원을 켤 때는 해당 node listen port가 이미 점유되어 있는지 먼저 확인하고, 점유가 있으면 partial startup을 시도하지 않고 `port_conflict`로 거부한다.
+- explicit node 전원 lifecycle이 `stopped` 또는 `transitioning`이면 Web UI overview SVG path는 stale `detail.traffic`을 현재 흐름처럼 표시하지 않고 각각 `전원 꺼짐` / `전원 전환 중`의 inactive path로 표시한다. 이때 `/api/state`와 detail inspector의 node-authored `detail.traffic` snapshot은 보존한다.
 - frontend visual structure는 `docs/reference/ui-preview/WEB_UI_SPEC.md`와 `docs/reference/ui-preview/preview.revised.jsx`를 따른다.
 - runtime 연결을 붙인다는 이유로 preview의 diagram canvas, node card, SVG path, in-canvas detail inspector, palette, typography를 임의로 다른 dashboard로 재설계하지 않는다.
 - visual structure를 바꾸려면 먼저 `WEB_UI_SPEC.md`와 `INTENT_ALIGNMENT_NOTE.md`를 갱신해 기준 변경을 명시한다.
