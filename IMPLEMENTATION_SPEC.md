@@ -156,6 +156,8 @@
 - node 전원 전환은 중복 클릭을 막기 위해 start 약 `6s`, stop 약 `4s`의 transition lock을 둔다.
 - fixed node port mode에서 node 전원을 켤 때는 해당 node listen port가 이미 점유되어 있는지 먼저 확인하고, 점유가 있으면 partial startup을 시도하지 않고 `port_conflict`로 거부한다.
 - explicit node 전원 lifecycle이 `stopped` 또는 `transitioning`이면 Web UI overview SVG path는 stale `detail.traffic`을 현재 흐름처럼 표시하지 않고 각각 `전원 꺼짐` / `전원 전환 중`의 inactive path로 표시한다. 이때 `/api/state`와 detail inspector의 node-authored `detail.traffic` snapshot은 보존한다.
+- Web UI overview SVG path는 raw `hop_state`가 `acknowledged`인 성공 link라도 최근 `detail.traffic.recent` 안에 `request_sent` 또는 `request_received` capture가 있으면 짧은 recent-transfer afterglow를 표시할 수 있다. 이 효과는 표시 전용이며 `data-hop-state`, API payload, detail inspector traffic truth를 바꾸지 않는다.
+- Web UI overview SVG path는 endpoint `observed_liveness`에서 파생한 frontend-only link-endpoint freshness overlay를 추가할 수 있다. 이 overlay는 `data-link-freshness` / `data-link-freshness-overlay` DOM 표시 축만 추가하며, 새 API field를 만들지 않고 `data-hop-state`, API payload, detail inspector traffic truth를 바꾸지 않으며, active/warn/down/inactive/muted 또는 lifecycle stopped/transitioning 표시를 숨기지 않는다.
 - frontend visual structure는 `docs/reference/ui-preview/WEB_UI_SPEC.md`와 `docs/reference/ui-preview/preview.revised.jsx`를 따른다.
 - runtime 연결을 붙인다는 이유로 preview의 diagram canvas, node card, SVG path, in-canvas detail inspector, palette, typography를 임의로 다른 dashboard로 재설계하지 않는다.
 - visual structure를 바꾸려면 먼저 `WEB_UI_SPEC.md`와 `INTENT_ALIGNMENT_NOTE.md`를 갱신해 기준 변경을 명시한다.

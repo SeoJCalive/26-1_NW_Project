@@ -222,6 +222,8 @@ SVG data path는 고정 이미지가 아니라 각 link 양끝 node의 `detail.t
 양끝 node가 서로 다른 `hop_state`를 보고하면 더 위험한 상태를 우선해 link tone을 정한다.
 라벨 문구는 각 link의 역할과 상태를 함께 드러내야 한다. 예: `상태 수집 완료`, `EVENT 전달 중`, `R2 ACK 대기`, `Monitor 재전송 중`, `ACK 드롭`, `응답 시간초과`, `상태 확인 중`.
 
+Endpoint freshness는 `hop_state`와 별도 표시 축이다. Web UI overview SVG path는 양끝 node의 기존 `observed_liveness`만 읽어 `data-link-freshness="fresh|stale|offline|unknown"`와 `data-link-freshness-overlay="true|false"`를 둘 수 있다. 이 값은 새 API field가 아니며 raw `data-hop-state`, route projection, detail inspector traffic truth를 바꾸지 않는다. Stale/offline overlay는 lifecycle override가 없고 최종 표시 tone이 `ok` 또는 `idle`인 neutral link에만 적용하며, `active`, `warn`, `down`, `inactive`, `muted` link의 기존 의미와 라벨을 숨기지 않는다.
+
 ### 8.1 카드 영역
 
 카드에서는 아래 수준만 보여준다.
