@@ -1,0 +1,358 @@
+{
+  "results": [
+    {
+      "case": "fresh-afterglow",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "fresh",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "true",
+        "label": "EVENT 전달 완료",
+        "title": "EVENT 전달 완료: raw=acknowledged/ok, route=true, overview=ok, freshness=fresh/no-overlay, recent=request_sent/forward_event",
+        "markerEnd": "url(#arrow-green)",
+        "pathFlow": false,
+        "stroke": "rgb(16, 185, 129)",
+        "dasharray": "14px, 10px",
+        "labelFill": "rgba(236, 253, 245, 0.94)"
+      },
+      "expected": {
+        "linkFreshness": "fresh",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "true",
+        "label": "EVENT 전달 완료",
+        "hopTone": "ok"
+      },
+      "pass": true
+    },
+    {
+      "case": "kill-requested-fresh",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "fresh",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "EVENT 전달 완료",
+        "title": "EVENT 전달 완료: raw=acknowledged/ok, route=true, overview=ok, freshness=fresh/no-overlay",
+        "markerEnd": "url(#arrow-green)",
+        "pathFlow": false,
+        "stroke": "rgb(16, 185, 129)",
+        "dasharray": "none",
+        "labelFill": "rgba(236, 253, 245, 0.94)"
+      },
+      "expected": {
+        "linkFreshness": "fresh",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "EVENT 전달 완료",
+        "hopTone": "ok"
+      },
+      "pass": true
+    },
+    {
+      "case": "stale-neutral",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "true",
+        "recentTransfer": "false",
+        "label": "최근 상태 없음",
+        "title": "최근 상태 없음: raw=acknowledged/ok, route=true, overview=ok, freshness=stale/overlay",
+        "markerEnd": "url(#arrow-green)",
+        "pathFlow": false,
+        "stroke": "rgb(100, 116, 139)",
+        "dasharray": "10px, 10px",
+        "labelFill": "rgba(241, 245, 249, 0.96)"
+      },
+      "expected": {
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "hopTone": "ok",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "true",
+        "recentTransfer": "false",
+        "label": "최근 상태 없음"
+      },
+      "pass": true
+    },
+    {
+      "case": "offline-neutral",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "true",
+        "recentTransfer": "false",
+        "label": "엔드포인트 오프라인",
+        "title": "엔드포인트 오프라인: raw=acknowledged/ok, route=true, overview=ok, freshness=offline/overlay",
+        "markerEnd": "url(#arrow-green)",
+        "pathFlow": false,
+        "stroke": "rgb(71, 85, 105)",
+        "dasharray": "3px, 9px",
+        "labelFill": "rgba(226, 232, 240, 0.96)"
+      },
+      "expected": {
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "hopTone": "ok",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "true",
+        "recentTransfer": "false",
+        "label": "엔드포인트 오프라인"
+      },
+      "pass": true
+    },
+    {
+      "case": "unknown-endpoint",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "unknown",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "EVENT 전달 완료",
+        "title": "EVENT 전달 완료: raw=acknowledged/ok, route=true, overview=ok, freshness=unknown/no-overlay",
+        "markerEnd": "url(#arrow-green)",
+        "pathFlow": false,
+        "stroke": "rgb(16, 185, 129)",
+        "dasharray": "none",
+        "labelFill": "rgba(236, 253, 245, 0.94)"
+      },
+      "expected": {
+        "linkFreshness": "unknown",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "EVENT 전달 완료",
+        "hopTone": "ok"
+      },
+      "pass": true
+    },
+    {
+      "case": "active-preserved",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "request_sent",
+        "rawHopTone": "active",
+        "routeActive": "true",
+        "hopTone": "active",
+        "displayHopState": "request_sent",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "EVENT 전달 중",
+        "title": "EVENT 전달 중: raw=request_sent/active, route=true, overview=active, freshness=stale/no-overlay",
+        "markerEnd": "url(#arrow-blue)",
+        "pathFlow": true,
+        "stroke": "rgb(14, 165, 233)",
+        "dasharray": "10px, 8px",
+        "labelFill": "rgba(240, 249, 255, 0.94)"
+      },
+      "expected": {
+        "hopTone": "active",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "label": "EVENT 전달 중"
+      },
+      "pass": true
+    },
+    {
+      "case": "warn-preserved",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "retrying",
+        "rawHopTone": "warn",
+        "routeActive": "true",
+        "hopTone": "warn",
+        "displayHopState": "retrying",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "R1 재전송 중",
+        "title": "R1 재전송 중: raw=retrying/warn, route=true, overview=warn, freshness=offline/no-overlay",
+        "markerEnd": "url(#arrow-orange)",
+        "pathFlow": true,
+        "stroke": "rgb(249, 115, 22)",
+        "dasharray": "8px, 7px",
+        "labelFill": "rgba(255, 247, 237, 0.96)"
+      },
+      "expected": {
+        "hopTone": "warn",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "label": "R1 재전송 중"
+      },
+      "pass": true
+    },
+    {
+      "case": "down-preserved",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "timeout",
+        "rawHopTone": "down",
+        "routeActive": "true",
+        "hopTone": "down",
+        "displayHopState": "timeout",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "응답 시간초과",
+        "title": "응답 시간초과: raw=timeout/down, route=true, overview=down, freshness=offline/no-overlay",
+        "markerEnd": "url(#arrow-red)",
+        "pathFlow": false,
+        "stroke": "rgb(239, 68, 68)",
+        "dasharray": "2px, 10px",
+        "labelFill": "rgba(254, 242, 242, 0.96)"
+      },
+      "expected": {
+        "hopTone": "down",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "label": "응답 시간초과"
+      },
+      "pass": true
+    },
+    {
+      "case": "inactive-preserved",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "false",
+        "hopTone": "inactive",
+        "displayHopState": "acknowledged",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "비활성 경로",
+        "title": "비활성 경로: raw=acknowledged/ok, route=false, overview=inactive, freshness=stale/no-overlay",
+        "markerEnd": "url(#arrow-gray)",
+        "pathFlow": false,
+        "stroke": "rgb(100, 116, 139)",
+        "dasharray": "4px, 10px",
+        "labelFill": "rgba(241, 245, 249, 0.96)"
+      },
+      "expected": {
+        "hopTone": "inactive",
+        "routeActive": "false",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "label": "비활성 경로"
+      },
+      "pass": true
+    },
+    {
+      "case": "muted-preserved",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "paused",
+        "rawHopTone": "muted",
+        "routeActive": "true",
+        "hopTone": "muted",
+        "displayHopState": "paused",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "정지",
+        "title": "정지: raw=paused/muted, route=true, overview=muted, freshness=offline/no-overlay",
+        "markerEnd": "url(#arrow-gray)",
+        "pathFlow": false,
+        "stroke": "rgb(148, 163, 184)",
+        "dasharray": "12px, 9px",
+        "labelFill": "rgba(248, 250, 252, 0.92)"
+      },
+      "expected": {
+        "hopTone": "muted",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "label": "정지"
+      },
+      "pass": true
+    },
+    {
+      "case": "lifecycle-stopped",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "lifecycle",
+        "hopTone": "inactive",
+        "displayHopState": "stopped",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "전원 꺼짐",
+        "title": "전원 꺼짐: raw=acknowledged/ok, route=lifecycle, overview=inactive, freshness=offline/no-overlay",
+        "markerEnd": "url(#arrow-gray)",
+        "pathFlow": false,
+        "stroke": "rgb(100, 116, 139)",
+        "dasharray": "4px, 10px",
+        "labelFill": "rgba(241, 245, 249, 0.96)"
+      },
+      "expected": {
+        "displayHopState": "stopped",
+        "hopTone": "inactive",
+        "linkFreshness": "offline",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "전원 꺼짐"
+      },
+      "pass": true
+    },
+    {
+      "case": "lifecycle-transitioning",
+      "actual": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "lifecycle",
+        "hopTone": "inactive",
+        "displayHopState": "transitioning",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "전원 전환 중",
+        "title": "전원 전환 중: raw=acknowledged/ok, route=lifecycle, overview=inactive, freshness=stale/no-overlay",
+        "markerEnd": "url(#arrow-gray)",
+        "pathFlow": false,
+        "stroke": "rgb(100, 116, 139)",
+        "dasharray": "4px, 10px",
+        "labelFill": "rgba(241, 245, 249, 0.96)"
+      },
+      "expected": {
+        "displayHopState": "transitioning",
+        "hopTone": "inactive",
+        "linkFreshness": "stale",
+        "linkFreshnessOverlay": "false",
+        "recentTransfer": "false",
+        "label": "전원 전환 중"
+      },
+      "pass": true
+    }
+  ],
+  "console": [
+    "error: Failed to load resource: the server responded with a status of 404 (File not found)"
+  ],
+  "page_errors": []
+}

@@ -1,0 +1,3 @@
+PASS: temporary Python ThreadingHTTPServer used an ephemeral localhost port and closed via context manager after Playwright run.
+PASS: browser.close() executed before script exit.
+PASS: no long-lived QA server was started.
