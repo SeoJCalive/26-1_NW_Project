@@ -1,0 +1,7 @@
+PASS scope guard (non-git workspace)
+git status is unavailable because this directory is not a git repository.
+Implementation edits were limited to allowed source/context files:
+- docs/reference/ui-preview/preview.revised.jsx
+- AI_IMPLEMENTATION_BRIEF.md
+Generated verification evidence under .sisyphus/evidence/.
+No Python runtime, TUI, package, API, WebSocket, gateway, or root-new markdown file was intentionally modified.

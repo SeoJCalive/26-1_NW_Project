@@ -1,0 +1,3 @@
+PASS static preview checks
+forbidden strings absent
+required slot hooks present

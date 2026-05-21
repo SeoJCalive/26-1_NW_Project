@@ -1,0 +1,4 @@
+PASS rendered preview checks
+five graph nodes present
+page chrome present outside graph
+fixed dashboard slots present
