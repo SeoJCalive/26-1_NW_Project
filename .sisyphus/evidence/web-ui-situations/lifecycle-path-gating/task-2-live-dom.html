@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="ko"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NW Runtime Web UI</title>
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="summary-card" aria-label="runtime summary">
+        <div>
+          <h1>NET-DEMO Runtime · Node-first Dashboard</h1>
+          <p>liveness lamp / reported state / traffic activity 분리</p>
+        </div>
+        <div id="summary-metrics" class="summary-metrics" aria-live="polite"><div class="summary-metric"><span>관찰 노드</span><strong>7</strong></div><div class="summary-metric"><span>연결됨</span><strong>7</strong></div><div class="summary-metric"><span>retry</span><strong>0</strong></div><div class="summary-metric"><span>duplicate</span><strong>0</strong></div></div>
+      </header>
+
+      <main class="main-stack">
+        <section class="diagram-card" aria-label="구조 다이어그램">
+          <div class="diagram-heading">
+            <h2>구조 다이어그램</h2>
+            <button id="node-power-button" class="node-power-button" type="button" aria-label="노드 전원 제어" data-power-state="running">
+              <span class="power-icon" aria-hidden="true"></span>
+              <span class="power-copy">
+                <strong id="node-power-label">노드 끄기</strong>
+                <small id="node-power-hint">전체 7개 실행 중 · 유동 포트</small>
+              </span>
+            </button>
+          </div>
+          <div class="diagram-scroll">
+            <div id="diagram-canvas" class="diagram-canvas" data-testid="diagram-overlay-host">
+              <svg id="data-path-svg" class="data-path-svg" viewBox="0 0 1460 700" fill="none" aria-hidden="true">
+                <defs>
+                  <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#0ea5e9"></path>
+                  </marker>
+                  <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"></path>
+                  </marker>
+                  <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#10b981"></path>
+                  </marker>
+                  <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#f97316"></path>
+                  </marker>
+                  <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"></path>
+                  </marker>
+                </defs>
+                <g id="data-path" data-testid="data-path"><g data-link-id="host-agent" data-hop-state="acknowledged" data-raw-hop-tone="ok" data-route-active="shared" data-hop-tone="ok"><title>상태 수집 완료: raw=acknowledged/ok, route=shared, overview=ok</title><path d="M 163 164 C 306 164, 306 319, 448 319" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 163 164 C 306 164, 306 319, 448 319" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-green)"></path><g class="path-status-label" transform="translate(306, 220)"><rect y="-14" height="24" rx="12" x="-43" width="86"></rect><text text-anchor="middle" dominant-baseline="middle">상태 수집 완료</text></g></g><g data-link-id="agent-r1" data-hop-state="request_received" data-raw-hop-tone="active" data-route-active="true" data-hop-tone="active"><title>EVENT 전달 중: raw=request_received/active, route=true, overview=active</title><path d="M 448 319 C 593 319, 593 319, 738 319" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 448 319 C 593 319, 593 319, 738 319" class="path-line path-flow" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-blue)"></path><g class="path-status-label" transform="translate(593, 295)"><rect y="-14" height="24" rx="12" x="-45.5" width="91"></rect><text text-anchor="middle" dominant-baseline="middle">EVENT 전달 중</text></g></g><g data-link-id="r1-r2" data-hop-state="acknowledged" data-raw-hop-tone="ok" data-route-active="true" data-hop-tone="ok"><title>EVENT 중계 완료: raw=acknowledged/ok, route=true, overview=ok</title><path d="M 738 319 C 883 319, 883 219, 1028 219" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 738 319 C 883 319, 883 219, 1028 219" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-green)"></path><g class="path-status-label" transform="translate(883, 241)"><rect y="-14" height="24" rx="12" x="-50.5" width="101"></rect><text text-anchor="middle" dominant-baseline="middle">EVENT 중계 완료</text></g></g><g data-link-id="r2-monitor" data-hop-state="acknowledged" data-raw-hop-tone="ok" data-route-active="true" data-hop-tone="ok"><title>Monitor 전달 완료: raw=acknowledged/ok, route=true, overview=ok</title><path d="M 1028 219 C 1163 219, 1163 164, 1298 164" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 1028 219 C 1163 219, 1163 164, 1298 164" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-green)"></path><g class="path-status-label" transform="translate(1163, 162)"><rect y="-14" height="24" rx="12" x="-54" width="108"></rect><text text-anchor="middle" dominant-baseline="middle">Monitor 전달 완료</text></g></g><g data-link-id="agent-r1b" data-hop-state="unknown" data-raw-hop-tone="muted" data-route-active="false" data-hop-tone="muted"><title>상태 확인 중: raw=unknown/muted, route=false, overview=muted</title><path d="M 448 319 C 593 319, 593 524, 738 524" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 448 319 C 593 319, 593 524, 738 524" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-gray)"></path><g class="path-status-label" transform="translate(593, 456)"><rect y="-14" height="24" rx="12" x="-38" width="76"></rect><text text-anchor="middle" dominant-baseline="middle">상태 확인 중</text></g></g><g data-link-id="r1b-r2b" data-hop-state="unknown" data-raw-hop-tone="muted" data-route-active="false" data-hop-tone="muted"><title>상태 확인 중: raw=unknown/muted, route=false, overview=muted</title><path d="M 738 524 C 883 524, 883 524, 1028 524" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 738 524 C 883 524, 883 524, 1028 524" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-gray)"></path><g class="path-status-label" transform="translate(883, 558)"><rect y="-14" height="24" rx="12" x="-38" width="76"></rect><text text-anchor="middle" dominant-baseline="middle">상태 확인 중</text></g></g><g data-link-id="r2b-monitor" data-hop-state="unknown" data-raw-hop-tone="muted" data-route-active="false" data-hop-tone="muted"><title>상태 확인 중: raw=unknown/muted, route=false, overview=muted</title><path d="M 1028 524 C 1163 524, 1163 164, 1298 164" class="path-halo" stroke-width="18" stroke-linecap="round"></path><path d="M 1028 524 C 1163 524, 1163 164, 1298 164" class="path-line" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-gray)"></path><g class="path-status-label" transform="translate(1163, 378)"><rect y="-14" height="24" rx="12" x="-38" width="76"></rect><text text-anchor="middle" dominant-baseline="middle">상태 확인 중</text></g></g></g>
+              </svg>
+              <div class="path-label">primary + backup data-plane chain</div>
+              <div id="node-layer" class="node-layer"><button type="button" class="node-card" data-testid="node-card-host-simulator" data-node-id="host-simulator" style="left: 80px; top: 100px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">호스트 시뮬레이터</div>
+        <div class="node-role-line">Host Simulator</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>CPU</span><span>22%</span></div><div class="node-info-row"><span>메모리</span><span>45%</span></div>
+      </div>
+    </button><button type="button" class="node-card is-selected" data-testid="node-card-local-agent" data-node-id="local-agent" style="left: 365px; top: 255px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">로컬 에이전트</div>
+        <div class="node-role-line">Local Agent</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>입력</span><span>ok</span></div><div class="node-info-row"><span>fault</span><span>—</span></div>
+      </div>
+    </button><button type="button" class="node-card" data-testid="node-card-r1" data-node-id="r1" style="left: 655px; top: 255px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">릴레이 R1</div>
+        <div class="node-role-line">Relay</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>ACK 대기 수</span><span>0</span></div><div class="node-info-row"><span>retry</span><span>0</span></div>
+      </div>
+    </button><button type="button" class="node-card" data-testid="node-card-r2" data-node-id="r2" style="left: 945px; top: 155px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">릴레이 R2</div>
+        <div class="node-role-line">Relay</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>ACK 대기 수</span><span>0</span></div><div class="node-info-row"><span>retry</span><span>0</span></div>
+      </div>
+    </button><button type="button" class="node-card" data-testid="node-card-monitor" data-node-id="monitor" style="left: 1215px; top: 100px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">모니터</div>
+        <div class="node-role-line">Monitor</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>logged</span><span>1</span></div><div class="node-info-row"><span>duplicate</span><span>0</span></div>
+      </div>
+    </button><button type="button" class="node-card" data-testid="node-card-r1b" data-node-id="r1b" style="left: 655px; top: 460px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">릴레이 R1B</div>
+        <div class="node-role-line">Relay</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>ACK 대기 수</span><span>0</span></div><div class="node-info-row"><span>retry</span><span>0</span></div>
+      </div>
+    </button><button type="button" class="node-card" data-testid="node-card-r2b" data-node-id="r2b" style="left: 945px; top: 460px;">
+      <div class="node-card-top">
+        <span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span>
+        <span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span>
+      </div>
+      <div class="node-title-block">
+        <div class="node-name">릴레이 R2B</div>
+        <div class="node-role-line">Relay</div>
+      </div>
+      <div class="node-info-box">
+        <div class="node-info-row"><span>ACK 대기 수</span><span>0</span></div><div class="node-info-row"><span>retry</span><span>0</span></div>
+      </div>
+    </button></div>
+              <aside id="detail-inspector" class="detail-inspector-overlay" data-testid="node-detail-inspector" data-overlay="diagram" data-detail-state="open">
+                <div id="detail-inspector-inner" class="detail-inspector-inner">
+    <div class="detail-header">
+      <div class="detail-header-top">
+        <div>
+          <div class="detail-eyebrow">SELECTED NODE · local-agent</div>
+          <h2>로컬 에이전트</h2>
+        </div>
+        <button id="detail-close-button" class="detail-close" type="button" aria-label="close detail inspector">X</button>
+      </div>
+      <div class="detail-meta">
+        <span>role · Local Agent</span>
+        <span><span class="lamp-wrap state-lamp" data-reported-state-tone="running"><i class="lamp is-running"></i>실행 중</span></span>
+        <span><span class="lamp-wrap connection-lamp" data-liveness-state="live" data-connection-tone="connected"><i class="lamp is-connected"></i>연결됨</span></span>
+        <span>last_seen · 1.9s ago</span>
+      </div>
+    </div>
+    <div class="detail-body"><section class="detail-section"><h3>Host Input</h3><div class="detail-section-content"><div class="key-value-box"><div class="key-value-row"><span>cpu_usage</span><span>26</span></div><div class="key-value-row"><span>fault_mode</span><span>NORMAL</span></div><div class="key-value-row"><span>host_id</span><span>host-1</span></div><div class="key-value-row"><span>last_update_time</span><span>2026-05-21T14:22:39+00:00</span></div><div class="key-value-row"><span>latency_ms</span><span>36</span></div><div class="key-value-row"><span>latency_state</span><span>NORMAL</span></div><div class="key-value-row"><span>memory_usage</span><span>48</span></div><div class="key-value-row"><span>service_state</span><span>UP</span></div></div></div></section><section class="detail-section"><h3>Input Result / Fault</h3><div class="detail-section-content"><div class="key-value-box"><div class="key-value-row"><span>latest_input_result</span><span>{"source":"host","status":"ok"}</span></div><div class="key-value-row"><span>detected_fault</span><span>—</span></div></div></div></section><section class="detail-section"><h3>Emitted Event</h3><div class="detail-section-content"><div class="key-value-box"><div class="key-value-row"><span>msg_type</span><span>EVENT</span></div><div class="key-value-row"><span>event_id</span><span>evt-host-1-1</span></div><div class="key-value-row"><span>seq_no</span><span>1</span></div><div class="key-value-row"><span>host_id</span><span>host-1</span></div><div class="key-value-row"><span>agent_id</span><span>agent-1</span></div><div class="key-value-row"><span>event_type</span><span>HOST_STATE_UPDATE</span></div><div class="key-value-row"><span>severity</span><span>INFO</span></div><div class="key-value-row"><span>timestamp</span><span>2026-05-21T14:22:40+00:00</span></div><div class="key-value-row"><span>payload.cpu</span><span>26</span></div><div class="key-value-row"><span>payload.memory</span><span>48</span></div><div class="key-value-row"><span>payload.service_state</span><span>UP</span></div><div class="key-value-row"><span>payload.latency_ms</span><span>36</span></div><div class="key-value-row"><span>payload.fault_mode</span><span>NORMAL</span></div></div></div></section><section class="detail-section"><h3>Downstream / Last Event</h3><div class="detail-section-content"><div class="key-value-box"><div class="key-value-row"><span>downstream_result</span><span>{"ack":{"ack_for":"evt-host-1-1","from_node":"r1","msg_type":"ACK","timestamp":"2026-05-21T14:22:43+00:00"},"active_route":"primary","event_id":"evt-host-1-1","status":"acknowledged"}</span></div><div class="key-value-row"><span>last_event</span><span>{"agent_id":"agent-1","event_id":"evt-host-1-1","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":26,"fault_mode":"NORMAL","latency_ms":36,"memory":48,"service_state":"UP"},"route_trace":[{"attempt_no":1,"failure_reason":null,"from_node":"local-agent","phase":"event_forward","result":"acknowledged","route_id":"primary","timestamp":"2026-05-21T14:22:43+00:00","to_node":"r1"}],"routing":{"active_route":"primary","failed_hop":null,"reroute_reason":null,"route_state":"PRIMARY","suspected_node":null},"seq_no":1,"severity":"INFO","timestamp":"2026-05-21T14:22:40+00:00"}</span></div></div></div></section><section class="detail-section"><h3>Traffic Snapshot</h3><div class="detail-section-content"><div class="key-value-box"><div class="key-value-row"><span>capture_seq</span><span>4</span></div><div class="key-value-row"><span>captured_at</span><span>2026-05-21T14:22:43+00:00</span></div></div><div class="traffic-peers"><div><div class="key-value-box"><div class="key-value-row"><span>previous_peer</span><span>—</span></div><div class="key-value-row"><span>node</span><span>host-simulator</span></div><div class="key-value-row"><span>role</span><span>host</span></div><div class="key-value-row"><span>hop_state</span><span>acknowledged</span></div><div class="key-value-row"><span>failure_reason</span><span>—</span></div><div class="key-value-row"><span>last_received</span><span>{"attempt_no":null,"captured_at":"2026-05-21T14:22:40+00:00","logical_id":"get_host_state","original_size":null,"payload":{"host_state":{"cpu_usage":26,"fault_mode":"NORMAL","host_id":"host-1","last_update_time":"2026-05-21T14:22:39+00:00","latency_ms":36,"latency_state":"NORMAL","memory_usage":48,"service_state":"UP"},"kind":"host_state"},"phase":"host_response","preview":null,"truncated":false}</span></div><div class="key-value-row"><span>last_sent</span><span>{"attempt_no":null,"captured_at":"2026-05-21T14:22:40+00:00","logical_id":"get_host_state","original_size":null,"payload":{"kind":"get_host_state"},"phase":"host_request","preview":null,"truncated":false}</span></div></div></div><div><div class="key-value-box"><div class="key-value-row"><span>next_peer</span><span>—</span></div><div class="key-value-row"><span>node</span><span>r1</span></div><div class="key-value-row"><span>role</span><span>relay</span></div><div class="key-value-row"><span>hop_state</span><span>acknowledged</span></div><div class="key-value-row"><span>failure_reason</span><span>—</span></div><div class="key-value-row"><span>last_received</span><span>{"attempt_no":1,"captured_at":"2026-05-21T14:22:43+00:00","logical_id":"evt-host-1-1","original_size":null,"payload":{"ack_for":"evt-host-1-1","from_node":"r1","msg_type":"ACK","timestamp":"2026-05-21T14:22:43+00:00"},"phase":"downstream_ack","preview":null,"truncated":false}</span></div><div class="key-value-row"><span>last_sent</span><span>{"attempt_no":1,"captured_at":"2026-05-21T14:22:40+00:00","logical_id":"evt-host-1-1","original_size":null,"payload":{"agent_id":"agent-1","event_id":"evt-host-1-1","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":26,"fault_mode":"NORMAL","latency_ms":36,"memory":48,"service_state":"UP"},"route_trace":[],"routing":{"active_route":"primary","failed_hop":null,"reroute_reason":null,"route_state":"PRIMARY","suspected_node":null},"seq_no":1,"severity":"INFO","timestamp":"2026-05-21T14:22:40+00:00"},"phase":"event_forward","preview":null,"truncated":false}</span></div></div></div></div><div class="data-table-wrap"><table><thead><tr><th>direction</th><th>flow</th><th>peer_node_id</th><th>peer_role</th><th>hop_state</th><th>failure_reason</th><th>logical_id</th><th>attempt_no</th><th>phase</th><th>captured_at</th><th>truncated</th><th>original_size</th><th>preview</th></tr></thead><tbody><tr><td>next_peer</td><td>last_received</td><td>r1</td><td>relay</td><td>acknowledged</td><td>—</td><td>evt-host-1-1</td><td>1</td><td>downstream_ack</td><td>2026-05-21T14:22:43+00:00</td><td>false</td><td>—</td><td>{"ack_for":"evt-host-1-1","from_node":"r1","msg_type":"ACK","timestamp":"2026-05-21T14:22:43+00:00"}</td></tr><tr><td>next_peer</td><td>last_sent</td><td>r1</td><td>relay</td><td>request_sent</td><td>—</td><td>evt-host-1-1</td><td>1</td><td>event_forward</td><td>2026-05-21T14:22:40+00:00</td><td>false</td><td>—</td><td>{"agent_id":"agent-1","event_id":"evt-host-1-1","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":26,"fault_mode":"NORMAL","latency_ms":36,"memory":48,"service_state":"UP"},"route_trace":[],"routing":{"active_route":"primary","failed_hop":null,"reroute_reason":null,"route_state":"PRIMARY","suspected_node":null},"seq_no":1,"severity":"INFO","timestamp":"2026-05-21T14:22:40+00:00"}</td></tr><tr><td>previous_peer</td><td>last_received</td><td>host-simulator</td><td>host</td><td>acknowledged</td><td>—</td><td>get_host_state</td><td>—</td><td>host_response</td><td>2026-05-21T14:22:40+00:00</td><td>false</td><td>—</td><td>{"host_state":{"cpu_usage":26,"fault_mode":"NORMAL","host_id":"host-1","last_update_time":"2026-05-21T14:22:39+00:00","latency_ms":36,"latency_state":"NORMAL","memory_usage":48,"service_state":"UP"},"kind":"host_state"}</td></tr><tr><td>previous_peer</td><td>last_sent</td><td>host-simulator</td><td>host</td><td>request_sent</td><td>—</td><td>get_host_state</td><td>—</td><td>host_request</td><td>2026-05-21T14:22:40+00:00</td><td>false</td><td>—</td><td>{"kind":"get_host_state"}</td></tr></tbody></table></div></div></section></div>
+  </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-strip" aria-label="명령 팔레트">
+          <div>
+            <h2>명령 팔레트</h2>
+            <p id="runtime-status" aria-live="polite">controller_gateway_runtime_state · 갱신 오후 11:22:46</p>
+          </div>
+          <div class="control-groups">
+            <div class="control-group control-group-system" aria-label="전체 제어">
+              <span class="control-group-title">전체</span>
+              <div class="command-buttons">
+                <button data-command="start">전체 시작</button>
+                <button data-command="pause">전체 정지</button>
+                <button data-command="reset">전체 초기화</button>
+              </div>
+            </div>
+            <div class="control-group control-group-fault" aria-label="장애 스위치">
+              <span class="control-group-title">장애 스위치</span>
+              <div id="fault-switches" class="switch-grid"><button class="switch-button" type="button" data-command="fault cpu on"><span>CPU 장애</span><strong>꺼짐</strong></button><button class="switch-button" type="button" data-command="fault service on"><span>서비스 중단</span><strong>꺼짐</strong></button><button class="switch-button" type="button" data-command="fault latency on"><span>지연 증가</span><strong>꺼짐</strong></button></div>
+            </div>
+            <div class="control-group control-group-node" aria-label="노드 스위치">
+              <span class="control-group-title">노드 스위치</span>
+              <div id="node-switches" class="switch-grid"><button class="switch-button is-on" type="button" data-command="pause host"><span>호스트 시뮬레이터</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause agent"><span>로컬 에이전트</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause r1"><span>릴레이 R1</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause r2"><span>릴레이 R2</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause monitor"><span>모니터</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause r1b"><span>릴레이 R1B</span><strong>켜짐</strong></button><button class="switch-button is-on" type="button" data-command="pause r2b"><span>릴레이 R2B</span><strong>켜짐</strong></button></div>
+            </div>
+            <div class="control-group control-group-experiment" aria-label="전달 실험">
+              <span class="control-group-title">전달 실험</span>
+              <div class="command-buttons">
+                <button data-command="ackdrop">다음 ACK 드롭</button>
+                <button data-command="delay r1 1.5">R1 전달 지연</button>
+                <button data-command="delay r2 1.5">R2 전달 지연</button>
+                <button data-command="delay r1b 1.5">R1B 전달 지연</button>
+                <button data-command="delay r2b 1.5">R2B 전달 지연</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+    <script src="/app.js"></script>
+  
+
+</body></html>
