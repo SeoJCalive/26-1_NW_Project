@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Things Revised Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #f3f6fb;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" src="./preview.revised.jsx"></script>
+    <script type="text/babel">
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<window.NetworkDemoWebUIRevised />);
+    </script>
+  </body>
+  </html>
