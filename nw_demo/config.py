@@ -15,6 +15,8 @@ LOCAL_AGENT_PORT = 9102
 RELAY_R1_PORT = 9103
 RELAY_R2_PORT = 9104
 MONITOR_PORT = 9105
+RELAY_R1B_PORT = 9106
+RELAY_R2B_PORT = 9107
 CONTROLLER_PORT = 9110
 
 NODE_ENDPOINTS = {
@@ -23,6 +25,8 @@ NODE_ENDPOINTS = {
     "r1": (DEFAULT_HOST, RELAY_R1_PORT),
     "r2": (DEFAULT_HOST, RELAY_R2_PORT),
     "monitor": (DEFAULT_HOST, MONITOR_PORT),
+    "r1b": (DEFAULT_HOST, RELAY_R1B_PORT),
+    "r2b": (DEFAULT_HOST, RELAY_R2B_PORT),
 }
 
 ROLE_TO_NODE_ID = {
@@ -30,10 +34,12 @@ ROLE_TO_NODE_ID = {
     "agent": "local-agent",
     "relay-r1": "r1",
     "relay-r2": "r2",
+    "relay-r1b": "r1b",
+    "relay-r2b": "r2b",
     "monitor": "monitor",
 }
 
-NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor"]
+NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"]
 
 TICK_SECONDS = BASE_TICK_SECONDS * TIMING_SCALE
 AGENT_POLL_SECONDS = BASE_AGENT_POLL_SECONDS * TIMING_SCALE

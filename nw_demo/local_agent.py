@@ -6,6 +6,16 @@ from typing import Any
 from . import config
 from .base import BaseNode
 from .messages import iso_now, json_roundtrip
+from .routing import (
+    ROUTE_BACKUP,
+    ROUTE_PRIMARY,
+    ROUTE_STATE_BYPASS_ACTIVE,
+    ROUTE_STATE_FAILED,
+    ROUTE_STATE_PRIMARY,
+    default_detail_routing,
+    initialize_event_route_metadata,
+    make_route_trace_entry,
+)
 from .transport import send_request
 
 
@@ -21,12 +31,16 @@ class LocalAgent(BaseNode):
         downstream_host: str,
         downstream_port: int,
         control_token: str | None = None,
+        backup_downstream_host: str | None = None,
+        backup_downstream_port: int | None = None,
     ) -> None:
         super().__init__("local-agent", listen_host, listen_port, controller_host, controller_port, control_token)
         self.host_host = host_host
         self.host_port = host_port
         self.downstream_host = downstream_host
         self.downstream_port = downstream_port
+        self.backup_downstream_host = backup_downstream_host
+        self.backup_downstream_port = backup_downstream_port
         self.seq_no = 0
         self.last_fault_signature: str | None = None
         self.last_host_state_signature: tuple[object, ...] | None = None
@@ -35,6 +49,11 @@ class LocalAgent(BaseNode):
         self.last_detected_fault: str | None = None
         self.last_emitted_event: dict[str, Any] | None = None
         self.last_downstream_result: dict[str, Any] | None = None
+        self.last_routing_detail: dict[str, Any] = default_detail_routing(
+            primary_downstream="r1",
+            backup_downstream="r1b" if backup_downstream_host is not None and backup_downstream_port is not None else None,
+            active_downstream="r1",
+        )
         self._run_task: asyncio.Task[Any] | None = None
 
     def _configure_default_traffic_peers(self) -> None:
@@ -56,6 +75,11 @@ class LocalAgent(BaseNode):
         self.last_detected_fault = None
         self.last_emitted_event = None
         self.last_downstream_result = None
+        self.last_routing_detail = default_detail_routing(
+            primary_downstream="r1",
+            backup_downstream="r1b" if self._has_backup_downstream() else None,
+            active_downstream="r1",
+        )
 
     async def publish_status(self, extra: dict[str, Any] | None = None, note: str | None = None) -> None:
         payload = self._status_extra()
@@ -71,6 +95,7 @@ class LocalAgent(BaseNode):
             "detected_fault": self.last_detected_fault,
             "emitted_event": json_roundtrip(self.last_emitted_event) if self.last_emitted_event else None,
             "downstream_result": json_roundtrip(self.last_downstream_result) if self.last_downstream_result else None,
+            "routing": json_roundtrip(self.last_routing_detail),
             "traffic": self.traffic_snapshot(),
         }
         payload: dict[str, Any] = {"detail": detail}
@@ -132,6 +157,240 @@ class LocalAgent(BaseNode):
                 },
             }
         )
+
+    def _has_backup_downstream(self) -> bool:
+        return self.backup_downstream_host is not None and self.backup_downstream_port is not None
+
+    def _set_routing_detail(
+        self,
+        *,
+        route_state: str,
+        active_route: str,
+        active_downstream: str,
+        event_id: str,
+        failed_downstream: str | None = None,
+        reroute_reason: str | None = None,
+    ) -> None:
+        self.last_routing_detail = {
+            "route_state": route_state,
+            "active_route": active_route,
+            "primary_downstream": "r1",
+            "backup_downstream": "r1b" if self._has_backup_downstream() else None,
+            "active_downstream": active_downstream,
+            "failed_downstream": failed_downstream,
+            "reroute_reason": reroute_reason,
+            "event_id": event_id,
+            "route_generation": self.last_routing_detail.get("route_generation", 0) + 1,
+        }
+
+    def _append_route_trace(
+        self,
+        event: dict[str, Any],
+        *,
+        to_node: str,
+        route_id: str,
+        result: str,
+        failure_reason: str | None = None,
+    ) -> None:
+        route_trace = event.setdefault("route_trace", [])
+        if isinstance(route_trace, list):
+            route_trace.append(
+                make_route_trace_entry(
+                    from_node="local-agent",
+                    to_node=to_node,
+                    route_id=route_id,
+                    attempt_no=1,
+                    phase="event_forward",
+                    result=result,
+                    failure_reason=failure_reason,
+                )
+            )
+
+    def _set_event_routing(
+        self,
+        event: dict[str, Any],
+        *,
+        route_state: str,
+        active_route: str,
+        failed_hop: str | None = None,
+        suspected_node: str | None = None,
+        reroute_reason: str | None = None,
+    ) -> None:
+        event["routing"] = {
+            "route_state": route_state,
+            "active_route": active_route,
+            "failed_hop": failed_hop,
+            "suspected_node": suspected_node,
+            "reroute_reason": reroute_reason,
+        }
+
+    async def _send_event_to_downstream(
+        self,
+        event: dict[str, Any],
+        *,
+        to_node: str,
+        route_id: str,
+        host: str,
+        port: int,
+    ) -> tuple[bool, dict[str, Any] | None, str | None]:
+        event_id = str(event["event_id"])
+        self.record_peer_message(
+            "next_peer",
+            "last_sent",
+            event,
+            peer_node_id=to_node,
+            peer_role="relay",
+            hop_state="request_sent",
+            logical_id=event_id,
+            attempt_no=1,
+            phase="event_forward",
+        )
+        try:
+            response = await send_request(
+                host,
+                port,
+                event,
+                expect_response=True,
+                timeout=config.AGENT_DOWNSTREAM_RESPONSE_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            self.record_peer_state("next_peer", peer_node_id=to_node, peer_role="relay", hop_state="timeout", failure_reason="timeout")
+            self._append_route_trace(event, to_node=to_node, route_id=route_id, result="timeout", failure_reason="timeout")
+            return False, None, "timeout"
+        except OSError:
+            self.record_peer_state("next_peer", peer_node_id=to_node, peer_role="relay", hop_state="connection_error", failure_reason="connection_error")
+            self._append_route_trace(event, to_node=to_node, route_id=route_id, result="connection_error", failure_reason="connection_error")
+            return False, None, "connection_error"
+
+        if not isinstance(response, dict) or response.get("msg_type") != "ACK":
+            self.record_peer_message(
+                "next_peer",
+                "last_received",
+                response,
+                peer_node_id=to_node,
+                peer_role="relay",
+                hop_state="invalid_response",
+                failure_reason="ack_missing",
+                logical_id=event_id,
+                attempt_no=1,
+                phase="downstream_response",
+            )
+            self._append_route_trace(event, to_node=to_node, route_id=route_id, result="ack_missing", failure_reason="ack_missing")
+            return False, json_roundtrip(response) if isinstance(response, dict) else None, "ack_missing"
+
+        self.record_peer_message(
+            "next_peer",
+            "last_received",
+            response,
+            peer_node_id=to_node,
+            peer_role="relay",
+            hop_state="acknowledged",
+            logical_id=event_id,
+            attempt_no=1,
+            phase="downstream_ack",
+        )
+        self._append_route_trace(event, to_node=to_node, route_id=route_id, result="acknowledged")
+        return True, json_roundtrip(response), None
+
+    async def _deliver_event(self, event: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+        routed_event = initialize_event_route_metadata(event)
+        event_id = str(routed_event["event_id"])
+        primary_ok, primary_response, primary_reason = await self._send_event_to_downstream(
+            routed_event,
+            to_node="r1",
+            route_id=ROUTE_PRIMARY,
+            host=self.downstream_host,
+            port=self.downstream_port,
+        )
+        if primary_ok:
+            self._set_event_routing(routed_event, route_state=ROUTE_STATE_PRIMARY, active_route=ROUTE_PRIMARY)
+            self._set_routing_detail(route_state=ROUTE_STATE_PRIMARY, active_route=ROUTE_PRIMARY, active_downstream="r1", event_id=event_id)
+            self.last_downstream_result = {"status": "acknowledged", "event_id": event_id, "active_route": ROUTE_PRIMARY, "ack": primary_response}
+            return routed_event, True
+
+        self._set_event_routing(
+            routed_event,
+            route_state=ROUTE_STATE_FAILED,
+            active_route=ROUTE_PRIMARY,
+            failed_hop="local-agent->r1",
+            suspected_node="r1",
+            reroute_reason=primary_reason,
+        )
+        self._set_routing_detail(
+            route_state=ROUTE_STATE_FAILED,
+            active_route=ROUTE_PRIMARY,
+            active_downstream="r1",
+            event_id=event_id,
+            failed_downstream="r1",
+            reroute_reason=primary_reason,
+        )
+        if not self._has_backup_downstream():
+            self.last_downstream_result = {"status": "send_failed", "reason": primary_reason, "event_id": event_id, "active_route": ROUTE_PRIMARY}
+            return routed_event, False
+
+        backup_host = self.backup_downstream_host
+        backup_port = self.backup_downstream_port
+        if backup_host is None or backup_port is None:
+            self.last_downstream_result = {"status": "send_failed", "reason": primary_reason, "event_id": event_id, "active_route": ROUTE_PRIMARY}
+            return routed_event, False
+
+        self._set_event_routing(
+            routed_event,
+            route_state=ROUTE_STATE_BYPASS_ACTIVE,
+            active_route=ROUTE_BACKUP,
+            failed_hop="local-agent->r1",
+            suspected_node="r1",
+            reroute_reason=primary_reason,
+        )
+        self._set_routing_detail(
+            route_state=ROUTE_STATE_BYPASS_ACTIVE,
+            active_route=ROUTE_BACKUP,
+            active_downstream="r1b",
+            event_id=event_id,
+            failed_downstream="r1",
+            reroute_reason=primary_reason,
+        )
+        backup_ok, backup_response, backup_reason = await self._send_event_to_downstream(
+            routed_event,
+            to_node="r1b",
+            route_id=ROUTE_BACKUP,
+            host=backup_host,
+            port=backup_port,
+        )
+        if backup_ok:
+            self.last_downstream_result = {
+                "status": "acknowledged",
+                "event_id": event_id,
+                "active_route": ROUTE_BACKUP,
+                "primary_failure_reason": primary_reason,
+                "ack": backup_response,
+            }
+            return routed_event, True
+
+        self._set_event_routing(
+            routed_event,
+            route_state=ROUTE_STATE_FAILED,
+            active_route=ROUTE_BACKUP,
+            failed_hop="local-agent->r1b",
+            suspected_node="r1b",
+            reroute_reason=primary_reason,
+        )
+        self._set_routing_detail(
+            route_state=ROUTE_STATE_FAILED,
+            active_route=ROUTE_BACKUP,
+            active_downstream="r1b",
+            event_id=event_id,
+            failed_downstream="r1b",
+            reroute_reason=primary_reason,
+        )
+        self.last_downstream_result = {
+            "status": "send_failed",
+            "reason": backup_reason,
+            "event_id": event_id,
+            "active_route": ROUTE_BACKUP,
+            "primary_failure_reason": primary_reason,
+        }
+        return routed_event, False
 
     async def _run_loop(self) -> None:
         while not self.stopped:
@@ -227,99 +486,16 @@ class LocalAgent(BaseNode):
                     )
                 elif detected_fault is None or detected_fault != self.last_fault_signature:
                     event = self._build_event(event_type, host_state)
-                    self.last_emitted_event = json_roundtrip(event)
-                    try:
-                        self.record_peer_message(
-                            "next_peer",
-                            "last_sent",
-                            event,
-                            peer_node_id="r1",
-                            peer_role="relay",
-                            hop_state="request_sent",
-                            logical_id=str(event["event_id"]),
-                            attempt_no=1,
-                            phase="event_forward",
-                        )
-                        response = await send_request(
-                            self.downstream_host,
-                            self.downstream_port,
-                            event,
-                            expect_response=True,
-                            timeout=config.AGENT_DOWNSTREAM_RESPONSE_TIMEOUT_SECONDS,
-                        )
-                    except asyncio.TimeoutError:
-                        self.last_downstream_result = {
-                            "status": "send_failed",
-                            "reason": "timeout",
-                            "event_id": event["event_id"],
-                        }
-                        self.record_peer_state(
-                            "next_peer",
-                            peer_node_id="r1",
-                            peer_role="relay",
-                            hop_state="timeout",
-                            failure_reason="timeout",
-                        )
-                        await self.publish_status(note=f"{event['event_id']} 전송 실패")
-                        await asyncio.sleep(config.AGENT_POLL_SECONDS)
-                        continue
-                    except OSError:
-                        self.last_downstream_result = {
-                            "status": "send_failed",
-                            "reason": "connection_error",
-                            "event_id": event["event_id"],
-                        }
-                        self.record_peer_state(
-                            "next_peer",
-                            peer_node_id="r1",
-                            peer_role="relay",
-                            hop_state="connection_error",
-                            failure_reason="connection_error",
-                        )
-                        await self.publish_status(note=f"{event['event_id']} 전송 실패")
-                        await asyncio.sleep(config.AGENT_POLL_SECONDS)
-                        continue
-                    if not isinstance(response, dict) or response.get("msg_type") != "ACK":
-                        self.last_downstream_result = {
-                            "status": "ack_missing",
-                            "event_id": event["event_id"],
-                            "response": json_roundtrip(response) if isinstance(response, dict) else None,
-                        }
-                        self.record_peer_message(
-                            "next_peer",
-                            "last_received",
-                            response,
-                            peer_node_id="r1",
-                            peer_role="relay",
-                            hop_state="invalid_response",
-                            failure_reason="ack_missing",
-                            logical_id=str(event["event_id"]),
-                            attempt_no=1,
-                            phase="downstream_response",
-                        )
-                        await self.publish_status(note=f"{event['event_id']} ACK 없음")
+                    delivered_event, delivered = await self._deliver_event(event)
+                    self.last_emitted_event = json_roundtrip(delivered_event)
+                    if not delivered:
+                        await self.publish_status(note=f"{delivered_event['event_id']} 전송 실패")
                         await asyncio.sleep(config.AGENT_POLL_SECONDS)
                         continue
 
-                    self.record_peer_message(
-                        "next_peer",
-                        "last_received",
-                        response,
-                        peer_node_id="r1",
-                        peer_role="relay",
-                        hop_state="acknowledged",
-                        logical_id=str(event["event_id"]),
-                        attempt_no=1,
-                        phase="downstream_ack",
-                    )
                     self.last_fault_signature = detected_fault
                     self.last_host_state_signature = host_state_signature
-                    self.last_downstream_result = {
-                        "status": "acknowledged",
-                        "event_id": event["event_id"],
-                        "ack": json_roundtrip(response),
-                    }
-                    await self.publish_status(note=f"이벤트 생성 {event['event_id']}")
+                    await self.publish_status(note=f"이벤트 생성 {delivered_event['event_id']}")
                 else:
                     self.last_downstream_result = {
                         "status": "suppressed_duplicate_fault",

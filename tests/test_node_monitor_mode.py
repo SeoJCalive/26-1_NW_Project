@@ -68,6 +68,10 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertIn("Host 최신 상태", monitor_frame)
         self.assertIn("최근 알림/이벤트", monitor_frame)
         self.assertIn("처리 경로", monitor_frame)
+        self.assertIn("경로 진단", monitor_frame)
+        self.assertIn("Trace 근거", monitor_frame)
+        self.assertIn("기본 경로", monitor_frame)
+        self.assertIn("route_trace_unavailable", monitor_frame)
         self.assertIn("전달 건강도", monitor_frame)
         self.assertIn("수신 구간=r2 -> monitor", monitor_frame)
         self.assertIn("+", monitor_frame)
@@ -97,6 +101,7 @@ class NodeMonitorModeTests(unittest.TestCase):
                 self.assertIn("Monitor 상황판", frame)
                 self.assertIn(marker, frame)
                 self.assertIn("Host 최신 상태", frame)
+                self.assertIn("경로 진단", frame)
                 self.assertIn("확인 응답", frame)
                 self.assertNotIn("신호 흐름", frame)
                 self.assertNotIn('"msg_type": "EVENT"', frame)
@@ -200,6 +205,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertIn("Host 최신 상태", monitor_frame)
         self.assertIn("최근 알림/이벤트", monitor_frame)
         self.assertIn("처리 경로", monitor_frame)
+        self.assertIn("경로 진단", monitor_frame)
         self.assertIn("전달 건강도", monitor_frame)
         self.assertIn("확인 응답 / 재시도", monitor_frame)
         self.assertNotIn("신호 흐름", monitor_frame)
@@ -227,8 +233,44 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertIn("state=UNKNOWN", frame)
         self.assertIn("last_seen=never", frame)
         self.assertIn("아직 수신된 host 상태 없음", frame)
+        self.assertIn("경로 정보 없음", frame)
         self.assertIn("아직 표시할 알림 없음", frame)
         self.assertIn("아직 확인 응답 기록 없음", frame)
+
+    def test_focused_monitor_renders_backup_route_localization_without_node_failure_claim(self) -> None:
+        controller = ControllerUI(
+            control_host=config.DEFAULT_HOST,
+            control_port=config.CONTROLLER_PORT,
+            node_endpoints=config.NODE_ENDPOINTS,
+            focus_node="monitor",
+        )
+        status = build_monitor_status()
+        status["detail"]["last_route_summary"] = {
+            "route_state": "BYPASS_ACTIVE",
+            "active_route": "backup",
+            "failed_hop": "local-agent->r1",
+            "suspected_node": "r1",
+            "reroute_reason": "connection_error",
+        }
+        status["detail"]["last_fault_localization"] = {
+            "failure_scope": "hop",
+            "failed_hop": "local-agent->r1",
+            "suspected_node": "r1",
+            "failure_reason": "connection_error",
+            "confidence": "medium",
+            "basis": "route_trace_failed_hop",
+        }
+        status["detail"]["traffic"]["previous_peer"]["peer_node_id"] = "r2b"
+        controller._apply_status(status)
+
+        frame = "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=100))
+
+        self.assertIn("수신 구간=r2b -> monitor", frame)
+        self.assertIn("우회 경로 사용", frame)
+        self.assertIn("관찰 실패 hop=local-agent->r1", frame)
+        self.assertIn("의심 node=r1", frame)
+        self.assertIn("신뢰도=medium", frame)
+        self.assertNotIn("node failure", frame.lower())
 
     def test_focused_monitor_renders_ack_drop_state_without_payload_dump(self) -> None:
         controller = ControllerUI(
@@ -267,7 +309,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertIn("최근 제어 활동:", frame)
         self.assertIn("알 수 없는 focus 대상: bogus", frame)
         self.assertIn("조작 방법:", frame)
-        self.assertIn("focus host|agent|r1|r2|monitor", frame)
+        self.assertIn("focus host|agent|r1|r2|r1b|r2b|monitor", frame)
         self.assertIn("overview", frame)
         self.assertIn("focus all", frame)
         self.assertIn("fault cpu|service|latency on|off|[sec]", frame)

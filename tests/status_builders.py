@@ -130,7 +130,7 @@ def build_local_agent_status(*, state: str = "실행 중", note: str = "이벤�
         "fault_mode": "CPU_SPIKE",
         "last_update_time": "2026-04-27T10:00:00+00:00",
     }
-    last_event = {
+    last_event: dict[str, Any] = {
         "msg_type": "EVENT",
         "event_id": f"evt-{config.HOST_ID}-7",
         "seq_no": 7,
@@ -373,6 +373,22 @@ def build_monitor_status(*, state: str = "실행 중", note: str = "evt-host-1-7
                     "status": "acknowledged",
                     "event_id": event_id,
                     "duplicate": False,
+                },
+                "last_route_trace": [],
+                "last_route_summary": {
+                    "route_state": "PRIMARY",
+                    "active_route": "primary",
+                    "failed_hop": None,
+                    "suspected_node": None,
+                    "reroute_reason": None,
+                },
+                "last_fault_localization": {
+                    "failure_scope": "unknown",
+                    "failed_hop": None,
+                    "suspected_node": None,
+                    "failure_reason": None,
+                    "confidence": "low",
+                    "basis": "route_trace_unavailable",
                 },
                 "traffic": _traffic(
                     {

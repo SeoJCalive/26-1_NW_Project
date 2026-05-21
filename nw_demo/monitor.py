@@ -6,6 +6,7 @@ from typing import Any
 from . import config
 from .base import BaseNode
 from .messages import json_roundtrip, make_ack
+from .routing import fault_localization_from_event, summarize_event_routing
 
 
 class Monitor(BaseNode):
@@ -27,6 +28,9 @@ class Monitor(BaseNode):
         self.last_processed_event: dict[str, Any] | None = None
         self.last_sink_result: dict[str, Any] | None = None
         self.last_ack_result: dict[str, Any] | None = None
+        self.last_route_trace: list[dict[str, Any]] = []
+        self.last_route_summary: dict[str, Any] | None = None
+        self.last_fault_localization: dict[str, Any] | None = None
         self.duplicate_count = 0
         self.out_of_order_count = 0
         self.drop_next_ack = False
@@ -46,6 +50,9 @@ class Monitor(BaseNode):
         self.last_processed_event = None
         self.last_sink_result = None
         self.last_ack_result = None
+        self.last_route_trace = []
+        self.last_route_summary = None
+        self.last_fault_localization = None
         self.duplicate_count = 0
         self.out_of_order_count = 0
         self.drop_next_ack = False
@@ -66,6 +73,9 @@ class Monitor(BaseNode):
                 "last_processed_event": json_roundtrip(self.last_processed_event) if self.last_processed_event else None,
                 "last_sink_result": json_roundtrip(self.last_sink_result) if self.last_sink_result else None,
                 "last_ack_result": json_roundtrip(self.last_ack_result) if self.last_ack_result else None,
+                "last_route_trace": [json_roundtrip(entry) for entry in self.last_route_trace],
+                "last_route_summary": json_roundtrip(self.last_route_summary) if self.last_route_summary else None,
+                "last_fault_localization": json_roundtrip(self.last_fault_localization) if self.last_fault_localization else None,
                 "traffic": self.traffic_snapshot(),
             },
         }
@@ -74,6 +84,7 @@ class Monitor(BaseNode):
         await super().publish_status(extra=payload, note=note)
 
     def _event_summary(self, event: dict[str, Any]) -> dict[str, Any]:
+        route_summary = summarize_event_routing(event)
         return {
             "event_id": event.get("event_id"),
             "event_type": event.get("event_type"),
@@ -81,7 +92,24 @@ class Monitor(BaseNode):
             "host_id": event.get("host_id"),
             "seq_no": event.get("seq_no"),
             "timestamp": event.get("timestamp"),
+            "route_state": route_summary.get("route_state"),
+            "active_route": route_summary.get("active_route"),
+            "failed_hop": route_summary.get("failed_hop"),
+            "suspected_node": route_summary.get("suspected_node"),
+            "reroute_reason": route_summary.get("reroute_reason"),
         }
+
+    def _record_route_observation(self, event: dict[str, Any]) -> None:
+        route_trace = event.get("route_trace")
+        self.last_route_trace = [json_roundtrip(entry) for entry in route_trace if isinstance(entry, dict)] if isinstance(route_trace, list) else []
+        self.last_route_summary = summarize_event_routing(event)
+        self.last_fault_localization = fault_localization_from_event(event)
+
+    def _upstream_peer_for_event(self, event: dict[str, Any]) -> str:
+        route_summary = summarize_event_routing(event)
+        if route_summary.get("active_route") == "backup":
+            return "r2b"
+        return "r2"
 
     async def on_control(self, message: dict[str, Any]) -> None:
         await super().on_control(message)
@@ -99,11 +127,13 @@ class Monitor(BaseNode):
         event = json_roundtrip(message)
         event_id = str(event["event_id"])
         event_summary = self._event_summary(event)
+        self._record_route_observation(event)
+        upstream_peer = self._upstream_peer_for_event(event)
         self.record_peer_message(
             "previous_peer",
             "last_received",
             event,
-            peer_node_id="r2",
+            peer_node_id=upstream_peer,
             peer_role="relay",
             hop_state="request_received",
             logical_id=event_id,
@@ -122,7 +152,7 @@ class Monitor(BaseNode):
                     "event_id": event_id,
                     "duplicate": True,
                 }
-                self.record_peer_state("previous_peer", peer_node_id="r2", peer_role="relay", hop_state="ack_dropped", failure_reason="drop_next_ack")
+                self.record_peer_state("previous_peer", peer_node_id=upstream_peer, peer_role="relay", hop_state="ack_dropped", failure_reason="drop_next_ack")
                 await self.publish_status(note=f"중복 {event_id}에 대한 ACK 1회 드롭")
                 return None
             ack = make_ack(event_id, self.node_id)
@@ -135,7 +165,7 @@ class Monitor(BaseNode):
                 "previous_peer",
                 "last_sent",
                 ack,
-                peer_node_id="r2",
+                peer_node_id=upstream_peer,
                 peer_role="relay",
                 hop_state="acknowledged",
                 logical_id=event_id,
@@ -177,7 +207,7 @@ class Monitor(BaseNode):
                 "event_id": event_id,
                 "duplicate": False,
             }
-            self.record_peer_state("previous_peer", peer_node_id="r2", peer_role="relay", hop_state="ack_dropped", failure_reason="drop_next_ack")
+            self.record_peer_state("previous_peer", peer_node_id=upstream_peer, peer_role="relay", hop_state="ack_dropped", failure_reason="drop_next_ack")
             await self.publish_status(note=f"{event_id} ACK 의도적으로 드롭")
             return None
         ack = make_ack(event_id, self.node_id)
@@ -190,7 +220,7 @@ class Monitor(BaseNode):
             "previous_peer",
             "last_sent",
             ack,
-            peer_node_id="r2",
+            peer_node_id=upstream_peer,
             peer_role="relay",
             hop_state="acknowledged",
             logical_id=event_id,

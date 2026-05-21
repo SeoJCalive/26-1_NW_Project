@@ -7,6 +7,7 @@ from typing import Any
 from . import config
 from .base import BaseNode
 from .messages import json_roundtrip, make_ack
+from .routing import ROUTE_BACKUP, ROUTE_PRIMARY, initialize_event_route_metadata, make_route_trace_entry
 from .transport import send_request
 
 
@@ -43,6 +44,12 @@ class RelayNode(BaseNode):
         if self.node_id == "r1":
             self.record_peer_state("previous_peer", peer_node_id="local-agent", peer_role="agent", hop_state="unknown")
             self.record_peer_state("next_peer", peer_node_id="r2", peer_role="relay", hop_state="unknown")
+        elif self.node_id == "r1b":
+            self.record_peer_state("previous_peer", peer_node_id="local-agent", peer_role="agent", hop_state="unknown")
+            self.record_peer_state("next_peer", peer_node_id="r2b", peer_role="relay", hop_state="unknown")
+        elif self.node_id == "r2b":
+            self.record_peer_state("previous_peer", peer_node_id="r1b", peer_role="relay", hop_state="unknown")
+            self.record_peer_state("next_peer", peer_node_id="monitor", peer_role="monitor", hop_state="unknown")
         else:
             self.record_peer_state("previous_peer", peer_node_id="r1", peer_role="relay", hop_state="unknown")
             self.record_peer_state("next_peer", peer_node_id="monitor", peer_role="monitor", hop_state="unknown")
@@ -104,7 +111,39 @@ class RelayNode(BaseNode):
         return event.get("msg_type") == "EVENT" and REQUIRED_EVENT_FIELDS.issubset(event)
 
     def _downstream_target_label(self) -> str:
-        return "monitor" if self.node_id == "r2" else "r2"
+        if self.node_id in {"r2", "r2b"}:
+            return "monitor"
+        if self.node_id == "r1b":
+            return "r2b"
+        return "r2"
+
+    def _route_id(self) -> str:
+        if self.node_id in {"r1b", "r2b"}:
+            return ROUTE_BACKUP
+        return ROUTE_PRIMARY
+
+    def _route_matches_relay(self, event: dict[str, object]) -> bool:
+        routing = event.get("routing")
+        if not isinstance(routing, dict):
+            return True
+        active_route = routing.get("active_route")
+        return active_route in {None, self._route_id()}
+
+    def _event_with_relay_trace(self, event: dict[str, object], attempt: int) -> dict[str, Any]:
+        traced_event = initialize_event_route_metadata(dict(event))
+        route_trace = traced_event.setdefault("route_trace", [])
+        if isinstance(route_trace, list):
+            route_trace.append(
+                make_route_trace_entry(
+                    from_node=self.node_id,
+                    to_node=self._downstream_target_label(),
+                    route_id=self._route_id(),
+                    attempt_no=attempt,
+                    phase="downstream_event" if attempt == 1 else "downstream_retry",
+                    result="forwarded",
+                )
+            )
+        return traced_event
 
     def _event_summary(self, event: dict[str, object]) -> dict[str, Any]:
         return {
@@ -154,6 +193,23 @@ class RelayNode(BaseNode):
                 hop_state="rejected",
                 failure_reason="invalid_event",
                 logical_id=str(message.get("event_id") or "invalid_event"),
+                phase="upstream_response",
+            )
+            return response
+
+        if not self._route_matches_relay(message):
+            self.last_downstream_result = {"status": "rejected", "reason": "route_mismatch", "expected_route": self._route_id()}
+            await self.publish_status(note="route 불일치 EVENT 폐기")
+            response = {"msg_type": "ERROR", "reason": "route_mismatch", "node_id": self.node_id}
+            self.record_peer_message(
+                "previous_peer",
+                "last_sent",
+                response,
+                peer_node_id=self._peer_store("previous_peer").get("peer_node_id"),
+                peer_role=self._peer_store("previous_peer").get("peer_role"),
+                hop_state="rejected",
+                failure_reason="route_mismatch",
+                logical_id=str(message.get("event_id") or "route_mismatch"),
                 phase="upstream_response",
             )
             return response
@@ -329,10 +385,11 @@ class RelayNode(BaseNode):
                     )
                     await self.publish_status(note=f"{event_id} 재시도 {attempt - 1}회")
                 try:
+                    outbound_event = self._event_with_relay_trace(event, attempt)
                     response = await send_request(
                         self.downstream_host,
                         self.downstream_port,
-                        json_roundtrip(event),
+                        outbound_event,
                         expect_response=True,
                         timeout=self._downstream_response_timeout(),
                     )
