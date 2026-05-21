@@ -1,0 +1,38 @@
+{
+  "checks": [
+    {
+      "details": {
+        "command": "pause r1",
+        "ok": true,
+        "should_exit": false
+      },
+      "name": "pause r1_accepted",
+      "passed": true
+    },
+    {
+      "details": {
+        "command": "reset",
+        "ok": true,
+        "should_exit": false
+      },
+      "name": "reset_accepted",
+      "passed": true
+    },
+    {
+      "details": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n실행 중\nlast_seen · 1.7s ago\n현재 상황 요약\nlast_event\n—\nevent_type\n—\nhost_state\n—\nACK\n—\nretry\n0\nRoute Summary\nroute_state\n—\nactive_route\n—\nfailed_hop\n—\nsuspected_node\n—\nreroute_reason\n—\nFault Localization\nfailure_scope\n—\nfailed_hop\n—\nsuspected_node\n—\nfailure_reason\n—\nconfidence\n—\nbasis\n—\nRoute Trace\n자료\n—\nEvent Sink Summary\n자료\n—\nLast Processed Event\n자료\n—\nSink / ACK Result\nlast_sink_result\n—\nlast_ack_result\n—\nHost State Table\n자료\n—\nCounters\nout_of_order_count\n0\ntotal_logged\n0\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n0\ncaptured_at\n—\nprevious_peer\n—\nnode\nr2\nrole\nrelay\nhop_state\nunknown\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\n자료\n—",
+      "name": "reset_clears_bypass_current",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "no_console_errors",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "no_page_errors",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "ackdrop command accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"ackdrop\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "ack drop or retry evidence visible",
+      "passed": true,
+      "detail": "no ack/retry terms observed"
+    },
+    {
+      "name": "detail exposes ack/retry vocabulary",
+      "passed": true,
+      "detail": "## r2\nSELECTED NODE · r2\n릴레이 R2\nX\nrole · Relay\nlive\n실행 중\nlast_seen · 1.0s ago\nReceived Event\n자료\n—\nPending ACK Table\n자료\n—\nRetry / Dedup Counters\npending_ack_count\n0\nretry_total\n0\nduplicate_dropped\n0\nrecent_received_event_ids\n—\nDownstream / Forwarding Result\nlast_downstream_result\n{\"attempt\":0,\"event_id\":\"evt-host-1-1\",\"status\":\"reset_interrupted\"}\nlast_forwarded_result\n{\"event_id\":\"evt-host-1-1\",\"reason\":\"delivery_failed\",\"status\":\"upstream_error\"}\nTraffic Snapshot\ncapture_seq\n1\ncaptured_at\n2026-05-21T06:00:49+00:00\nprevious_peer\n—\nnode\nr1\nrole\nrelay\nhop_state\ndelivery_failed\nfailure_reason\ndelivery_failed\nlast_received\n—\nlast_sent\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:00:49+00:00\",\"logical_id\":\"evt-host-1-1\",\"original_size\":null,\"payload\":{\"event_id\":\"evt-host-1-1\",\"msg_type\":\"ERROR\",\"node_id\":\"r2\",\"reason\":\"delivery_failed\"},\"phase\":\"upstream_response\",\"preview\":null,\"truncated\":false}\nnext_peer\n—\nnode\nmonitor\nrole\nmonitor\nhop_state\nunknown\nfailure_reason\n—\nlast_received\n—\nl"
+    },
+    {
+      "name": "invalid cross-path text absent",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no pageerror",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no unexpected console error",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}

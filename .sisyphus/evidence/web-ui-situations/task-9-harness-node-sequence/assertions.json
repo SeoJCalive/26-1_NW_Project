@@ -1,0 +1,104 @@
+{
+  "checks": [
+    {
+      "details": [
+        "host-simulator",
+        "local-agent",
+        "r1",
+        "r2",
+        "monitor",
+        "r1b",
+        "r2b"
+      ],
+      "name": "seven_api_nodes",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "seven_dom_node_cards",
+      "passed": true
+    },
+    {
+      "details": [
+        "agent-r1",
+        "agent-r1b",
+        "host-agent",
+        "r1-r2",
+        "r1b-r2b",
+        "r2-monitor",
+        "r2b-monitor"
+      ],
+      "name": "seven_svg_links",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "forbidden_route_text_absent",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "api_state_nodes_is_list",
+      "passed": true
+    },
+    {
+      "details": {
+        "hopState": "request_received",
+        "hopTone": "active",
+        "text": "EVENT 전달 중: request_receivedEVENT 전달 중"
+      },
+      "name": "agent_r1_dataset_readable",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "no_console_errors",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "no_page_errors",
+      "passed": true
+    }
+  ],
+  "extra": {
+    "links": {
+      "agent-r1": {
+        "hopState": "request_received",
+        "hopTone": "active",
+        "text": "EVENT 전달 중: request_receivedEVENT 전달 중"
+      },
+      "agent-r1b": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      },
+      "host-agent": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      },
+      "r1-r2": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      },
+      "r1b-r2b": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      },
+      "r2-monitor": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      },
+      "r2b-monitor": {
+        "hopState": "unknown",
+        "hopTone": "muted",
+        "text": "상태 확인 중: unknown상태 확인 중"
+      }
+    }
+  },
+  "passed": true
+}

@@ -1,0 +1,222 @@
+NET-DEMO Runtime · Node-first Dashboard
+
+liveness lamp / reported state / traffic activity 분리
+
+관찰 노드
+7
+live lamp
+2
+retry
+0
+duplicate
+0
+구조 다이어그램
+primary + backup data-plane chain
+상태 확인 중
+상태 확인 중
+상태 확인 중
+상태 확인 중
+상태 확인 중
+상태 확인 중
+상태 확인 중
+Primary: Host -> Agent -> R1 -> R2 -> Monitor · Backup: Agent -> R1B -> R2B -> Monitor
+unknown
+호스트 시뮬레이터
+HOST SIMULATOR
+상태
+UNKNOWN
+CPU
+—
+메모리
+—
+unknown
+로컬 에이전트
+LOCAL AGENT
+상태
+UNKNOWN
+입력
+—
+fault
+—
+unknown
+릴레이 R1
+RELAY
+상태
+UNKNOWN
+ACK 대기 수
+0
+retry
+0
+unknown
+릴레이 R2
+RELAY
+상태
+UNKNOWN
+ACK 대기 수
+0
+retry
+0
+unknown
+모니터
+MONITOR
+상태
+UNKNOWN
+logged
+0
+duplicate
+0
+live
+릴레이 R1B
+RELAY
+상태
+실행 중
+ACK 대기 수
+0
+retry
+0
+live
+릴레이 R2B
+RELAY
+상태
+실행 중
+ACK 대기 수
+0
+retry
+0
+SELECTED NODE · monitor
+모니터
+X
+role · Monitor
+unknown
+UNKNOWN
+last_seen · never
+현재 상황 요약
+last_event
+—
+event_type
+—
+host_state
+—
+ACK
+—
+retry
+0
+Route Summary
+route_state
+—
+active_route
+—
+failed_hop
+—
+suspected_node
+—
+reroute_reason
+—
+Fault Localization
+failure_scope
+—
+failed_hop
+—
+suspected_node
+—
+failure_reason
+—
+confidence
+—
+basis
+—
+Route Trace
+자료
+—
+Event Sink Summary
+자료
+—
+Last Processed Event
+자료
+—
+Sink / ACK Result
+last_sink_result
+—
+last_ack_result
+—
+Host State Table
+자료
+—
+Counters
+out_of_order_count
+0
+total_logged
+0
+duplicate_count
+0
+Traffic Snapshot
+capture_seq
+—
+captured_at
+—
+previous_peer
+—
+node
+—
+role
+not_applicable
+hop_state
+not_applicable
+failure_reason
+—
+last_received
+—
+last_sent
+—
+next_peer
+—
+node
+—
+role
+not_applicable
+hop_state
+not_applicable
+failure_reason
+—
+last_received
+—
+last_sent
+—
+자료
+—
+명령 팔레트
+
+controller_gateway_runtime_state · 갱신 오후 2:52:51
+
+전체
+전체 시작
+전체 일시정지
+전체 초기화
+장애 스위치
+CPU 장애
+꺼짐
+서비스 중단
+꺼짐
+지연 증가
+꺼짐
+노드 스위치
+호스트 시뮬레이터
+꺼짐
+로컬 에이전트
+꺼짐
+릴레이 R1
+꺼짐
+릴레이 R2
+꺼짐
+모니터
+꺼짐
+릴레이 R1B
+켜짐
+릴레이 R2B
+켜짐
+전달 실험
+다음 ACK 드롭
+R1 전달 지연
+R2 전달 지연
+R1B 전달 지연
+R2B 전달 지연

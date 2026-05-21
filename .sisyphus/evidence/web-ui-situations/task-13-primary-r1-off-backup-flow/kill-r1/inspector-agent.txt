@@ -1,0 +1,100 @@
+SELECTED NODE · local-agent
+로컬 에이전트
+X
+role · Local Agent
+live
+실행 중
+last_seen · 0.2s ago
+Host Input
+cpu_usage
+22
+fault_mode
+NORMAL
+host_id
+host-1
+last_update_time
+2026-05-21T06:54:05+00:00
+latency_ms
+30
+latency_state
+NORMAL
+memory_usage
+45
+service_state
+UP
+Input Result / Fault
+latest_input_result
+{"source":"host","status":"ok"}
+detected_fault
+—
+Emitted Event
+msg_type
+EVENT
+event_id
+evt-host-1-2
+seq_no
+2
+host_id
+host-1
+agent_id
+agent-1
+event_type
+HOST_STATE_UPDATE
+severity
+INFO
+timestamp
+2026-05-21T06:54:05+00:00
+payload.cpu
+22
+payload.memory
+45
+payload.service_state
+UP
+payload.latency_ms
+30
+payload.fault_mode
+NORMAL
+Downstream / Last Event
+downstream_result
+{"ack":{"ack_for":"evt-host-1-2","from_node":"r1b","msg_type":"ACK","timestamp":"2026-05-21T06:54:08+00:00"},"active_route":"backup","event_id":"evt-host-1-2","primary_failure_reason":"connection_error","status":"acknowledged"}
+last_event
+{"agent_id":"agent-1","event_id":"evt-host-1-2","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":22,"fault_mode":"NORMAL","latency_ms":30,"memory":45,"service_state":"UP"},"route_trace":[{"attempt_no":1,"failure_reason":"connection_error","from_node":"local-agent","phase":"event_forward","result":"connection_error","route_id":"primary","timestamp":"2026-05-21T06:54:05+00:00","to_node":"r1"},{"attempt_no":1,"failure_reason":null,"from_node":"local-agent","phase":"event_forward","result":"acknowledged","route_id":"backup","timestamp":"2026-05-21T06:54:08+00:00","to_node":"r1b"}],"routing":{"active_route":"backup","failed_hop":"local-agent->r1","reroute_reason":"connection_error","route_state":"BYPASS_ACTIVE","suspected_node":"r1"},"seq_no":2,"severity":"INFO","timestamp":"2026-05-21T06:54:05+00:00"}
+Traffic Snapshot
+capture_seq
+9
+captured_at
+2026-05-21T06:54:08+00:00
+previous_peer
+—
+node
+host-simulator
+role
+host
+hop_state
+acknowledged
+failure_reason
+—
+last_received
+{"attempt_no":null,"captured_at":"2026-05-21T06:54:05+00:00","logical_id":"get_host_state","original_size":null,"payload":{"host_state":{"cpu_usage":22,"fault_mode":"NORMAL","host_id":"host-1","last_update_time":"2026-05-21T06:54:05+00:00","latency_ms":30,"latency_state":"NORMAL","memory_usage":45,"service_state":"UP"},"kind":"host_state"},"phase":"host_response","preview":null,"truncated":false}
+last_sent
+{"attempt_no":null,"captured_at":"2026-05-21T06:54:05+00:00","logical_id":"get_host_state","original_size":null,"payload":{"kind":"get_host_state"},"phase":"host_request","preview":null,"truncated":false}
+next_peer
+—
+node
+r1b
+role
+relay
+hop_state
+acknowledged
+failure_reason
+—
+last_received
+{"attempt_no":1,"captured_at":"2026-05-21T06:54:08+00:00","logical_id":"evt-host-1-2","original_size":null,"payload":{"ack_for":"evt-host-1-2","from_node":"r1b","msg_type":"ACK","timestamp":"2026-05-21T06:54:08+00:00"},"phase":"downstream_ack","preview":null,"truncated":false}
+last_sent
+{"attempt_no":1,"captured_at":"2026-05-21T06:54:05+00:00","logical_id":"evt-host-1-2","original_size":null,"payload":{"agent_id":"agent-1","event_id":"evt-host-1-2","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":22,"fault_mode":"NORMAL","latency_ms":30,"memory":45,"service_state":"UP"},"route_trace":[{"attempt_no":1,"failure_reason":"connection_error","from_node":"local-agent","phase":"event_forward","result":"connection_error","route_id":"primary","timestamp":"2026-05-21T06:54:05+00:00","to_node":"r1"}],"routing":{"active_route":"backup","failed_hop":"local-agent->r1","reroute_reason":"connection_error","route_state":"BYPASS_ACTIVE","suspected_node":"r1"},"seq_no":2,"severity":"INFO","timestamp":"2026-05-21T06:54:05+00:00"},"phase":"event_forward","preview":null,"truncated":false}
+direction	flow	peer_node_id	peer_role	hop_state	failure_reason	logical_id	attempt_no	phase	captured_at	truncated	original_size	preview
+next_peer	last_received	r1b	relay	acknowledged	—	evt-host-1-2	1	downstream_ack	2026-05-21T06:54:08+00:00	false	—	{"ack_for":"evt-host-1-2","from_node":"r1b","msg_type":"ACK","timestamp":"2026-05-21T06:54:08+00:00"}
+next_peer	last_sent	r1b	relay	request_sent	—	evt-host-1-2	1	event_forward	2026-05-21T06:54:05+00:00	false	—	{"agent_id":"agent-1","event_id":"evt-host-1-2","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":22,"fault_mode":"NORMAL","latency_ms":30,"memory":45,"service_state":"UP"},"route_trace":[{"attempt_no":1,"failure_reason":"connection_error","from_node":"local-agent","phase":"event_forward","result":"connection_error","route_id":"primary","timestamp":"2026-05-21T06:54:05+00:00","to_node":"r1"}],"routing":{"active_route":"backup","failed_hop":"local-agent->r1","reroute_reason":"connection_error","route_state":"BYPASS_ACTIVE","suspected_node":"r1"},"seq_no":2,"severity":"INFO","timestamp":"2026-05-21T06:54:05+00:00"}
+next_peer	last_sent	r1	relay	request_sent	—	evt-host-1-2	1	event_forward	2026-05-21T06:54:05+00:00	false	—	{"agent_id":"agent-1","event_id":"evt-host-1-2","event_type":"HOST_STATE_UPDATE","host_id":"host-1","msg_type":"EVENT","payload":{"cpu":22,"fault_mode":"NORMAL","latency_ms":30,"memory":45,"service_state":"UP"},"route_trace":[],"routing":{"active_route":"primary","failed_hop":null,"reroute_reason":null,"route_state":"PRIMARY","suspected_node":null},"seq_no":2,"severity":"INFO","timestamp":"2026-05-21T06:54:05+00:00"}
+previous_peer	last_received	host-simulator	host	acknowledged	—	get_host_state	—	host_response	2026-05-21T06:54:05+00:00	false	—	{"host_state":{"cpu_usage":22,"fault_mode":"NORMAL","host_id":"host-1","last_update_time":"2026-05-21T06:54:05+00:00","latency_ms":30,"latency_state":"NORMAL","memory_usage":45,"service_state":"UP"},"kind":"host_state"}
+previous_peer	last_sent	host-simulator	host	request_sent	—	get_host_state	—	host_request	2026-05-21T06:54:05+00:00	false	—	{"kind":"get_host_state"}

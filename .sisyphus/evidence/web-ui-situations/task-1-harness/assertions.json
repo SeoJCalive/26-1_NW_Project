@@ -1,0 +1,130 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "selector exists #diagram-canvas",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "selector exists #node-layer",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "selector exists #data-path",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "selector exists #detail-inspector",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "selector exists #detail-inspector-inner",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "selector exists #runtime-status",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "seven node cards exist",
+      "passed": true,
+      "detail": "count=7"
+    },
+    {
+      "name": "node card exists host-simulator",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists local-agent",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists r1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists r2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists monitor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists r1b",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node card exists r2b",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists start",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists pause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists reset",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists ackdrop",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists delay r1 1.5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists delay r2 1.5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists delay r1b 1.5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "command button exists delay r2b 1.5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "/api/state returns nodes",
+      "passed": true,
+      "detail": "dict_keys(['activity', 'data_path', 'generated_at_monotonic', 'nodes', 'source'])"
+    },
+    {
+      "name": "no pageerror",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no unexpected console error",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}

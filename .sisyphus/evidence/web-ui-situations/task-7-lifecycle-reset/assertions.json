@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "pause command accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"pause\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "pause visible in state or card text",
+      "passed": true,
+      "detail": "net-demo runtime · node-first dashboard\n\nliveness lamp / reported state / traffic activity 분리\n\n관찰 노드\n7\nlive lamp\n7\nretry\n0\nduplicate\n0\n구조 다이어그램\nprimary + backup data-plane chain\n상태 확인 중\n전달 실패\n전달 실패\n상태 확인 중\nbackup 진입 완료\nbackup 중계 완료\nbackup monitor 완료\nprimary: host -> agent -> r1 -> r2 -> monitor · backup: agent -> r1b -> r2b -> monitor\nlive\n호스트 시뮬레이터\nhost simulator\n상태\n일시정지\ncpu\n26%\n메모리\n48%\nlive\n로컬 에이전트\nlocal agent\n상태\n일시정지\n입력\n—\nfault\n—\nlive\n릴레이 r1\nrelay\n상태\n일시정지\nack 대기 수\n0\nretry\n0\nlive\n릴레이 r2\nrelay\n상태\n일시정지\nack 대기 수\n0\nretry\n0\nlive\n모니터\nmonitor\n상태\n일시정지\nlogged\n1\nduplicate\n0\nlive\n릴레이 r1b\nrelay\n상태\n일시정지\nack 대기 수\n0\nretry\n0\nlive\n릴레이 r2b\nrelay\n상태\n일시정지\nack 대기 수\n0\nretry\n0\n명령 팔레트\n\ncontroller_gateway_runtime_state · 갱신 오후 3:01:24\n\n전체\n전체 시작\n전체 일시정지\n전체 초기화\n장애 스위치\ncpu 장애\n꺼짐\n서비스 중단\n꺼짐\n지연 증가\n꺼짐\n노드 스위치\n호스트 시뮬레이터\n"
+    },
+    {
+      "name": "reset command accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"reset\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "monitor detail renders after reset",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "reset does not leave BYPASS_ACTIVE",
+      "passed": true,
+      "detail": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n일시정지\nlast_seen · 0.1s ago\n현재 상황 요약\nlast_event\n—\nevent_type\n—\nhost_state\n—\nACK\n—\nretry\n0\nRoute Summary\nroute_state\n—\nactive_route\n—\nfailed_hop\n—\nsuspected_node\n—\nreroute_reason\n—\nFault Localization\nfailure_scope\n—\nfailed_hop\n—\nsuspected_node\n—\nfailure_reason\n—\nconfidence\n—\nbasis\n—\nRoute Trace\n자료\n—\nEvent Sink Summary\n자료\n—\nLast Processed Event\n자료\n—\nSink / ACK Result\nlast_sink_result\n—\nlast_ack_result\n—\nHost State Table\n자료\n—\nCounters\nout_of_order_count\n0\ntotal_logged\n0\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n0\ncaptured_at\n—\nprevious_peer\n—\nnode\nr2\nrole\nrelay\nhop_state\nunknown\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\n자료\n—"
+    },
+    {
+      "name": "kill monitor accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"kill monitor\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "web ui remains reachable after kill monitor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "monitor stopped/unavailable visible",
+      "passed": true,
+      "detail": "kill_requested\n모니터\nMONITOR\n상태\n일시정지\nlogged\n0\nduplicate\n0"
+    },
+    {
+      "name": "no pageerror",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no unexpected console error",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}

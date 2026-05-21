@@ -1,0 +1,1632 @@
+{
+  "checks": [
+    {
+      "details": {
+        "checks": [
+          {
+            "details": {
+              "active_route": "primary",
+              "failed_hop": null,
+              "reroute_reason": null,
+              "route_state": "PRIMARY",
+              "suspected_node": null
+            },
+            "name": "baseline_primary_route_seen",
+            "passed": true
+          },
+          {
+            "details": {
+              "command": "pause r1",
+              "ok": true,
+              "should_exit": false
+            },
+            "name": "pause r1_accepted",
+            "passed": true
+          },
+          {
+            "details": {
+              "controls": {
+                "kill": {
+                  "command": "shutdown",
+                  "target": "r1"
+                },
+                "pause": {
+                  "command": "pause",
+                  "target": "r1"
+                },
+                "reset": {
+                  "command": "reset",
+                  "target": "r1"
+                },
+                "start": {
+                  "command": "start",
+                  "target": "r1"
+                }
+              },
+              "details": {
+                "detail": {
+                  "last_downstream_result": {
+                    "ack": {
+                      "ack_for": "evt-host-1-1",
+                      "from_node": "r2",
+                      "msg_type": "ACK",
+                      "timestamp": "2026-05-21T06:53:50+00:00"
+                    },
+                    "attempt": 1,
+                    "event_id": "evt-host-1-1",
+                    "status": "acknowledged"
+                  },
+                  "last_forwarded_result": {
+                    "event_id": "evt-host-1-1",
+                    "status": "upstream_ack_ready"
+                  },
+                  "last_received_event": {
+                    "event_id": "evt-host-1-1",
+                    "event_type": "HOST_STATE_UPDATE",
+                    "host_id": "host-1",
+                    "seq_no": 1,
+                    "timestamp": "2026-05-21T06:53:47+00:00"
+                  },
+                  "pending_ack_state": [],
+                  "recent_received_event_ids": [
+                    "evt-host-1-1"
+                  ],
+                  "role": "relay",
+                  "traffic": {
+                    "capture_seq": 4,
+                    "captured_at": "2026-05-21T06:53:50+00:00",
+                    "next_peer": {
+                      "failure_reason": null,
+                      "hop_state": "acknowledged",
+                      "last_received": {
+                        "attempt_no": 1,
+                        "captured_at": "2026-05-21T06:53:50+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "ack_for": "evt-host-1-1",
+                          "from_node": "r2",
+                          "msg_type": "ACK",
+                          "timestamp": "2026-05-21T06:53:50+00:00"
+                        },
+                        "phase": "downstream_ack",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "last_sent": {
+                        "attempt_no": 1,
+                        "captured_at": "2026-05-21T06:53:48+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "agent_id": "agent-1",
+                          "event_id": "evt-host-1-1",
+                          "event_type": "HOST_STATE_UPDATE",
+                          "host_id": "host-1",
+                          "msg_type": "EVENT",
+                          "payload": {
+                            "cpu": 26,
+                            "fault_mode": "NORMAL",
+                            "latency_ms": 36,
+                            "memory": 48,
+                            "service_state": "UP"
+                          },
+                          "route_trace": [],
+                          "routing": {
+                            "active_route": "primary",
+                            "failed_hop": null,
+                            "reroute_reason": null,
+                            "route_state": "PRIMARY",
+                            "suspected_node": null
+                          },
+                          "seq_no": 1,
+                          "severity": "INFO",
+                          "timestamp": "2026-05-21T06:53:47+00:00"
+                        },
+                        "phase": "downstream_event",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "peer_node_id": "r2",
+                      "peer_role": "relay"
+                    },
+                    "previous_peer": {
+                      "failure_reason": null,
+                      "hop_state": "acknowledged",
+                      "last_received": {
+                        "attempt_no": null,
+                        "captured_at": "2026-05-21T06:53:47+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "agent_id": "agent-1",
+                          "event_id": "evt-host-1-1",
+                          "event_type": "HOST_STATE_UPDATE",
+                          "host_id": "host-1",
+                          "msg_type": "EVENT",
+                          "payload": {
+                            "cpu": 26,
+                            "fault_mode": "NORMAL",
+                            "latency_ms": 36,
+                            "memory": 48,
+                            "service_state": "UP"
+                          },
+                          "route_trace": [],
+                          "routing": {
+                            "active_route": "primary",
+                            "failed_hop": null,
+                            "reroute_reason": null,
+                            "route_state": "PRIMARY",
+                            "suspected_node": null
+                          },
+                          "seq_no": 1,
+                          "severity": "INFO",
+                          "timestamp": "2026-05-21T06:53:47+00:00"
+                        },
+                        "phase": "upstream_event",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "last_sent": {
+                        "attempt_no": null,
+                        "captured_at": "2026-05-21T06:53:50+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "ack_for": "evt-host-1-1",
+                          "from_node": "r1",
+                          "msg_type": "ACK",
+                          "timestamp": "2026-05-21T06:53:50+00:00"
+                        },
+                        "phase": "upstream_ack",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "peer_node_id": "local-agent",
+                      "peer_role": "agent"
+                    },
+                    "recent": [
+                      {
+                        "capture": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:53:50+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r1",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:53:50+00:00"
+                          },
+                          "phase": "upstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "previous_peer",
+                        "failure_reason": null,
+                        "flow": "last_sent",
+                        "hop_state": "acknowledged",
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:53:50+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r2",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:53:50+00:00"
+                          },
+                          "phase": "downstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "next_peer",
+                        "failure_reason": null,
+                        "flow": "last_received",
+                        "hop_state": "acknowledged",
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:53:48+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:53:47+00:00"
+                          },
+                          "phase": "downstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "next_peer",
+                        "failure_reason": null,
+                        "flow": "last_sent",
+                        "hop_state": "request_sent",
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:53:47+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:53:47+00:00"
+                          },
+                          "phase": "upstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "previous_peer",
+                        "failure_reason": null,
+                        "flow": "last_received",
+                        "hop_state": "request_received",
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      }
+                    ]
+                  }
+                },
+                "timestamp": "2026-05-21T06:53:50+00:00"
+              },
+              "duplicate_dropped": 0,
+              "kill_requested": false,
+              "last_seen": 1922982.62399828,
+              "node_id": "r1",
+              "note": "일시정지됨",
+              "observed_liveness": "live",
+              "pending_ack_count": 0,
+              "queue_length": 0,
+              "reported_state": "일시정지",
+              "retry_total": 0,
+              "role": "relay"
+            },
+            "name": "r1_paused_visible",
+            "passed": true
+          },
+          {
+            "details": {
+              "active_route": "backup",
+              "failed_hop": "local-agent->r1",
+              "reroute_reason": "ack_missing",
+              "route_state": "BYPASS_ACTIVE",
+              "suspected_node": "r1"
+            },
+            "name": "backup_route_reaches_monitor",
+            "passed": true
+          },
+          {
+            "details": {
+              "agent-r1": {
+                "hopState": "paused",
+                "hopTone": "muted",
+                "text": "일시정지: paused일시정지"
+              },
+              "agent-r1b": {
+                "hopState": "request_received",
+                "hopTone": "active",
+                "text": "backup 진입 중: request_receivedbackup 진입 중"
+              },
+              "host-agent": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "상태 수집 완료: acknowledged상태 수집 완료"
+              },
+              "r1-r2": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+              },
+              "r1b-r2b": {
+                "hopState": "request_received",
+                "hopTone": "active",
+                "text": "backup 중계 중: request_receivedbackup 중계 중"
+              },
+              "r2-monitor": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "Monitor 전달 완료: acknowledgedMonitor 전달 완료"
+              },
+              "r2b-monitor": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "backup Monitor 완료: acknowledgedbackup Monitor 완료"
+              }
+            },
+            "name": "backup_links_present",
+            "passed": true
+          },
+          {
+            "details": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n실행 중\nlast_seen · 0.2s ago\n현재 상황 요약\nlast_event\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nhost_state\nhost-1 · HOST_STATE_UPDATE · INFO · NORMAL\nACK\nacknowledged\nretry\n0\nRoute Summary\nroute_state\nBYPASS_ACTIVE\nactive_route\nbackup\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nreroute_reason\nack_missing\nFault Localization\nfailure_scope\nhop\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nfailure_reason\nack_missing\nconfidence\nmedium\nbasis\nroute_trace_failed_hop\nRoute Trace\nfrom\tto\troute\tattempt\tphase\tresult\treason\nlocal-agent\tr1\tprimary\t1\tevent_forward\tack_missing\tack_missing\nr1b\tr2b\tbackup\t1\tdownstream_event\tforwarded\t—\nr2b\tmonitor\tbackup\t1\tdownstream_event\tforwarded\t—\nEvent Sink Summary\nevent_id\tevent_type\tseverity\thost_id\tseq_no\ttimestamp\nevt-host-1-2\tHOST_STATE_UPDATE\tINFO\thost-1\t2\t2026-05-21T06:53:52+00:00\nevt-host-1-1\tHOST_STATE_UPDATE\tINFO\thost-1\t1\t2026-05-21T06:53:47+00:00\nLast Processed Event\nactive_route\nbackup\nevent_id\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nfailed_hop\nlocal-agent->r1\nhost_id\nhost-1\nreroute_reason\nack_missing\nroute_state\nBYPASS_ACTIVE\nseq_no\n2\nseverity\nINFO\nsuspected_node\nr1\ntimestamp\n2026-05-21T06:53:52+00:00\nSink / ACK Result\nlast_sink_result\n{\"event_id\":\"evt-host-1-2\",\"host_id\":\"host-1\",\"seq_no\":2,\"status\":\"logged\"}\nlast_ack_result\n{\"duplicate\":false,\"event_id\":\"evt-host-1-2\",\"status\":\"acknowledged\"}\nHost State Table\nhost_id\tevent_type\tseverity\tpayload\ttimestamp\nhost-1\tHOST_STATE_UPDATE\tINFO\t{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"}\t2026-05-21T06:53:52+00:00\nCounters\nout_of_order_count\n0\ntotal_logged\n2\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n4\ncaptured_at\n2026-05-21T06:53:55+00:00\nprevious_peer\n—\nnode\nr2b\nrole\nrelay\nhop_state\nacknowledged\nfailure_reason\n—\nlast_received\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:53:55+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"ack_missing\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"ack_missing\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:52+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:53+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:55+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"ack_missing\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:52+00:00\"},\"phase\":\"sink_event\",\"preview\":null,\"truncated\":false}\nlast_sent\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:53:55+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:55+00:00\"},\"phase\":\"sink_ack\",\"preview\":null,\"truncated\":false}\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\ndirection\tflow\tpeer_node_id\tpeer_role\thop_state\tfailure_reason\tlogical_id\tattempt_no\tphase\tcaptured_at\ttruncated\toriginal_size\tpreview\nprevious_peer\tlast_sent\tr2b\trelay\tacknowledged\t—\tevt-host-1-2\t—\tsink_ack\t2026-05-21T06:53:55+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:55+00:00\"}\nprevious_peer\tlast_received\tr2b\trelay\trequest_received\t—\tevt-host-1-2\t—\tsink_event\t2026-05-21T06:53:55+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"ack_missing\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"ack_missing\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:52+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:53+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:55+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"ack_missing\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:52+00:00\"}\nprevious_peer\tlast_sent\tr2\trelay\tacknowledged\t—\tevt-host-1-1\t—\tsink_ack\t2026-05-21T06:53:50+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-1\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:50+00:00\"}\nprevious_peer\tlast_received\tr2\trelay\trequest_received\t—\tevt-host-1-1\t—\tsink_event\t2026-05-21T06:53:50+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-1\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":26,\"fault_mode\":\"NORMAL\",\"latency_ms\":36,\"memory\":48,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:48+00:00\",\"to_node\":\"r2\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:50+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"primary\",\"failed_hop\":null,\"reroute_reason\":null,\"route_state\":\"PRIMARY\",\"suspected_node\":null},\"seq_no\":1,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:47+00:00\"}",
+            "name": "backup_trace_visible",
+            "passed": true
+          },
+          {
+            "details": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n실행 중\nlast_seen · 0.2s ago\n현재 상황 요약\nlast_event\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nhost_state\nhost-1 · HOST_STATE_UPDATE · INFO · NORMAL\nACK\nacknowledged\nretry\n0\nRoute Summary\nroute_state\nBYPASS_ACTIVE\nactive_route\nbackup\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nreroute_reason\nack_missing\nFault Localization\nfailure_scope\nhop\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nfailure_reason\nack_missing\nconfidence\nmedium\nbasis\nroute_trace_failed_hop\nRoute Trace\nfrom\tto\troute\tattempt\tphase\tresult\treason\nlocal-agent\tr1\tprimary\t1\tevent_forward\tack_missing\tack_missing\nr1b\tr2b\tbackup\t1\tdownstream_event\tforwarded\t—\nr2b\tmonitor\tbackup\t1\tdownstream_event\tforwarded\t—\nEvent Sink Summary\nevent_id\tevent_type\tseverity\thost_id\tseq_no\ttimestamp\nevt-host-1-2\tHOST_STATE_UPDATE\tINFO\thost-1\t2\t2026-05-21T06:53:52+00:00\nevt-host-1-1\tHOST_STATE_UPDATE\tINFO\thost-1\t1\t2026-05-21T06:53:47+00:00\nLast Processed Event\nactive_route\nbackup\nevent_id\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nfailed_hop\nlocal-agent->r1\nhost_id\nhost-1\nreroute_reason\nack_missing\nroute_state\nBYPASS_ACTIVE\nseq_no\n2\nseverity\nINFO\nsuspected_node\nr1\ntimestamp\n2026-05-21T06:53:52+00:00\nSink / ACK Result\nlast_sink_result\n{\"event_id\":\"evt-host-1-2\",\"host_id\":\"host-1\",\"seq_no\":2,\"status\":\"logged\"}\nlast_ack_result\n{\"duplicate\":false,\"event_id\":\"evt-host-1-2\",\"status\":\"acknowledged\"}\nHost State Table\nhost_id\tevent_type\tseverity\tpayload\ttimestamp\nhost-1\tHOST_STATE_UPDATE\tINFO\t{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"}\t2026-05-21T06:53:52+00:00\nCounters\nout_of_order_count\n0\ntotal_logged\n2\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n4\ncaptured_at\n2026-05-21T06:53:55+00:00\nprevious_peer\n—\nnode\nr2b\nrole\nrelay\nhop_state\nacknowledged\nfailure_reason\n—\nlast_received\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:53:55+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"ack_missing\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"ack_missing\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:52+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:53+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:55+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"ack_missing\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:52+00:00\"},\"phase\":\"sink_event\",\"preview\":null,\"truncated\":false}\nlast_sent\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:53:55+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:55+00:00\"},\"phase\":\"sink_ack\",\"preview\":null,\"truncated\":false}\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\ndirection\tflow\tpeer_node_id\tpeer_role\thop_state\tfailure_reason\tlogical_id\tattempt_no\tphase\tcaptured_at\ttruncated\toriginal_size\tpreview\nprevious_peer\tlast_sent\tr2b\trelay\tacknowledged\t—\tevt-host-1-2\t—\tsink_ack\t2026-05-21T06:53:55+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:55+00:00\"}\nprevious_peer\tlast_received\tr2b\trelay\trequest_received\t—\tevt-host-1-2\t—\tsink_event\t2026-05-21T06:53:55+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"ack_missing\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"ack_missing\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:52+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:53+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:53:55+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"ack_missing\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:52+00:00\"}\nprevious_peer\tlast_sent\tr2\trelay\tacknowledged\t—\tevt-host-1-1\t—\tsink_ack\t2026-05-21T06:53:50+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-1\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:53:50+00:00\"}\nprevious_peer\tlast_received\tr2\trelay\trequest_received\t—\tevt-host-1-1\t—\tsink_event\t2026-05-21T06:53:50+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-1\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":26,\"fault_mode\":\"NORMAL\",\"latency_ms\":36,\"memory\":48,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:48+00:00\",\"to_node\":\"r2\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:53:50+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"primary\",\"failed_hop\":null,\"reroute_reason\":null,\"route_state\":\"PRIMARY\",\"suspected_node\":null},\"seq_no\":1,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:53:47+00:00\"}",
+            "name": "fault_basis_visible",
+            "passed": true
+          },
+          {
+            "details": {
+              "agent_r1_link": {
+                "hopState": "paused",
+                "hopTone": "muted",
+                "text": "일시정지: paused일시정지"
+              },
+              "agent_result": {
+                "ack": {
+                  "ack_for": "evt-host-1-2",
+                  "from_node": "r1b",
+                  "msg_type": "ACK",
+                  "timestamp": "2026-05-21T06:53:55+00:00"
+                },
+                "active_route": "backup",
+                "event_id": "evt-host-1-2",
+                "primary_failure_reason": "ack_missing",
+                "status": "acknowledged"
+              },
+              "r1_last_event": {
+                "event_id": "evt-host-1-1",
+                "event_type": "HOST_STATE_UPDATE",
+                "host_id": "host-1",
+                "seq_no": 1,
+                "timestamp": "2026-05-21T06:53:47+00:00"
+              },
+              "r1_r2_link": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+              },
+              "r1_view": {
+                "controls": {
+                  "kill": {
+                    "command": "shutdown",
+                    "target": "r1"
+                  },
+                  "pause": {
+                    "command": "pause",
+                    "target": "r1"
+                  },
+                  "reset": {
+                    "command": "reset",
+                    "target": "r1"
+                  },
+                  "start": {
+                    "command": "start",
+                    "target": "r1"
+                  }
+                },
+                "details": {
+                  "detail": {
+                    "last_downstream_result": {
+                      "ack": {
+                        "ack_for": "evt-host-1-1",
+                        "from_node": "r2",
+                        "msg_type": "ACK",
+                        "timestamp": "2026-05-21T06:53:50+00:00"
+                      },
+                      "attempt": 1,
+                      "event_id": "evt-host-1-1",
+                      "status": "acknowledged"
+                    },
+                    "last_forwarded_result": {
+                      "event_id": "evt-host-1-1",
+                      "status": "upstream_ack_ready"
+                    },
+                    "last_received_event": {
+                      "event_id": "evt-host-1-1",
+                      "event_type": "HOST_STATE_UPDATE",
+                      "host_id": "host-1",
+                      "seq_no": 1,
+                      "timestamp": "2026-05-21T06:53:47+00:00"
+                    },
+                    "pending_ack_state": [],
+                    "recent_received_event_ids": [
+                      "evt-host-1-1"
+                    ],
+                    "role": "relay",
+                    "traffic": {
+                      "capture_seq": 6,
+                      "captured_at": "2026-05-21T06:53:52+00:00",
+                      "next_peer": {
+                        "failure_reason": null,
+                        "hop_state": "acknowledged",
+                        "last_received": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:53:50+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r2",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:53:50+00:00"
+                          },
+                          "phase": "downstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "last_sent": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:53:48+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:53:47+00:00"
+                          },
+                          "phase": "downstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      "previous_peer": {
+                        "failure_reason": "paused",
+                        "hop_state": "paused",
+                        "last_received": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:53:52+00:00",
+                          "logical_id": "evt-host-1-2",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-2",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 22,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 30,
+                              "memory": 45,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 2,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:53:52+00:00"
+                          },
+                          "phase": "upstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "last_sent": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:53:52+00:00",
+                          "logical_id": "evt-host-1-2",
+                          "original_size": null,
+                          "payload": {
+                            "msg_type": "ERROR",
+                            "node_id": "r1",
+                            "reason": "paused"
+                          },
+                          "phase": "upstream_response",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      },
+                      "recent": [
+                        {
+                          "capture": {
+                            "attempt_no": null,
+                            "captured_at": "2026-05-21T06:53:52+00:00",
+                            "logical_id": "evt-host-1-2",
+                            "original_size": null,
+                            "payload": {
+                              "msg_type": "ERROR",
+                              "node_id": "r1",
+                              "reason": "paused"
+                            },
+                            "phase": "upstream_response",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "previous_peer",
+                          "failure_reason": "paused",
+                          "flow": "last_sent",
+                          "hop_state": "paused",
+                          "peer_node_id": "local-agent",
+                          "peer_role": "agent"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": null,
+                            "captured_at": "2026-05-21T06:53:52+00:00",
+                            "logical_id": "evt-host-1-2",
+                            "original_size": null,
+                            "payload": {
+                              "agent_id": "agent-1",
+                              "event_id": "evt-host-1-2",
+                              "event_type": "HOST_STATE_UPDATE",
+                              "host_id": "host-1",
+                              "msg_type": "EVENT",
+                              "payload": {
+                                "cpu": 22,
+                                "fault_mode": "NORMAL",
+                                "latency_ms": 30,
+                                "memory": 45,
+                                "service_state": "UP"
+                              },
+                              "route_trace": [],
+                              "routing": {
+                                "active_route": "primary",
+                                "failed_hop": null,
+                                "reroute_reason": null,
+                                "route_state": "PRIMARY",
+                                "suspected_node": null
+                              },
+                              "seq_no": 2,
+                              "severity": "INFO",
+                              "timestamp": "2026-05-21T06:53:52+00:00"
+                            },
+                            "phase": "upstream_event",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "previous_peer",
+                          "failure_reason": null,
+                          "flow": "last_received",
+                          "hop_state": "request_received",
+                          "peer_node_id": "local-agent",
+                          "peer_role": "agent"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": null,
+                            "captured_at": "2026-05-21T06:53:50+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "ack_for": "evt-host-1-1",
+                              "from_node": "r1",
+                              "msg_type": "ACK",
+                              "timestamp": "2026-05-21T06:53:50+00:00"
+                            },
+                            "phase": "upstream_ack",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "previous_peer",
+                          "failure_reason": null,
+                          "flow": "last_sent",
+                          "hop_state": "acknowledged",
+                          "peer_node_id": "local-agent",
+                          "peer_role": "agent"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": 1,
+                            "captured_at": "2026-05-21T06:53:50+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "ack_for": "evt-host-1-1",
+                              "from_node": "r2",
+                              "msg_type": "ACK",
+                              "timestamp": "2026-05-21T06:53:50+00:00"
+                            },
+                            "phase": "downstream_ack",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "next_peer",
+                          "failure_reason": null,
+                          "flow": "last_received",
+                          "hop_state": "acknowledged",
+                          "peer_node_id": "r2",
+                          "peer_role": "relay"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": 1,
+                            "captured_at": "2026-05-21T06:53:48+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "agent_id": "agent-1",
+                              "event_id": "evt-host-1-1",
+                              "event_type": "HOST_STATE_UPDATE",
+                              "host_id": "host-1",
+                              "msg_type": "EVENT",
+                              "payload": {
+                                "cpu": 26,
+                                "fault_mode": "NORMAL",
+                                "latency_ms": 36,
+                                "memory": 48,
+                                "service_state": "UP"
+                              },
+                              "route_trace": [],
+                              "routing": {
+                                "active_route": "primary",
+                                "failed_hop": null,
+                                "reroute_reason": null,
+                                "route_state": "PRIMARY",
+                                "suspected_node": null
+                              },
+                              "seq_no": 1,
+                              "severity": "INFO",
+                              "timestamp": "2026-05-21T06:53:47+00:00"
+                            },
+                            "phase": "downstream_event",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "next_peer",
+                          "failure_reason": null,
+                          "flow": "last_sent",
+                          "hop_state": "request_sent",
+                          "peer_node_id": "r2",
+                          "peer_role": "relay"
+                        }
+                      ]
+                    }
+                  },
+                  "timestamp": "2026-05-21T06:53:54+00:00"
+                },
+                "duplicate_dropped": 0,
+                "kill_requested": false,
+                "last_seen": 1922986.446469612,
+                "node_id": "r1",
+                "note": "일시정지 상태로 evt-host-1-2 보류 중",
+                "observed_liveness": "live",
+                "pending_ack_count": 0,
+                "queue_length": 0,
+                "reported_state": "일시정지",
+                "retry_total": 0,
+                "role": "relay"
+              },
+              "stale_primary_link_explained": true
+            },
+            "name": "failed_primary_link_not_claimed_current_success",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_cross_path_after_r1_off",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_console_errors",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_page_errors",
+            "passed": true
+          }
+        ],
+        "extra": {
+          "links": {
+            "agent-r1": {
+              "hopState": "paused",
+              "hopTone": "muted",
+              "text": "일시정지: paused일시정지"
+            },
+            "agent-r1b": {
+              "hopState": "request_received",
+              "hopTone": "active",
+              "text": "backup 진입 중: request_receivedbackup 진입 중"
+            },
+            "host-agent": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "상태 수집 완료: acknowledged상태 수집 완료"
+            },
+            "r1-r2": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+            },
+            "r1b-r2b": {
+              "hopState": "request_received",
+              "hopTone": "active",
+              "text": "backup 중계 중: request_receivedbackup 중계 중"
+            },
+            "r2-monitor": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "Monitor 전달 완료: acknowledgedMonitor 전달 완료"
+            },
+            "r2b-monitor": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "backup Monitor 완료: acknowledgedbackup Monitor 완료"
+            }
+          }
+        },
+        "passed": true
+      },
+      "name": "pause_r1_passed",
+      "passed": true
+    },
+    {
+      "details": {
+        "checks": [
+          {
+            "details": {
+              "active_route": "primary",
+              "failed_hop": null,
+              "reroute_reason": null,
+              "route_state": "PRIMARY",
+              "suspected_node": null
+            },
+            "name": "baseline_primary_route_seen",
+            "passed": true
+          },
+          {
+            "details": {
+              "command": "kill r1",
+              "ok": true,
+              "should_exit": false
+            },
+            "name": "kill r1_accepted",
+            "passed": true
+          },
+          {
+            "details": {
+              "controls": {
+                "kill": {
+                  "command": "shutdown",
+                  "target": "r1"
+                },
+                "pause": {
+                  "command": "pause",
+                  "target": "r1"
+                },
+                "reset": {
+                  "command": "reset",
+                  "target": "r1"
+                },
+                "start": {
+                  "command": "start",
+                  "target": "r1"
+                }
+              },
+              "details": {
+                "detail": {
+                  "last_downstream_result": {
+                    "ack": {
+                      "ack_for": "evt-host-1-1",
+                      "from_node": "r2",
+                      "msg_type": "ACK",
+                      "timestamp": "2026-05-21T06:54:03+00:00"
+                    },
+                    "attempt": 1,
+                    "event_id": "evt-host-1-1",
+                    "status": "acknowledged"
+                  },
+                  "last_forwarded_result": {
+                    "event_id": "evt-host-1-1",
+                    "status": "upstream_ack_ready"
+                  },
+                  "last_received_event": {
+                    "event_id": "evt-host-1-1",
+                    "event_type": "HOST_STATE_UPDATE",
+                    "host_id": "host-1",
+                    "seq_no": 1,
+                    "timestamp": "2026-05-21T06:54:00+00:00"
+                  },
+                  "pending_ack_state": [],
+                  "recent_received_event_ids": [
+                    "evt-host-1-1"
+                  ],
+                  "role": "relay",
+                  "traffic": {
+                    "capture_seq": 4,
+                    "captured_at": "2026-05-21T06:54:03+00:00",
+                    "next_peer": {
+                      "failure_reason": null,
+                      "hop_state": "acknowledged",
+                      "last_received": {
+                        "attempt_no": 1,
+                        "captured_at": "2026-05-21T06:54:03+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "ack_for": "evt-host-1-1",
+                          "from_node": "r2",
+                          "msg_type": "ACK",
+                          "timestamp": "2026-05-21T06:54:03+00:00"
+                        },
+                        "phase": "downstream_ack",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "last_sent": {
+                        "attempt_no": 1,
+                        "captured_at": "2026-05-21T06:54:01+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "agent_id": "agent-1",
+                          "event_id": "evt-host-1-1",
+                          "event_type": "HOST_STATE_UPDATE",
+                          "host_id": "host-1",
+                          "msg_type": "EVENT",
+                          "payload": {
+                            "cpu": 26,
+                            "fault_mode": "NORMAL",
+                            "latency_ms": 36,
+                            "memory": 48,
+                            "service_state": "UP"
+                          },
+                          "route_trace": [],
+                          "routing": {
+                            "active_route": "primary",
+                            "failed_hop": null,
+                            "reroute_reason": null,
+                            "route_state": "PRIMARY",
+                            "suspected_node": null
+                          },
+                          "seq_no": 1,
+                          "severity": "INFO",
+                          "timestamp": "2026-05-21T06:54:00+00:00"
+                        },
+                        "phase": "downstream_event",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "peer_node_id": "r2",
+                      "peer_role": "relay"
+                    },
+                    "previous_peer": {
+                      "failure_reason": null,
+                      "hop_state": "acknowledged",
+                      "last_received": {
+                        "attempt_no": null,
+                        "captured_at": "2026-05-21T06:54:00+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "agent_id": "agent-1",
+                          "event_id": "evt-host-1-1",
+                          "event_type": "HOST_STATE_UPDATE",
+                          "host_id": "host-1",
+                          "msg_type": "EVENT",
+                          "payload": {
+                            "cpu": 26,
+                            "fault_mode": "NORMAL",
+                            "latency_ms": 36,
+                            "memory": 48,
+                            "service_state": "UP"
+                          },
+                          "route_trace": [],
+                          "routing": {
+                            "active_route": "primary",
+                            "failed_hop": null,
+                            "reroute_reason": null,
+                            "route_state": "PRIMARY",
+                            "suspected_node": null
+                          },
+                          "seq_no": 1,
+                          "severity": "INFO",
+                          "timestamp": "2026-05-21T06:54:00+00:00"
+                        },
+                        "phase": "upstream_event",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "last_sent": {
+                        "attempt_no": null,
+                        "captured_at": "2026-05-21T06:54:03+00:00",
+                        "logical_id": "evt-host-1-1",
+                        "original_size": null,
+                        "payload": {
+                          "ack_for": "evt-host-1-1",
+                          "from_node": "r1",
+                          "msg_type": "ACK",
+                          "timestamp": "2026-05-21T06:54:03+00:00"
+                        },
+                        "phase": "upstream_ack",
+                        "preview": null,
+                        "truncated": false
+                      },
+                      "peer_node_id": "local-agent",
+                      "peer_role": "agent"
+                    },
+                    "recent": [
+                      {
+                        "capture": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:54:03+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r1",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:54:03+00:00"
+                          },
+                          "phase": "upstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "previous_peer",
+                        "failure_reason": null,
+                        "flow": "last_sent",
+                        "hop_state": "acknowledged",
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:54:03+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r2",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:54:03+00:00"
+                          },
+                          "phase": "downstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "next_peer",
+                        "failure_reason": null,
+                        "flow": "last_received",
+                        "hop_state": "acknowledged",
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:54:01+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:54:00+00:00"
+                          },
+                          "phase": "downstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "next_peer",
+                        "failure_reason": null,
+                        "flow": "last_sent",
+                        "hop_state": "request_sent",
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      {
+                        "capture": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:54:00+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:54:00+00:00"
+                          },
+                          "phase": "upstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "direction": "previous_peer",
+                        "failure_reason": null,
+                        "flow": "last_received",
+                        "hop_state": "request_received",
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      }
+                    ]
+                  }
+                },
+                "timestamp": "2026-05-21T06:54:03+00:00"
+              },
+              "duplicate_dropped": 0,
+              "kill_requested": true,
+              "last_seen": 1922995.488745397,
+              "node_id": "r1",
+              "note": "종료 요청 수신",
+              "observed_liveness": "kill_requested",
+              "pending_ack_count": 0,
+              "queue_length": 0,
+              "reported_state": "실행 중",
+              "retry_total": 0,
+              "role": "relay"
+            },
+            "name": "r1_unavailable_visible",
+            "passed": true
+          },
+          {
+            "details": {
+              "active_route": "backup",
+              "failed_hop": "local-agent->r1",
+              "reroute_reason": "connection_error",
+              "route_state": "BYPASS_ACTIVE",
+              "suspected_node": "r1"
+            },
+            "name": "backup_route_reaches_monitor",
+            "passed": true
+          },
+          {
+            "details": {
+              "agent-r1": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 전달 완료: acknowledgedEVENT 전달 완료"
+              },
+              "agent-r1b": {
+                "hopState": "request_received",
+                "hopTone": "active",
+                "text": "backup 진입 중: request_receivedbackup 진입 중"
+              },
+              "host-agent": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "상태 수집 완료: acknowledged상태 수집 완료"
+              },
+              "r1-r2": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+              },
+              "r1b-r2b": {
+                "hopState": "request_received",
+                "hopTone": "active",
+                "text": "backup 중계 중: request_receivedbackup 중계 중"
+              },
+              "r2-monitor": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "Monitor 전달 완료: acknowledgedMonitor 전달 완료"
+              },
+              "r2b-monitor": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "backup Monitor 완료: acknowledgedbackup Monitor 완료"
+              }
+            },
+            "name": "backup_links_present",
+            "passed": true
+          },
+          {
+            "details": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n실행 중\nlast_seen · 0.2s ago\n현재 상황 요약\nlast_event\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nhost_state\nhost-1 · HOST_STATE_UPDATE · INFO · NORMAL\nACK\nacknowledged\nretry\n0\nRoute Summary\nroute_state\nBYPASS_ACTIVE\nactive_route\nbackup\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nreroute_reason\nconnection_error\nFault Localization\nfailure_scope\nhop\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nfailure_reason\nconnection_error\nconfidence\nmedium\nbasis\nroute_trace_failed_hop\nRoute Trace\nfrom\tto\troute\tattempt\tphase\tresult\treason\nlocal-agent\tr1\tprimary\t1\tevent_forward\tconnection_error\tconnection_error\nr1b\tr2b\tbackup\t1\tdownstream_event\tforwarded\t—\nr2b\tmonitor\tbackup\t1\tdownstream_event\tforwarded\t—\nEvent Sink Summary\nevent_id\tevent_type\tseverity\thost_id\tseq_no\ttimestamp\nevt-host-1-2\tHOST_STATE_UPDATE\tINFO\thost-1\t2\t2026-05-21T06:54:05+00:00\nevt-host-1-1\tHOST_STATE_UPDATE\tINFO\thost-1\t1\t2026-05-21T06:54:00+00:00\nLast Processed Event\nactive_route\nbackup\nevent_id\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nfailed_hop\nlocal-agent->r1\nhost_id\nhost-1\nreroute_reason\nconnection_error\nroute_state\nBYPASS_ACTIVE\nseq_no\n2\nseverity\nINFO\nsuspected_node\nr1\ntimestamp\n2026-05-21T06:54:05+00:00\nSink / ACK Result\nlast_sink_result\n{\"event_id\":\"evt-host-1-2\",\"host_id\":\"host-1\",\"seq_no\":2,\"status\":\"logged\"}\nlast_ack_result\n{\"duplicate\":false,\"event_id\":\"evt-host-1-2\",\"status\":\"acknowledged\"}\nHost State Table\nhost_id\tevent_type\tseverity\tpayload\ttimestamp\nhost-1\tHOST_STATE_UPDATE\tINFO\t{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"}\t2026-05-21T06:54:05+00:00\nCounters\nout_of_order_count\n0\ntotal_logged\n2\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n4\ncaptured_at\n2026-05-21T06:54:08+00:00\nprevious_peer\n—\nnode\nr2b\nrole\nrelay\nhop_state\nacknowledged\nfailure_reason\n—\nlast_received\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:54:08+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"connection_error\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"connection_error\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:05+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:06+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:08+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"connection_error\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:05+00:00\"},\"phase\":\"sink_event\",\"preview\":null,\"truncated\":false}\nlast_sent\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:54:08+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:08+00:00\"},\"phase\":\"sink_ack\",\"preview\":null,\"truncated\":false}\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\ndirection\tflow\tpeer_node_id\tpeer_role\thop_state\tfailure_reason\tlogical_id\tattempt_no\tphase\tcaptured_at\ttruncated\toriginal_size\tpreview\nprevious_peer\tlast_sent\tr2b\trelay\tacknowledged\t—\tevt-host-1-2\t—\tsink_ack\t2026-05-21T06:54:08+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:08+00:00\"}\nprevious_peer\tlast_received\tr2b\trelay\trequest_received\t—\tevt-host-1-2\t—\tsink_event\t2026-05-21T06:54:08+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"connection_error\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"connection_error\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:05+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:06+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:08+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"connection_error\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:05+00:00\"}\nprevious_peer\tlast_sent\tr2\trelay\tacknowledged\t—\tevt-host-1-1\t—\tsink_ack\t2026-05-21T06:54:03+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-1\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:03+00:00\"}\nprevious_peer\tlast_received\tr2\trelay\trequest_received\t—\tevt-host-1-1\t—\tsink_event\t2026-05-21T06:54:03+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-1\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":26,\"fault_mode\":\"NORMAL\",\"latency_ms\":36,\"memory\":48,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:01+00:00\",\"to_node\":\"r2\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:03+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"primary\",\"failed_hop\":null,\"reroute_reason\":null,\"route_state\":\"PRIMARY\",\"suspected_node\":null},\"seq_no\":1,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:00+00:00\"}",
+            "name": "backup_trace_visible",
+            "passed": true
+          },
+          {
+            "details": "SELECTED NODE · monitor\n모니터\nX\nrole · Monitor\nlive\n실행 중\nlast_seen · 0.2s ago\n현재 상황 요약\nlast_event\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nhost_state\nhost-1 · HOST_STATE_UPDATE · INFO · NORMAL\nACK\nacknowledged\nretry\n0\nRoute Summary\nroute_state\nBYPASS_ACTIVE\nactive_route\nbackup\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nreroute_reason\nconnection_error\nFault Localization\nfailure_scope\nhop\nfailed_hop\nlocal-agent->r1\nsuspected_node\nr1\nfailure_reason\nconnection_error\nconfidence\nmedium\nbasis\nroute_trace_failed_hop\nRoute Trace\nfrom\tto\troute\tattempt\tphase\tresult\treason\nlocal-agent\tr1\tprimary\t1\tevent_forward\tconnection_error\tconnection_error\nr1b\tr2b\tbackup\t1\tdownstream_event\tforwarded\t—\nr2b\tmonitor\tbackup\t1\tdownstream_event\tforwarded\t—\nEvent Sink Summary\nevent_id\tevent_type\tseverity\thost_id\tseq_no\ttimestamp\nevt-host-1-2\tHOST_STATE_UPDATE\tINFO\thost-1\t2\t2026-05-21T06:54:05+00:00\nevt-host-1-1\tHOST_STATE_UPDATE\tINFO\thost-1\t1\t2026-05-21T06:54:00+00:00\nLast Processed Event\nactive_route\nbackup\nevent_id\nevt-host-1-2\nevent_type\nHOST_STATE_UPDATE\nfailed_hop\nlocal-agent->r1\nhost_id\nhost-1\nreroute_reason\nconnection_error\nroute_state\nBYPASS_ACTIVE\nseq_no\n2\nseverity\nINFO\nsuspected_node\nr1\ntimestamp\n2026-05-21T06:54:05+00:00\nSink / ACK Result\nlast_sink_result\n{\"event_id\":\"evt-host-1-2\",\"host_id\":\"host-1\",\"seq_no\":2,\"status\":\"logged\"}\nlast_ack_result\n{\"duplicate\":false,\"event_id\":\"evt-host-1-2\",\"status\":\"acknowledged\"}\nHost State Table\nhost_id\tevent_type\tseverity\tpayload\ttimestamp\nhost-1\tHOST_STATE_UPDATE\tINFO\t{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"}\t2026-05-21T06:54:05+00:00\nCounters\nout_of_order_count\n0\ntotal_logged\n2\nduplicate_count\n0\nTraffic Snapshot\ncapture_seq\n4\ncaptured_at\n2026-05-21T06:54:08+00:00\nprevious_peer\n—\nnode\nr2b\nrole\nrelay\nhop_state\nacknowledged\nfailure_reason\n—\nlast_received\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:54:08+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"connection_error\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"connection_error\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:05+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:06+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:08+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"connection_error\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:05+00:00\"},\"phase\":\"sink_event\",\"preview\":null,\"truncated\":false}\nlast_sent\n{\"attempt_no\":null,\"captured_at\":\"2026-05-21T06:54:08+00:00\",\"logical_id\":\"evt-host-1-2\",\"original_size\":null,\"payload\":{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:08+00:00\"},\"phase\":\"sink_ack\",\"preview\":null,\"truncated\":false}\nnext_peer\n—\nnode\n—\nrole\n—\nhop_state\nnot_applicable\nfailure_reason\n—\nlast_received\n—\nlast_sent\n—\ndirection\tflow\tpeer_node_id\tpeer_role\thop_state\tfailure_reason\tlogical_id\tattempt_no\tphase\tcaptured_at\ttruncated\toriginal_size\tpreview\nprevious_peer\tlast_sent\tr2b\trelay\tacknowledged\t—\tevt-host-1-2\t—\tsink_ack\t2026-05-21T06:54:08+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-2\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:08+00:00\"}\nprevious_peer\tlast_received\tr2b\trelay\trequest_received\t—\tevt-host-1-2\t—\tsink_event\t2026-05-21T06:54:08+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-2\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":22,\"fault_mode\":\"NORMAL\",\"latency_ms\":30,\"memory\":45,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":\"connection_error\",\"from_node\":\"local-agent\",\"phase\":\"event_forward\",\"result\":\"connection_error\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:05+00:00\",\"to_node\":\"r1\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:06+00:00\",\"to_node\":\"r2b\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2b\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"backup\",\"timestamp\":\"2026-05-21T06:54:08+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"backup\",\"failed_hop\":\"local-agent->r1\",\"reroute_reason\":\"connection_error\",\"route_state\":\"BYPASS_ACTIVE\",\"suspected_node\":\"r1\"},\"seq_no\":2,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:05+00:00\"}\nprevious_peer\tlast_sent\tr2\trelay\tacknowledged\t—\tevt-host-1-1\t—\tsink_ack\t2026-05-21T06:54:03+00:00\tfalse\t—\t{\"ack_for\":\"evt-host-1-1\",\"from_node\":\"monitor\",\"msg_type\":\"ACK\",\"timestamp\":\"2026-05-21T06:54:03+00:00\"}\nprevious_peer\tlast_received\tr2\trelay\trequest_received\t—\tevt-host-1-1\t—\tsink_event\t2026-05-21T06:54:03+00:00\tfalse\t—\t{\"agent_id\":\"agent-1\",\"event_id\":\"evt-host-1-1\",\"event_type\":\"HOST_STATE_UPDATE\",\"host_id\":\"host-1\",\"msg_type\":\"EVENT\",\"payload\":{\"cpu\":26,\"fault_mode\":\"NORMAL\",\"latency_ms\":36,\"memory\":48,\"service_state\":\"UP\"},\"route_trace\":[{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r1\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:01+00:00\",\"to_node\":\"r2\"},{\"attempt_no\":1,\"failure_reason\":null,\"from_node\":\"r2\",\"phase\":\"downstream_event\",\"result\":\"forwarded\",\"route_id\":\"primary\",\"timestamp\":\"2026-05-21T06:54:03+00:00\",\"to_node\":\"monitor\"}],\"routing\":{\"active_route\":\"primary\",\"failed_hop\":null,\"reroute_reason\":null,\"route_state\":\"PRIMARY\",\"suspected_node\":null},\"seq_no\":1,\"severity\":\"INFO\",\"timestamp\":\"2026-05-21T06:54:00+00:00\"}",
+            "name": "fault_basis_visible",
+            "passed": true
+          },
+          {
+            "details": {
+              "agent_r1_link": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 전달 완료: acknowledgedEVENT 전달 완료"
+              },
+              "agent_result": {
+                "ack": {
+                  "ack_for": "evt-host-1-2",
+                  "from_node": "r1b",
+                  "msg_type": "ACK",
+                  "timestamp": "2026-05-21T06:54:08+00:00"
+                },
+                "active_route": "backup",
+                "event_id": "evt-host-1-2",
+                "primary_failure_reason": "connection_error",
+                "status": "acknowledged"
+              },
+              "r1_last_event": {
+                "event_id": "evt-host-1-1",
+                "event_type": "HOST_STATE_UPDATE",
+                "host_id": "host-1",
+                "seq_no": 1,
+                "timestamp": "2026-05-21T06:54:00+00:00"
+              },
+              "r1_r2_link": {
+                "hopState": "acknowledged",
+                "hopTone": "ok",
+                "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+              },
+              "r1_view": {
+                "controls": {
+                  "kill": {
+                    "command": "shutdown",
+                    "target": "r1"
+                  },
+                  "pause": {
+                    "command": "pause",
+                    "target": "r1"
+                  },
+                  "reset": {
+                    "command": "reset",
+                    "target": "r1"
+                  },
+                  "start": {
+                    "command": "start",
+                    "target": "r1"
+                  }
+                },
+                "details": {
+                  "detail": {
+                    "last_downstream_result": {
+                      "ack": {
+                        "ack_for": "evt-host-1-1",
+                        "from_node": "r2",
+                        "msg_type": "ACK",
+                        "timestamp": "2026-05-21T06:54:03+00:00"
+                      },
+                      "attempt": 1,
+                      "event_id": "evt-host-1-1",
+                      "status": "acknowledged"
+                    },
+                    "last_forwarded_result": {
+                      "event_id": "evt-host-1-1",
+                      "status": "upstream_ack_ready"
+                    },
+                    "last_received_event": {
+                      "event_id": "evt-host-1-1",
+                      "event_type": "HOST_STATE_UPDATE",
+                      "host_id": "host-1",
+                      "seq_no": 1,
+                      "timestamp": "2026-05-21T06:54:00+00:00"
+                    },
+                    "pending_ack_state": [],
+                    "recent_received_event_ids": [
+                      "evt-host-1-1"
+                    ],
+                    "role": "relay",
+                    "traffic": {
+                      "capture_seq": 4,
+                      "captured_at": "2026-05-21T06:54:03+00:00",
+                      "next_peer": {
+                        "failure_reason": null,
+                        "hop_state": "acknowledged",
+                        "last_received": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:54:03+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r2",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:54:03+00:00"
+                          },
+                          "phase": "downstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "last_sent": {
+                          "attempt_no": 1,
+                          "captured_at": "2026-05-21T06:54:01+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:54:00+00:00"
+                          },
+                          "phase": "downstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "peer_node_id": "r2",
+                        "peer_role": "relay"
+                      },
+                      "previous_peer": {
+                        "failure_reason": null,
+                        "hop_state": "acknowledged",
+                        "last_received": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:54:00+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "agent_id": "agent-1",
+                            "event_id": "evt-host-1-1",
+                            "event_type": "HOST_STATE_UPDATE",
+                            "host_id": "host-1",
+                            "msg_type": "EVENT",
+                            "payload": {
+                              "cpu": 26,
+                              "fault_mode": "NORMAL",
+                              "latency_ms": 36,
+                              "memory": 48,
+                              "service_state": "UP"
+                            },
+                            "route_trace": [],
+                            "routing": {
+                              "active_route": "primary",
+                              "failed_hop": null,
+                              "reroute_reason": null,
+                              "route_state": "PRIMARY",
+                              "suspected_node": null
+                            },
+                            "seq_no": 1,
+                            "severity": "INFO",
+                            "timestamp": "2026-05-21T06:54:00+00:00"
+                          },
+                          "phase": "upstream_event",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "last_sent": {
+                          "attempt_no": null,
+                          "captured_at": "2026-05-21T06:54:03+00:00",
+                          "logical_id": "evt-host-1-1",
+                          "original_size": null,
+                          "payload": {
+                            "ack_for": "evt-host-1-1",
+                            "from_node": "r1",
+                            "msg_type": "ACK",
+                            "timestamp": "2026-05-21T06:54:03+00:00"
+                          },
+                          "phase": "upstream_ack",
+                          "preview": null,
+                          "truncated": false
+                        },
+                        "peer_node_id": "local-agent",
+                        "peer_role": "agent"
+                      },
+                      "recent": [
+                        {
+                          "capture": {
+                            "attempt_no": null,
+                            "captured_at": "2026-05-21T06:54:03+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "ack_for": "evt-host-1-1",
+                              "from_node": "r1",
+                              "msg_type": "ACK",
+                              "timestamp": "2026-05-21T06:54:03+00:00"
+                            },
+                            "phase": "upstream_ack",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "previous_peer",
+                          "failure_reason": null,
+                          "flow": "last_sent",
+                          "hop_state": "acknowledged",
+                          "peer_node_id": "local-agent",
+                          "peer_role": "agent"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": 1,
+                            "captured_at": "2026-05-21T06:54:03+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "ack_for": "evt-host-1-1",
+                              "from_node": "r2",
+                              "msg_type": "ACK",
+                              "timestamp": "2026-05-21T06:54:03+00:00"
+                            },
+                            "phase": "downstream_ack",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "next_peer",
+                          "failure_reason": null,
+                          "flow": "last_received",
+                          "hop_state": "acknowledged",
+                          "peer_node_id": "r2",
+                          "peer_role": "relay"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": 1,
+                            "captured_at": "2026-05-21T06:54:01+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "agent_id": "agent-1",
+                              "event_id": "evt-host-1-1",
+                              "event_type": "HOST_STATE_UPDATE",
+                              "host_id": "host-1",
+                              "msg_type": "EVENT",
+                              "payload": {
+                                "cpu": 26,
+                                "fault_mode": "NORMAL",
+                                "latency_ms": 36,
+                                "memory": 48,
+                                "service_state": "UP"
+                              },
+                              "route_trace": [],
+                              "routing": {
+                                "active_route": "primary",
+                                "failed_hop": null,
+                                "reroute_reason": null,
+                                "route_state": "PRIMARY",
+                                "suspected_node": null
+                              },
+                              "seq_no": 1,
+                              "severity": "INFO",
+                              "timestamp": "2026-05-21T06:54:00+00:00"
+                            },
+                            "phase": "downstream_event",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "next_peer",
+                          "failure_reason": null,
+                          "flow": "last_sent",
+                          "hop_state": "request_sent",
+                          "peer_node_id": "r2",
+                          "peer_role": "relay"
+                        },
+                        {
+                          "capture": {
+                            "attempt_no": null,
+                            "captured_at": "2026-05-21T06:54:00+00:00",
+                            "logical_id": "evt-host-1-1",
+                            "original_size": null,
+                            "payload": {
+                              "agent_id": "agent-1",
+                              "event_id": "evt-host-1-1",
+                              "event_type": "HOST_STATE_UPDATE",
+                              "host_id": "host-1",
+                              "msg_type": "EVENT",
+                              "payload": {
+                                "cpu": 26,
+                                "fault_mode": "NORMAL",
+                                "latency_ms": 36,
+                                "memory": 48,
+                                "service_state": "UP"
+                              },
+                              "route_trace": [],
+                              "routing": {
+                                "active_route": "primary",
+                                "failed_hop": null,
+                                "reroute_reason": null,
+                                "route_state": "PRIMARY",
+                                "suspected_node": null
+                              },
+                              "seq_no": 1,
+                              "severity": "INFO",
+                              "timestamp": "2026-05-21T06:54:00+00:00"
+                            },
+                            "phase": "upstream_event",
+                            "preview": null,
+                            "truncated": false
+                          },
+                          "direction": "previous_peer",
+                          "failure_reason": null,
+                          "flow": "last_received",
+                          "hop_state": "request_received",
+                          "peer_node_id": "local-agent",
+                          "peer_role": "agent"
+                        }
+                      ]
+                    }
+                  },
+                  "timestamp": "2026-05-21T06:54:03+00:00"
+                },
+                "duplicate_dropped": 0,
+                "kill_requested": true,
+                "last_seen": 1922995.488745397,
+                "node_id": "r1",
+                "note": "종료 요청 수신",
+                "observed_liveness": "stale",
+                "pending_ack_count": 0,
+                "queue_length": 0,
+                "reported_state": "실행 중",
+                "retry_total": 0,
+                "role": "relay"
+              },
+              "stale_primary_link_explained": true
+            },
+            "name": "failed_primary_link_not_claimed_current_success",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_cross_path_after_r1_off",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_console_errors",
+            "passed": true
+          },
+          {
+            "details": [],
+            "name": "no_page_errors",
+            "passed": true
+          }
+        ],
+        "extra": {
+          "links": {
+            "agent-r1": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "EVENT 전달 완료: acknowledgedEVENT 전달 완료"
+            },
+            "agent-r1b": {
+              "hopState": "request_received",
+              "hopTone": "active",
+              "text": "backup 진입 중: request_receivedbackup 진입 중"
+            },
+            "host-agent": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "상태 수집 완료: acknowledged상태 수집 완료"
+            },
+            "r1-r2": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "EVENT 중계 완료: acknowledgedEVENT 중계 완료"
+            },
+            "r1b-r2b": {
+              "hopState": "request_received",
+              "hopTone": "active",
+              "text": "backup 중계 중: request_receivedbackup 중계 중"
+            },
+            "r2-monitor": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "Monitor 전달 완료: acknowledgedMonitor 전달 완료"
+            },
+            "r2b-monitor": {
+              "hopState": "acknowledged",
+              "hopTone": "ok",
+              "text": "backup Monitor 완료: acknowledgedbackup Monitor 완료"
+            }
+          }
+        },
+        "passed": true
+      },
+      "name": "kill_r1_passed",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

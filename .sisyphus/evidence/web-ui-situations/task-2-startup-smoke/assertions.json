@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "reset command accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"reset\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "start command accepted",
+      "passed": true,
+      "detail": "{\"status\": 200, \"result\": {\"command\": \"start\", \"ok\": true, \"should_exit\": false}}"
+    },
+    {
+      "name": "backup node visible r1b",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "backup node visible r2b",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "primary label visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "backup label visible",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "invalid cross-path text absent",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no pageerror",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "no unexpected console error",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}
