@@ -1,0 +1,510 @@
+{
+  "ok": true,
+  "fallbackResults": [
+    {
+      "case": "missing",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "missing",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "missing",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "missing",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_string",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "malformed_object",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_dash",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "invalid_active_route_mesh",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "failed",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "failed",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "failed",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "failed",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "degraded",
+      "linkId": "host-agent",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "degraded",
+      "linkId": "host-agent",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "degraded",
+      "linkId": "host-agent",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1-r2",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1-r2",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1-r2",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1b-r2b",
+      "rawHopState": "acknowledged",
+      "rawTone": "ok",
+      "routeActive": "unknown",
+      "finalTone": "ok"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1b-r2b",
+      "rawHopState": "timeout",
+      "rawTone": "down",
+      "routeActive": "unknown",
+      "finalTone": "down"
+    },
+    {
+      "case": "degraded",
+      "linkId": "r1b-r2b",
+      "rawHopState": "request_sent",
+      "rawTone": "active",
+      "routeActive": "unknown",
+      "finalTone": "active"
+    }
+  ],
+  "failures": []
+}

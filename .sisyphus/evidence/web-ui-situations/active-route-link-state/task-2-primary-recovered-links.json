@@ -1,0 +1,97 @@
+{
+  "ok": true,
+  "links": {
+    "host-agent": {
+      "dataset": {
+        "linkId": "host-agent",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "shared",
+        "hopTone": "ok"
+      },
+      "label": "상태 수집 완료",
+      "title": "상태 수집 완료: raw=acknowledged/ok, route=shared, overview=ok",
+      "marker": "url(#arrow-green)",
+      "flow": false
+    },
+    "agent-r1": {
+      "dataset": {
+        "linkId": "agent-r1",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok"
+      },
+      "label": "EVENT 전달 완료",
+      "title": "EVENT 전달 완료: raw=acknowledged/ok, route=true, overview=ok",
+      "marker": "url(#arrow-green)",
+      "flow": false
+    },
+    "r1-r2": {
+      "dataset": {
+        "linkId": "r1-r2",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok"
+      },
+      "label": "EVENT 중계 완료",
+      "title": "EVENT 중계 완료: raw=acknowledged/ok, route=true, overview=ok",
+      "marker": "url(#arrow-green)",
+      "flow": false
+    },
+    "r2-monitor": {
+      "dataset": {
+        "linkId": "r2-monitor",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "true",
+        "hopTone": "ok"
+      },
+      "label": "Monitor 전달 완료",
+      "title": "Monitor 전달 완료: raw=acknowledged/ok, route=true, overview=ok",
+      "marker": "url(#arrow-green)",
+      "flow": false
+    },
+    "agent-r1b": {
+      "dataset": {
+        "linkId": "agent-r1b",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "false",
+        "hopTone": "inactive"
+      },
+      "label": "backup 진입 최근 성공 기록",
+      "title": "backup 진입 최근 성공 기록: raw=acknowledged/ok, route=false, overview=inactive",
+      "marker": "url(#arrow-gray)",
+      "flow": false
+    },
+    "r1b-r2b": {
+      "dataset": {
+        "linkId": "r1b-r2b",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "false",
+        "hopTone": "inactive"
+      },
+      "label": "backup 중계 최근 성공 기록",
+      "title": "backup 중계 최근 성공 기록: raw=acknowledged/ok, route=false, overview=inactive",
+      "marker": "url(#arrow-gray)",
+      "flow": false
+    },
+    "r2b-monitor": {
+      "dataset": {
+        "linkId": "r2b-monitor",
+        "hopState": "acknowledged",
+        "rawHopTone": "ok",
+        "routeActive": "false",
+        "hopTone": "inactive"
+      },
+      "label": "backup Monitor 최근 성공 기록",
+      "title": "backup Monitor 최근 성공 기록: raw=acknowledged/ok, route=false, overview=inactive",
+      "marker": "url(#arrow-gray)",
+      "flow": false
+    }
+  },
+  "failures": []
+}

@@ -1,0 +1,8 @@
+# Documentation semantic check
+
+- data-raw-hop-tone: PASS
+- data-route-active: PASS
+- last_route_summary: PASS
+- DEGRADED: PASS
+- data-hop-tone="inactive": PASS
+- 최근 성공 기록: PASS
