@@ -20,6 +20,13 @@
         <section class="diagram-card" aria-label="구조 다이어그램">
           <div class="diagram-heading">
             <h2>구조 다이어그램</h2>
+            <button id="node-power-button" class="node-power-button" type="button" aria-label="노드 전원 제어" data-power-state="unknown">
+              <span class="power-icon" aria-hidden="true"></span>
+              <span class="power-copy">
+                <strong id="node-power-label">전원 확인</strong>
+                <small id="node-power-hint">노드 상태 확인 중</small>
+              </span>
+            </button>
           </div>
           <div class="diagram-scroll">
             <div id="diagram-canvas" class="diagram-canvas" data-testid="diagram-overlay-host">

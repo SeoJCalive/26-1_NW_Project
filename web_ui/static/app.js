@@ -27,6 +27,8 @@ const FAULT_CONTROLS = [
   { key: "service", type: "SERVICE_DOWN", label: "서비스 중단" },
   { key: "latency", type: "LATENCY_HIGH", label: "지연 증가" },
 ];
+const POWER_START_COOLDOWN_MS = 6000;
+const POWER_STOP_COOLDOWN_MS = 4000;
 const MAIN_LINKS = [
   { id: "host-agent", from: "host-simulator", to: "local-agent", label: "상태 수집", labelOffsetY: -22 },
   { id: "agent-r1", from: "local-agent", to: "r1", label: "EVENT 전달", labelOffsetY: -24 },
@@ -74,12 +76,17 @@ const detailInspectorInner = document.querySelector("#detail-inspector-inner");
 const runtimeStatus = document.querySelector("#runtime-status");
 const faultSwitches = document.querySelector("#fault-switches");
 const nodeSwitches = document.querySelector("#node-switches");
+const nodePowerButton = document.querySelector("#node-power-button");
+const nodePowerLabel = document.querySelector("#node-power-label");
+const nodePowerHint = document.querySelector("#node-power-hint");
 
 let latestState = null;
 let selectedNodeId = null;
 let detailNodeId = null;
 let detailState = "closed";
 let closeTimer = null;
+let powerLockUntil = 0;
+let powerActionInFlight = false;
 
 function escapeHtml(value) {
   return formatScalar(value)
@@ -269,6 +276,30 @@ function commandTargetForNode(nodeId) {
 function currentFaultType(adapted) {
   const host = adapted.nodesById["host-simulator"];
   return getNested(host, ["runtime", "details", "detail", "host_state", "fault_mode"], "NORMAL");
+}
+
+function liveNodeCount(adapted) {
+  return adapted.nodes.filter(function countLive(node) { return node.observed_liveness === "live"; }).length;
+}
+
+function nodePowerState(adapted) {
+  const apiPower = latestState && latestState.node_power ? latestState.node_power : {};
+  const liveCount = liveNodeCount(adapted);
+  if (apiPower.state === "transitioning") return "transitioning";
+  if (apiPower.state === "stopped") return "stopped";
+  if (apiPower.state === "external") return liveCount > 0 ? "running" : "external";
+  if (liveCount === adapted.nodes.length && adapted.nodes.length > 0) return "running";
+  if (liveCount === 0) return "stopped";
+  return "partial";
+}
+
+function nextPowerAction(adapted) {
+  const state = nodePowerState(adapted);
+  return state === "running" || state === "partial" ? "stop" : "start";
+}
+
+function powerButtonLocked() {
+  return powerActionInFlight || Date.now() < powerLockUntil;
 }
 
 function trafficOf(node) {
@@ -737,10 +768,39 @@ function trafficPeer(peer, title) {
 function renderLatest() {
   const adapted = adaptState(latestState || {});
   renderSummary(adapted);
+  renderNodePower(adapted);
   renderControls(adapted);
   renderPaths(adapted);
   renderNodes(adapted);
   renderDetail(adapted);
+}
+
+function renderNodePower(adapted) {
+  if (!nodePowerButton) return;
+  const state = nodePowerState(adapted);
+  const dynamicPorts = getNested(latestState, ["node_power", "dynamic_ports"], false);
+  const liveCount = liveNodeCount(adapted);
+  const totalCount = adapted.nodes.length;
+  const lockRemaining = Math.max(0, Math.ceil((powerLockUntil - Date.now()) / 1000));
+  nodePowerButton.dataset.powerState = state;
+  nodePowerButton.disabled = powerButtonLocked();
+  if (powerActionInFlight || lockRemaining > 0 || state === "transitioning") {
+    nodePowerLabel.textContent = "전원 전환 중";
+    nodePowerHint.textContent = `${lockRemaining || Math.ceil(getNested(latestState, ["node_power", "lock_remaining_sec"], 1))}초 후 다시 가능`;
+    return;
+  }
+  if (state === "running") {
+    nodePowerLabel.textContent = "노드 끄기";
+    nodePowerHint.textContent = dynamicPorts ? `전체 ${totalCount}개 실행 중 · 유동 포트` : `전체 ${totalCount}개 실행 중`;
+    return;
+  }
+  if (state === "partial") {
+    nodePowerLabel.textContent = "안전 종료";
+    nodePowerHint.textContent = `${liveCount}/${totalCount}개 연결됨`;
+    return;
+  }
+  nodePowerLabel.textContent = "노드 켜기";
+  nodePowerHint.textContent = dynamicPorts ? "빈 포트로 전체 시작" : "전체 노드 시작";
 }
 
 function renderControls(adapted) {
@@ -792,11 +852,52 @@ async function sendCommand(line) {
   await refreshState();
 }
 
+async function setNodePower(action) {
+  powerActionInFlight = true;
+  const cooldown = action === "start" ? POWER_START_COOLDOWN_MS : POWER_STOP_COOLDOWN_MS;
+  powerLockUntil = Date.now() + cooldown;
+  renderLatest();
+  runtimeStatus.textContent = action === "start" ? "노드 전원 켜는 중" : "노드 안전 종료 중";
+  try {
+    const response = await fetch("/api/power", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: action }),
+    });
+    const result = await response.json();
+    if (!result.ok) {
+      if (Array.isArray(result.conflicts) && result.conflicts.length) {
+        const occupied = result.conflicts.map(function labelConflict(conflict) {
+          return `${conflict.node_id}:${conflict.port}`;
+        }).join(", ");
+        runtimeStatus.textContent = `전원 제어 실패: 포트 점유 ${occupied}`;
+      } else {
+        runtimeStatus.textContent = `전원 제어 실패: ${result.reason || action}`;
+      }
+    } else {
+      runtimeStatus.textContent = action === "start" ? "노드 시작 완료" : "노드 안전 종료 완료";
+      const lockSec = typeof result.lock_sec === "number" ? result.lock_sec : cooldown / 1000;
+      powerLockUntil = Date.now() + lockSec * 1000;
+    }
+  } catch (error) {
+    runtimeStatus.textContent = `전원 제어 실패: ${error}`;
+  }
+  powerActionInFlight = false;
+  await refreshState();
+}
+
 document.addEventListener("click", function onCommandClick(event) {
   const button = event.target.closest("[data-command]");
   if (!button) return;
   sendCommand(button.dataset.command);
 });
+
+if (nodePowerButton) {
+  nodePowerButton.addEventListener("click", function onPowerClick() {
+    if (powerButtonLocked()) return;
+    setNodePower(nextPowerAction(adaptState(latestState || {})));
+  });
+}
 
 refreshState();
 window.setInterval(refreshState, 2000);

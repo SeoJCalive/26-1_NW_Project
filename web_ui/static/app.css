@@ -138,13 +138,103 @@ button {
   color: var(--slate-900);
 }
 
-.diagram-heading span {
+.diagram-heading > span {
   border: 1px solid var(--slate-200);
   border-radius: 4px;
   background: var(--slate-50);
   padding: 4px 8px;
   color: var(--slate-500);
   font-size: 11px;
+}
+
+.node-power-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 154px;
+  border: 1px solid rgba(16, 185, 129, 0.42);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 22px 18px, rgba(255, 255, 255, 0.96), transparent 32px),
+    linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 100%);
+  padding: 7px 13px 7px 8px;
+  color: #047857;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08), 0 1px 0 rgba(255, 255, 255, 0.92) inset;
+  text-align: left;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, opacity 160ms ease;
+}
+
+.node-power-button:hover:not(:disabled) {
+  border-color: rgba(14, 165, 233, 0.52);
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.14), 0 1px 0 rgba(255, 255, 255, 0.94) inset;
+  transform: translateY(-1px);
+}
+
+.node-power-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.node-power-button[data-power-state="stopped"] {
+  border-color: rgba(148, 163, 184, 0.5);
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  color: var(--slate-700);
+}
+
+.node-power-button[data-power-state="partial"] {
+  border-color: rgba(249, 115, 22, 0.42);
+  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+  color: #c2410c;
+}
+
+.node-power-button[data-power-state="transitioning"] {
+  border-color: rgba(14, 165, 233, 0.42);
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  color: var(--sky-600);
+}
+
+.power-icon {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.08);
+}
+
+.power-icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 3px;
+  height: 12px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+
+.node-power-button[data-power-state="stopped"] .power-icon { box-shadow: 0 0 0 5px rgba(148, 163, 184, 0.11); }
+.node-power-button[data-power-state="partial"] .power-icon { box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.11); }
+.node-power-button[data-power-state="transitioning"] .power-icon { box-shadow: 0 0 0 5px rgba(14, 165, 233, 0.11); }
+
+.power-copy {
+  display: grid;
+  gap: 1px;
+}
+
+.power-copy strong {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.power-copy small {
+  color: var(--slate-500);
+  font-size: 10px;
+  font-weight: 650;
 }
 
 .diagram-scroll {
@@ -564,10 +654,6 @@ button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-}
-
-.control-group-fault .switch-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .control-group-node .switch-grid {
