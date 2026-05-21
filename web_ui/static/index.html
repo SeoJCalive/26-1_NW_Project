@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NW Runtime Web UI</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="summary-card" aria-label="runtime summary">
+        <div>
+          <h1>NET-DEMO Runtime · Node-first Dashboard</h1>
+          <p>liveness lamp / reported state / traffic activity 분리</p>
+        </div>
+        <div id="summary-metrics" class="summary-metrics" aria-live="polite"></div>
+      </header>
+
+      <main class="main-stack">
+        <section class="diagram-card" aria-label="구조 다이어그램">
+          <div class="diagram-heading">
+            <h2>구조 다이어그램</h2>
+            <span>data-plane 5-node chain</span>
+          </div>
+          <div class="diagram-scroll">
+            <div id="diagram-canvas" class="diagram-canvas" data-testid="diagram-overlay-host">
+              <svg id="data-path-svg" class="data-path-svg" viewBox="0 0 1460 700" fill="none" aria-hidden="true">
+                <defs>
+                  <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#0ea5e9"></path>
+                  </marker>
+                  <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"></path>
+                  </marker>
+                  <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#10b981"></path>
+                  </marker>
+                  <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#f97316"></path>
+                  </marker>
+                  <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"></path>
+                  </marker>
+                </defs>
+                <g id="data-path" data-testid="data-path"></g>
+              </svg>
+              <div class="path-label">Host -&gt; Agent -&gt; R1 -&gt; R2 -&gt; Monitor</div>
+              <div id="node-layer" class="node-layer"></div>
+              <aside id="detail-inspector" class="detail-inspector-overlay" data-testid="node-detail-inspector" data-overlay="diagram" data-detail-state="closed" hidden>
+                <div id="detail-inspector-inner" class="detail-inspector-inner"></div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-strip" aria-label="명령 팔레트">
+          <div>
+            <h2>명령 팔레트</h2>
+            <p id="runtime-status" aria-live="polite">runtime 연결 대기</p>
+          </div>
+          <div class="control-groups">
+            <div class="control-group control-group-system" aria-label="전체 제어">
+              <span class="control-group-title">전체</span>
+              <div class="command-buttons">
+                <button data-command="start">전체 시작</button>
+                <button data-command="pause">전체 일시정지</button>
+                <button data-command="reset">전체 초기화</button>
+              </div>
+            </div>
+            <div class="control-group control-group-fault" aria-label="장애 스위치">
+              <span class="control-group-title">장애 스위치</span>
+              <div id="fault-switches" class="switch-grid"></div>
+            </div>
+            <div class="control-group control-group-node" aria-label="노드 스위치">
+              <span class="control-group-title">노드 스위치</span>
+              <div id="node-switches" class="switch-grid"></div>
+            </div>
+            <div class="control-group control-group-experiment" aria-label="전달 실험">
+              <span class="control-group-title">전달 실험</span>
+              <div class="command-buttons">
+                <button data-command="ackdrop">다음 ACK 드롭</button>
+                <button data-command="delay r1 1.5">R1 전달 지연</button>
+                <button data-command="delay r2 1.5">R2 전달 지연</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>
