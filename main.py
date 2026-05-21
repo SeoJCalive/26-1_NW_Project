@@ -30,7 +30,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Minimal network project demo")
     parser.add_argument(
         "--role",
-        choices=["controller", "host", "agent", "relay-r1", "relay-r2", "monitor"],
+        choices=["controller", "host", "agent", "relay-r1", "relay-r2", "relay-r1b", "relay-r2b", "monitor"],
         default=None,
         help="Run a specific long-running role process.",
     )
@@ -100,7 +100,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--focus-node",
-        choices=["host-simulator", "local-agent", "r1", "r2", "monitor"],
+        choices=["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"],
         default=None,
         help="Render a focused single-node monitoring surface (controller role only).",
     )

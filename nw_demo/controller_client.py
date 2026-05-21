@@ -9,11 +9,11 @@ from .messages import encode_message, make_control
 
 HELP_TEXT = (
     "명령어: help, start [node], pause [node], reset [node|all], kill <node>, "
-    "fault cpu|service|latency on|off|[sec], ackdrop, delay r1|r2 [sec], quit, exit"
+    "fault cpu|service|latency on|off|[sec], ackdrop, delay r1|r2|r1b|r2b [sec], quit, exit"
 )
 
 
-VALID_NODE_TARGETS = {"all", "host-simulator", "local-agent", "r1", "r2", "monitor"}
+VALID_NODE_TARGETS = {"all", "host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"}
 
 
 def _resolve_target(value: str | None) -> str | None:
@@ -25,6 +25,8 @@ def _resolve_target(value: str | None) -> str | None:
         "agent": "local-agent",
         "relay-r1": "r1",
         "relay-r2": "r2",
+        "relay-r1b": "r1b",
+        "relay-r2b": "r2b",
     }
     target = aliases.get(candidate, candidate)
     return target if target in VALID_NODE_TARGETS else None
@@ -76,7 +78,7 @@ def build_requests(line: str) -> tuple[list[dict[str, Any]], bool, str | None]:
 
     if command == "kill":
         if len(parts) < 2:
-            return [], False, "kill 명령에는 대상 node가 필요합니다: host-simulator|local-agent|r1|r2|monitor"
+            return [], False, "kill 명령에는 대상 node가 필요합니다: host-simulator|local-agent|r1|r2|monitor|r1b|r2b"
         target = _resolve_target(parts[1])
         if not target or target == "all":
             return [], False, f"kill 대상이 올바르지 않습니다: {parts[1]}"
@@ -130,7 +132,7 @@ def build_requests(line: str) -> tuple[list[dict[str, Any]], bool, str | None]:
             seconds = float(parts[2]) if len(parts) > 2 else 0.75
         except ValueError:
             return [], False, f"delay seconds가 올바르지 않습니다: {parts[2]}"
-        target = "r1" if relay_name == "r1" else "r2"
+        target = relay_name if relay_name in {"r1", "r2", "r1b", "r2b"} else "r2"
         params = {"seconds": seconds}
         return [
             {

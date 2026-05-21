@@ -20,6 +20,12 @@ class ControllerClientCommandTests(unittest.TestCase):
         self.assertEqual(requests[0]["message"]["target"], "host-simulator")
         self.assertEqual(requests[0]["message"]["command"], "start")
 
+        requests, should_exit, message = build_requests("pause r1b")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["target"], "r1b")
+        self.assertEqual(requests[0]["message"]["command"], "pause")
+
         requests, should_exit, message = build_requests("pause bogus")
         self.assertEqual(requests, [])
         self.assertFalse(should_exit)
@@ -33,6 +39,12 @@ class ControllerClientCommandTests(unittest.TestCase):
         self.assertEqual(requests[0]["message"]["target"], "r2")
         self.assertEqual(requests[0]["message"]["command"], "reset")
 
+        requests, should_exit, message = build_requests("reset r2b")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["target"], "r2b")
+        self.assertEqual(requests[0]["message"]["command"], "reset")
+
         requests, should_exit, message = build_requests("reset")
         self.assertFalse(should_exit)
         self.assertIsNone(message)
@@ -43,6 +55,12 @@ class ControllerClientCommandTests(unittest.TestCase):
         self.assertFalse(should_exit)
         self.assertIsNone(message)
         self.assertEqual(requests[0]["message"]["target"], "monitor")
+        self.assertEqual(requests[0]["message"]["command"], "shutdown")
+
+        requests, should_exit, message = build_requests("kill r2b")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["target"], "r2b")
         self.assertEqual(requests[0]["message"]["command"], "shutdown")
 
         requests, should_exit, message = build_requests("kill")

@@ -14,7 +14,7 @@ from .monitor import Monitor
 from .relay import RelayNode
 
 
-ROLE_START_ORDER = ["host", "monitor", "relay-r2", "relay-r1", "agent"]
+ROLE_START_ORDER = ["host", "monitor", "relay-r2", "relay-r2b", "relay-r1", "relay-r1b", "agent"]
 
 
 class LocalProcessSupervisor:
@@ -80,6 +80,7 @@ def build_role(
     if role == "agent":
         host_host, host_port = config.NODE_ENDPOINTS["host-simulator"]
         downstream_host, downstream_port = config.NODE_ENDPOINTS["r1"]
+        backup_downstream_host, backup_downstream_port = config.NODE_ENDPOINTS["r1b"]
         return LocalAgent(
             listen_host,
             listen_port,
@@ -90,6 +91,8 @@ def build_role(
             downstream_host,
             downstream_port,
             control_token,
+            backup_downstream_host=backup_downstream_host,
+            backup_downstream_port=backup_downstream_port,
         )
     if role == "relay-r1":
         downstream_host, downstream_port = config.NODE_ENDPOINTS["r2"]
@@ -97,6 +100,12 @@ def build_role(
     if role == "relay-r2":
         downstream_host, downstream_port = config.NODE_ENDPOINTS["monitor"]
         return RelayNode("r2", listen_host, listen_port, controller_host, controller_port, downstream_host, downstream_port, control_token)
+    if role == "relay-r1b":
+        downstream_host, downstream_port = config.NODE_ENDPOINTS["r2b"]
+        return RelayNode("r1b", listen_host, listen_port, controller_host, controller_port, downstream_host, downstream_port, control_token)
+    if role == "relay-r2b":
+        downstream_host, downstream_port = config.NODE_ENDPOINTS["monitor"]
+        return RelayNode("r2b", listen_host, listen_port, controller_host, controller_port, downstream_host, downstream_port, control_token)
     if role == "monitor":
         return Monitor(listen_host, listen_port, controller_host, controller_port, control_token)
     raise ValueError(f"unsupported role: {role}")

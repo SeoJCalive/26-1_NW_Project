@@ -40,6 +40,21 @@ class ControllerUILocalCommandTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("r1", message or "")
         controller._broadcast_control.assert_not_awaited()
 
+    async def test_handle_local_command_accepts_backup_relay_focus_without_broadcast(self) -> None:
+        controller = ControllerUI(
+            control_host=config.DEFAULT_HOST,
+            control_port=config.CONTROLLER_PORT,
+            node_endpoints=config.NODE_ENDPOINTS,
+        )
+        controller._broadcast_control = AsyncMock()  # type: ignore[method-assign]
+
+        should_exit, message = await controller.handle_local_command("focus r1b")
+
+        self.assertFalse(should_exit)
+        self.assertEqual(controller.focus_node, "r1b")
+        self.assertIn("r1b", message or "")
+        controller._broadcast_control.assert_not_awaited()
+
     async def test_handle_local_command_accepts_focus_aliases_without_broadcast(self) -> None:
         controller = ControllerUI(
             control_host=config.DEFAULT_HOST,

@@ -2,13 +2,15 @@ const DIAGRAM_WIDTH = 1460;
 const DIAGRAM_HEIGHT = 700;
 const NODE_CARD_WIDTH = 208;
 const MISSING_VALUE = "—";
-const NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor"];
+const NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"];
 const NODE_POSITIONS = {
   "host-simulator": { x: 80, y: 100 },
   "local-agent": { x: 365, y: 255 },
   r1: { x: 655, y: 255 },
   r2: { x: 945, y: 155 },
   monitor: { x: 1215, y: 100 },
+  r1b: { x: 655, y: 460 },
+  r2b: { x: 945, y: 460 },
 };
 const NODE_META = {
   "host-simulator": { role: "Host Simulator", displayName: "호스트 시뮬레이터" },
@@ -16,6 +18,8 @@ const NODE_META = {
   r1: { role: "Relay", displayName: "릴레이 R1" },
   r2: { role: "Relay", displayName: "릴레이 R2" },
   monitor: { role: "Monitor", displayName: "모니터" },
+  r1b: { role: "Relay", displayName: "릴레이 R1B" },
+  r2b: { role: "Relay", displayName: "릴레이 R2B" },
 };
 const FAULT_CONTROLS = [
   { key: "cpu", type: "CPU_SPIKE", label: "CPU 장애" },
@@ -27,6 +31,9 @@ const MAIN_LINKS = [
   { id: "agent-r1", from: "local-agent", to: "r1", label: "EVENT 전달", labelOffsetY: -24 },
   { id: "r1-r2", from: "r1", to: "r2", label: "EVENT 중계", labelOffsetY: -28 },
   { id: "r2-monitor", from: "r2", to: "monitor", label: "Monitor 전달", labelOffsetY: -30 },
+  { id: "agent-r1b", from: "local-agent", to: "r1b", label: "backup 진입", labelOffsetY: 34 },
+  { id: "r1b-r2b", from: "r1b", to: "r2b", label: "backup 중계", labelOffsetY: 34 },
+  { id: "r2b-monitor", from: "r2b", to: "monitor", label: "backup Monitor", labelOffsetY: 34 },
 ];
 const HOP_STATE_TONE = {
   acknowledged: "ok",
@@ -575,6 +582,13 @@ function monitorDetail(node) {
       ["ACK", getNested(detail, ["last_ack_result", "status"], MISSING_VALUE)],
       ["retry", node.retry_total],
     ])),
+    section("Route Summary", keyValueRows(routeSummaryRows(detail.last_route_summary))),
+    section("Fault Localization", keyValueRows(faultLocalizationRows(detail.last_fault_localization))),
+    section("Route Trace", dataTable([
+      { key: "from_node", label: "from" }, { key: "to_node", label: "to" }, { key: "route_id", label: "route" },
+      { key: "attempt_no", label: "attempt" }, { key: "phase", label: "phase" }, { key: "result", label: "result" },
+      { key: "failure_reason", label: "reason" },
+    ], detail.last_route_trace || [])),
     section("Event Sink Summary", dataTable([
       { key: "event_id", label: "event_id" }, { key: "event_type", label: "event_type" }, { key: "severity", label: "severity" },
       { key: "host_id", label: "host_id" }, { key: "seq_no", label: "seq_no" }, { key: "timestamp", label: "timestamp" },
@@ -588,6 +602,29 @@ function monitorDetail(node) {
     section("Counters", keyValueRows([["out_of_order_count", getNested(node, ["runtime", "details", "out_of_order_count"], 0)], ["total_logged", getNested(node, ["runtime", "details", "total_logged"], 0)], ["duplicate_count", getNested(node, ["runtime", "details", "duplicate_count"], 0)]])),
     trafficSection(node),
   ].join("");
+}
+
+function routeSummaryRows(summary) {
+  const route = summary || {};
+  return [
+    ["route_state", route.route_state],
+    ["active_route", route.active_route],
+    ["failed_hop", route.failed_hop],
+    ["suspected_node", route.suspected_node],
+    ["reroute_reason", route.reroute_reason],
+  ];
+}
+
+function faultLocalizationRows(localization) {
+  const fault = localization || {};
+  return [
+    ["failure_scope", fault.failure_scope],
+    ["failed_hop", fault.failed_hop],
+    ["suspected_node", fault.suspected_node],
+    ["failure_reason", fault.failure_reason],
+    ["confidence", fault.confidence],
+    ["basis", fault.basis],
+  ];
 }
 
 function firstHostStateSummary(hostTable) {

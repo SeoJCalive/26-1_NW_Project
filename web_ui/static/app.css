@@ -301,6 +301,8 @@ button {
 .node-card[data-node-id="local-agent"]::before { background: linear-gradient(90deg, #06b6d4, #10b981); }
 .node-card[data-node-id="r1"]::before,
 .node-card[data-node-id="r2"]::before { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+.node-card[data-node-id="r1b"]::before,
+.node-card[data-node-id="r2b"]::before { background: linear-gradient(90deg, #f97316, #0ea5e9); }
 .node-card[data-node-id="monitor"]::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
 
 .node-card:hover {

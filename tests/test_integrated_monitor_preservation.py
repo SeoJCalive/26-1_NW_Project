@@ -14,7 +14,8 @@ from tests.status_builders import (
 
 
 class IntegratedMonitorPreservationTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
         self.controller = ControllerUI(
             control_host=config.DEFAULT_HOST,
             control_port=config.CONTROLLER_PORT,
@@ -86,7 +87,7 @@ class IntegratedMonitorPreservationTests(unittest.TestCase):
 
         frame = "\n".join(self.controller._build_frame_lines(scripted_demo=False))
 
-        self.assertIn("focus host|agent|r1|r2|monitor", frame)
+        self.assertIn("focus host|agent|r1|r2|r1b|r2b|monitor", frame)
         self.assertIn("overview", frame)
         self.assertIn("focus all", frame)
         self.assertNotIn('"msg_type": "EVENT"', frame)

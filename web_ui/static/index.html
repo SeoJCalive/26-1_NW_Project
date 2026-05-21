@@ -20,7 +20,7 @@
         <section class="diagram-card" aria-label="구조 다이어그램">
           <div class="diagram-heading">
             <h2>구조 다이어그램</h2>
-            <span>data-plane 5-node chain</span>
+            <span>primary + backup data-plane chain</span>
           </div>
           <div class="diagram-scroll">
             <div id="diagram-canvas" class="diagram-canvas" data-testid="diagram-overlay-host">
@@ -44,7 +44,7 @@
                 </defs>
                 <g id="data-path" data-testid="data-path"></g>
               </svg>
-              <div class="path-label">Host -&gt; Agent -&gt; R1 -&gt; R2 -&gt; Monitor</div>
+              <div class="path-label">Primary: Host -&gt; Agent -&gt; R1 -&gt; R2 -&gt; Monitor · Backup: Agent -&gt; R1B -&gt; R2B -&gt; Monitor</div>
               <div id="node-layer" class="node-layer"></div>
               <aside id="detail-inspector" class="detail-inspector-overlay" data-testid="node-detail-inspector" data-overlay="diagram" data-detail-state="closed" hidden>
                 <div id="detail-inspector-inner" class="detail-inspector-inner"></div>
@@ -81,6 +81,8 @@
                 <button data-command="ackdrop">다음 ACK 드롭</button>
                 <button data-command="delay r1 1.5">R1 전달 지연</button>
                 <button data-command="delay r2 1.5">R2 전달 지연</button>
+                <button data-command="delay r1b 1.5">R1B 전달 지연</button>
+                <button data-command="delay r2b 1.5">R2B 전달 지연</button>
               </div>
             </div>
           </div>

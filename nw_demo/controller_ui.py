@@ -28,6 +28,8 @@ _NODE_ROLES = {
     "local-agent": "agent",
     "r1": "relay",
     "r2": "relay",
+    "r1b": "relay",
+    "r2b": "relay",
     "monitor": "monitor",
 }
 
@@ -80,6 +82,16 @@ _DISPLAY_HOP_STATES = {
     "not_started": "대기 중",
     "not_applicable": "다음 구간 없음",
     "unknown": "알 수 없음",
+}
+_DISPLAY_ROUTE_STATES = {
+    "PRIMARY": "기본 경로",
+    "BYPASS_ACTIVE": "우회 경로 사용",
+    "DEGRADED": "성능 저하",
+    "FAILED": "전달 실패",
+}
+_DISPLAY_ROUTE_IDS = {
+    "primary": "primary",
+    "backup": "backup",
 }
 
 
@@ -385,7 +397,7 @@ class ControllerUI:
         )
 
     def _focus_command_hint(self) -> str:
-        return "focus host|agent|r1|r2|monitor | overview | focus all"
+        return "focus host|agent|r1|r2|r1b|r2b|monitor | overview | focus all"
 
     def _handle_focus_command(self, line: str) -> tuple[bool, str | None]:
         normalized = " ".join(line.strip().split())
@@ -760,6 +772,47 @@ class ControllerUI:
             f"응답 상태={ack_text}",
         ]
 
+    def _monitor_route_rows(self, detail: dict[str, Any]) -> list[str]:
+        route_summary = detail.get("last_route_summary") or {}
+        if not route_summary:
+            return ["경로 정보 없음"]
+        rows = [
+            "상태={state} / active={active}".format(
+                state=_display_keyword(route_summary.get("route_state", "-"), _DISPLAY_ROUTE_STATES),
+                active=_display_keyword(route_summary.get("active_route", "-"), _DISPLAY_ROUTE_IDS),
+            )
+        ]
+        failed_hop = route_summary.get("failed_hop")
+        if failed_hop:
+            rows.append(f"관찰 실패 hop={_safe_text(failed_hop)}")
+        suspected_node = route_summary.get("suspected_node")
+        if suspected_node:
+            rows.append(f"의심 node={_safe_text(suspected_node)}")
+        reroute_reason = route_summary.get("reroute_reason")
+        if reroute_reason:
+            rows.append(f"우회 이유={_safe_text(reroute_reason)}")
+        return rows
+
+    def _monitor_fault_rows(self, detail: dict[str, Any]) -> list[str]:
+        localization = detail.get("last_fault_localization") or {}
+        if not localization:
+            return ["진단 정보 없음"]
+        rows = [
+            f"범위={_safe_text(localization.get('failure_scope', '-'))}",
+            f"근거={_safe_text(localization.get('basis', '-'))}",
+            f"신뢰도={_safe_text(localization.get('confidence', '-'))}",
+        ]
+        failed_hop = localization.get("failed_hop")
+        if failed_hop:
+            rows.append(f"관찰 실패 hop={_safe_text(failed_hop)}")
+        suspected_node = localization.get("suspected_node")
+        if suspected_node:
+            rows.append(f"의심 node={_safe_text(suspected_node)}")
+        failure_reason = localization.get("failure_reason")
+        if failure_reason:
+            rows.append(f"관찰 이유={_safe_text(failure_reason)}")
+        return rows
+
     def _monitor_card_lines(self, title: str, rows: list[str], width: int = 34) -> list[str]:
         width = max(12, width)
         inner_width = max(1, width - 4)
@@ -907,6 +960,8 @@ class ControllerUI:
         host_state_table = details.get("host_state_table") or {}
         sections = [
             ("처리 경로", self._monitor_path_rows(node_view)),
+            ("경로 진단", self._monitor_route_rows(detail)),
+            ("Trace 근거", self._monitor_fault_rows(detail)),
             ("현재 상황", self._monitor_current_rows(last_processed_event)),
             ("Host 최신 상태", self._monitor_host_rows(host_state_table)),
             ("전달 건강도", self._monitor_health_rows(details)),
@@ -919,7 +974,10 @@ class ControllerUI:
             lines.extend(["  Monitor 상황판", "  " + "=" * min(20, terminal_width - 2), ""])
             for index in range(0, len(sections), 2):
                 left_title, left_rows = sections[index]
-                right_title, right_rows = sections[index + 1]
+                if index + 1 < len(sections):
+                    right_title, right_rows = sections[index + 1]
+                else:
+                    right_title, right_rows = "", []
                 self._append_monitor_card_pair(lines, left_title, left_rows, right_title, right_rows, card_width)
                 if index + 2 < len(sections):
                     lines.append("")
@@ -1032,7 +1090,7 @@ class ControllerUI:
                 "조작 방법:",
                 "  help | start [node] | pause [node] | reset [node|all] | kill <node>",
                 f"  {self._focus_command_hint()}",
-                "  fault cpu|service|latency on|off|[sec] | ackdrop | delay r1|r2 [sec] | quit | exit",
+                "  fault cpu|service|latency on|off|[sec] | ackdrop | delay r1|r2|r1b|r2b [sec] | quit | exit",
             ]
         )
         return [_fit_display_text(line, terminal_width) for line in lines]
@@ -1361,7 +1419,7 @@ class ControllerUI:
                 "조작 방법:",
                 "  help | start [node] | pause [node] | reset [node|all] | kill <node>",
                 f"  {self._focus_command_hint()}",
-                "  fault cpu|service|latency on|off|[sec] | ackdrop | delay r1|r2 [sec] | quit | exit",
+                "  fault cpu|service|latency on|off|[sec] | ackdrop | delay r1|r2|r1b|r2b [sec] | quit | exit",
                 "  interactive viewer mode에서는 같은 화면에서 viewer> 프롬프트로 명령 입력 가능",
             ]
         )
