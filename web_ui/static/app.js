@@ -903,7 +903,10 @@ function renderControls(adapted) {
     return switchButton(control.label, active ? "켜짐" : "꺼짐", command, active);
   }).join("");
 
-  nodeSwitches.innerHTML = adapted.nodes.map(function renderNodeSwitch(node) {
+  const nodeSwitchNodes = adapted.nodes
+    .filter(function notMonitor(node) { return node.id !== "monitor"; })
+    .concat(adapted.nodes.filter(function onlyMonitor(node) { return node.id === "monitor"; }));
+  nodeSwitches.innerHTML = nodeSwitchNodes.map(function renderNodeSwitch(node) {
     const running = isNodeRunning(node);
     const target = commandTargetForNode(node.id);
     const command = `${running ? "pause" : "start"} ${target}`;
