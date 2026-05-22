@@ -81,9 +81,9 @@ Web UI control palette는 사용자 조작 의미가 바로 드러나야 한다.
 - `--fixed-node-ports` 실행처럼 고정 node port를 쓰는 경우에는 켜기 전에 node listen port 점유를 확인하고, 다른 프로세스가 먼저 점유한 경우에는 일부 node만 올라가는 상태를 만들지 말고 실패 메시지를 보여준다.
 - 기존 duration 기반 fault 명령은 controller/script 호환 경로로 남더라도 Web UI의 주 조작면에는 초 단위 버튼으로 노출하지 않는다.
 - 팔레트의 `runtime-status`는 갱신 문구 길이에 따라 아래 control 요소를 밀어내지 않도록 고정 슬롯으로 점유한다.
-- 팔레트는 모든 버튼을 같은 폭/같은 형태로 강제하지 않고, 전체 제어 / 장애 스위치 / 노드 스위치 / 전달 실험의 역할이 구분되도록 group surface와 공간 배분을 다르게 둔다.
+- 팔레트는 전체 제어 / 장애 스위치 / 노드 스위치만 남기고, 전달 실험 버튼 묶음은 기본 화면에서 제거한다. 남는 공간을 팔레트 폭 확대로 채우지 말고, 버튼 문구가 줄바꿈·생략되지 않는 선에서 compact 폭을 유지해 화면 가운데에 둔다.
 - 장애 스위치는 CPU / service / latency 토글을 한 줄에 압축하지 않고 세로로 나열해, 켜짐/꺼짐 상태와 라벨이 각 항목별로 읽히게 한다.
-- 긴 node 이름은 잘리지 않아야 하며, node 스위치 영역은 다른 보조 명령보다 넓게 배치한다.
+- 긴 node 이름은 잘리지 않아야 하며, node 스위치 영역은 다른 보조 명령보다 넓게 배치한다. node 스위치 표시 순서는 Monitor를 맨 마지막에 둔다.
 
 Web UI가 우선 소비해야 하는 자료 축은 다음이다.
 
@@ -290,13 +290,13 @@ Monitor를 새 중앙 관제 엔티티처럼 표현하지 않는다.
 이번 표현 명세에서는 Web UI 제어 명령의 **표시 위치와 의미**만 정의한다.
 구체적인 API shape나 runtime 연결 방식은 구현 명세나 실제 구현 단계에서 확정한다.
 
-표현해야 하는 제어는 다음 범위를 기준으로 한다.
+기본 화면에 표현해야 하는 제어는 다음 범위를 기준으로 한다.
 
 - start / pause / reset
 - fault cpu / service / latency
-- ackdrop
-- delay r1 / r2 / r1b / r2b
 - focus 또는 node 선택
+
+`ackdrop`과 `delay r1 / r2 / r1b / r2b` 명령은 controller/script 호환 경로에는 남을 수 있지만, 기본 Web UI 명령 팔레트의 별도 전달 실험 섹션으로 노출하지 않는다.
 
 제어 버튼은 node에 직접 붙는 data-plane peer처럼 보이면 안 된다.
 Web UI는 controller / gateway surface 뒤에서 상태를 읽고 제어 요청을 보내는 소비자다.

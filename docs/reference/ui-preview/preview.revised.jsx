@@ -873,7 +873,6 @@ function ControlPanel() {
                 <button className="rounded border border-orange-200 bg-orange-50 px-3 py-2 text-left text-orange-700">fault cpu 6</button>
                 <button className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-left text-rose-700">fault service 6</button>
                 <button className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-left text-amber-700">fault latency 6</button>
-                <button className="rounded border border-slate-300 bg-slate-50 px-3 py-2 text-left text-slate-700">ackdrop</button>
             </div>
         </section>
     );
