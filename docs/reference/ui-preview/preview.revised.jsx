@@ -22,9 +22,7 @@ const revisedNodes = [
                 cpu_usage: "62%",
                 memory_usage: "41%",
                 service_state: "UP",
-                latency_state: "NORMAL",
                 latency_ms: 22,
-                fault_mode: "NONE",
                 last_update_time: "2026-05-09T10:21:12",
             },
             detail: {
@@ -89,7 +87,6 @@ const revisedNodes = [
                 memory_usage: "51%",
                 service_state: "UP",
                 latency_ms: 28,
-                fault_mode: "CPU_SPIKE",
             },
             latest_input_result: {
                 status: "changed",
@@ -103,7 +100,7 @@ const revisedNodes = [
                 seq_no: 7,
                 host_id: "host-1",
                 agent_id: "agent-1",
-                event_type: "HOST_STATE_UPDATE",
+                event_type: "CPU_SPIKE",
                 severity: "WARN",
                 timestamp: "2026-05-09T10:21:14",
                 payload: {
@@ -155,7 +152,7 @@ const revisedNodes = [
                         captured_at: "2026-05-09T10:21:14",
                         truncated: false,
                         original_size: 148,
-                        preview: '{"cpu_usage":96,"memory_usage":51,"fault_mode":"CPU_SPIKE"}',
+                        preview: '{"cpu_usage":96,"memory_usage":51,"service_state":"UP","latency_ms":28}',
                     },
                 },
                 {
@@ -172,7 +169,7 @@ const revisedNodes = [
                         captured_at: "2026-05-09T10:21:14",
                         truncated: false,
                         original_size: 286,
-                        preview: '{"event_id":"evt-host-1-7","event_type":"HOST_STATE_UPDATE","severity":"WARN"}',
+                        preview: '{"event_id":"evt-host-1-7","event_type":"CPU_SPIKE","severity":"WARN"}',
                     },
                 },
             ],
@@ -193,7 +190,7 @@ const revisedNodes = [
             duplicate_dropped: 0,
             last_received_event: {
                 event_id: "evt-host-1-7",
-                event_type: "HOST_STATE_UPDATE",
+                event_type: "CPU_SPIKE",
                 seq_no: 7,
                 host_id: "host-1",
                 timestamp: "2026-05-09T10:21:14",
@@ -201,7 +198,7 @@ const revisedNodes = [
             pending_ack_state: [
                 {
                     event_id: "evt-host-1-7",
-                    event_type: "HOST_STATE_UPDATE",
+                    event_type: "CPU_SPIKE",
                     seq_no: 7,
                     downstream_target: "r2",
                     attempt: 1,
@@ -294,7 +291,7 @@ const revisedNodes = [
             duplicate_dropped: 0,
             last_received_event: {
                 event_id: "evt-host-1-7",
-                event_type: "HOST_STATE_UPDATE",
+                event_type: "CPU_SPIKE",
                 seq_no: 7,
                 host_id: "host-1",
                 timestamp: "2026-05-09T10:21:16",
@@ -302,7 +299,7 @@ const revisedNodes = [
             pending_ack_state: [
                 {
                     event_id: "evt-host-1-7",
-                    event_type: "HOST_STATE_UPDATE",
+                    event_type: "CPU_SPIKE",
                     seq_no: 7,
                     downstream_target: "monitor",
                     attempt: 2,
@@ -396,7 +393,7 @@ const revisedNodes = [
             recent_event_summaries: [
                 {
                     event_id: "evt-host-1-7",
-                    event_type: "HOST_STATE_UPDATE",
+                    event_type: "CPU_SPIKE",
                     severity: "WARN",
                     host_id: "host-1",
                     seq_no: 7,
@@ -413,7 +410,7 @@ const revisedNodes = [
             ],
             last_processed_event: {
                 event_id: "evt-host-1-7",
-                event_type: "HOST_STATE_UPDATE",
+                event_type: "CPU_SPIKE",
                 severity: "WARN",
                 host_id: "host-1",
                 seq_no: 7,
@@ -432,7 +429,7 @@ const revisedNodes = [
             },
             host_state_table: {
                 "host-1": {
-                    event_type: "HOST_STATE_UPDATE",
+                    event_type: "CPU_SPIKE",
                     severity: "WARN",
                     payload: {
                         cpu: 96,
@@ -591,8 +588,8 @@ function activityChips(node) {
     if (node.id === "host-simulator") {
         return [
             ["service", "서비스", activity.host_state.service_state],
-            ["latency", "지연", `${activity.host_state.latency_state} · ${activity.host_state.latency_ms}ms`],
-            ["fault", "fault", activity.host_state.fault_mode],
+            ["latency", "지연", `${activity.host_state.latency_ms}ms`],
+            ["injection", "주입", activity.detail.fault_type],
         ];
     }
     if (node.id === "local-agent") {
@@ -902,8 +899,8 @@ function HostDetail({ node }) {
     const { host_state, detail } = node.activity;
     return (
         <div data-testid="host-detail" className="space-y-3">
-            <Section title="Host Metrics" testId="host-metrics"><KeyValueRows rows={[["host_id", host_state.host_id], ["cpu_usage", host_state.cpu_usage], ["memory_usage", host_state.memory_usage], ["service_state", host_state.service_state], ["latency_state", host_state.latency_state], ["latency_ms", host_state.latency_ms], ["fault_mode", host_state.fault_mode], ["last_update_time", host_state.last_update_time]]} /></Section>
-            <Section title="Runtime Tick / Fault" testId="host-runtime"><KeyValueRows rows={[["tick", detail.tick], ["fault_active", detail.fault_active], ["fault_type", detail.fault_type]]} /></Section>
+            <Section title="Host Metrics" testId="host-metrics"><KeyValueRows rows={[["host_id", host_state.host_id], ["cpu_usage", host_state.cpu_usage], ["memory_usage", host_state.memory_usage], ["service_state", host_state.service_state], ["latency_ms", host_state.latency_ms], ["last_update_time", host_state.last_update_time]]} /></Section>
+            <Section title="Runtime Tick / Injection" testId="host-runtime"><KeyValueRows rows={[["tick", detail.tick], ["injection_active", detail.fault_active], ["injection_type", detail.fault_type]]} /></Section>
             <TrafficSection traffic={node.traffic} />
         </div>
     );
@@ -1002,7 +999,7 @@ function runSanityChecks() {
     console.assert(getNodeById("local-agent").activity.emitted_event.msg_type === "EVENT", "Agent detail contract should expose emitted event");
     console.assert(getNodeById("r1").activity.pending_ack_state[0].downstream_target === "r2", "R1 should use relay contract with R2 target");
     console.assert(getNodeById("r2").activity.pending_ack_state[0].downstream_target === "monitor", "R2 should use relay contract with Monitor target");
-    console.assert(getNodeById("monitor").activity.host_state_table["host-1"].payload.fault_mode === "CPU_SPIKE", "Monitor detail contract should expose host state table");
+    console.assert(getNodeById("monitor").activity.host_state_table["host-1"].payload.fault_mode === "CPU_SPIKE", "Monitor detail contract should expose Agent-authored event payload compatibility");
     console.assert(forbiddenExact.every((fragment) => !serialized.includes(fragment)), "preview data should not include forbidden narrative or copied TUI fragments");
 }
 
