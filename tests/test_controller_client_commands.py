@@ -103,12 +103,31 @@ class ControllerClientCommandTests(unittest.TestCase):
         self.assertEqual(requests[0]["message"]["command"], "set_fault")
         self.assertEqual(requests[0]["message"]["params"], {"fault_type": "SERVICE_DOWN", "enabled": False})
 
+        requests, should_exit, message = build_requests("fault latency on")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["command"], "set_fault")
+        self.assertEqual(requests[0]["message"]["target"], "host-simulator")
+        self.assertEqual(requests[0]["message"]["params"], {"fault_type": "LATENCY_HIGH", "enabled": True})
+
+        requests, should_exit, message = build_requests("fault latency off")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["command"], "set_fault")
+        self.assertEqual(requests[0]["message"]["params"], {"fault_type": "LATENCY_HIGH", "enabled": False})
+
     def test_fault_commands_keep_duration_form_for_controller_clients(self) -> None:
         requests, should_exit, message = build_requests("fault cpu 6")
         self.assertFalse(should_exit)
         self.assertIsNone(message)
         self.assertEqual(requests[0]["message"]["command"], "inject_fault")
         self.assertEqual(requests[0]["message"]["params"], {"fault_type": "CPU_SPIKE", "duration_sec": 6})
+
+        requests, should_exit, message = build_requests("fault latency 6")
+        self.assertFalse(should_exit)
+        self.assertIsNone(message)
+        self.assertEqual(requests[0]["message"]["command"], "inject_fault")
+        self.assertEqual(requests[0]["message"]["params"], {"fault_type": "LATENCY_HIGH", "duration_sec": 6})
 
     def test_focus_commands_are_not_serialized_as_node_control_requests(self) -> None:
         for line in ["focus r1", "overview", "focus all"]:
