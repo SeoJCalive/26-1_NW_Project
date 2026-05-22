@@ -1,9 +1,0 @@
-Task 5 Python regression
-$ python -m unittest tests.test_node_monitor_mode tests.test_integrated_monitor_preservation tests.test_hop_state_visibility tests.test_node_view_contracts -q
-exit=0
-----------------------------------------------------------------------
-Ran 34 tests in 0.039s
-
-OK
-$ python -m py_compile main.py nw_demo/__init__.py nw_demo/base.py nw_demo/config.py nw_demo/controller_client.py nw_demo/controller_ui.py nw_demo/host_simulator.py nw_demo/local_agent.py nw_demo/messages.py nw_demo/monitor.py nw_demo/relay.py nw_demo/system.py nw_demo/transport.py tests/__init__.py tests/status_builders.py tests/test_controller_client_commands.py tests/test_controller_renderer.py tests/test_controller_ui_local_commands.py tests/test_hop_state_visibility.py tests/test_integrated_monitor_preservation.py tests/test_local_agent_event_policy.py tests/test_main_cli_guards.py tests/test_node_monitor_mode.py tests/test_node_view_contracts.py tests/test_status_detail_publishers.py tests/test_system_supervisor_tokens.py tests/test_traffic_snapshot_bounds.py tests/test_traffic_snapshot_contracts.py
-exit=0

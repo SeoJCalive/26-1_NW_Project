@@ -1,9 +1,0 @@
-# Root markdown check
-
-AGENTS.md
-AI_IMPLEMENTATION_BRIEF.md
-IMPLEMENTATION_SPEC.md
-INTENT_ALIGNMENT_NOTE.md
-README.md
-
-allowed_only=True

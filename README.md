@@ -20,19 +20,6 @@
 - 기본 viewer 모드는 로컬에서 각 역할 프로세스를 자동으로 띄운다.
 - 외부 controller 터미널은 별도로 접속해 명령을 보낸다.
 
-## 문서 안내
-
-- `README.md`: 가장 먼저 읽는 문서. 실행 방법, 런타임 구성, 데모 확인 포인트만 빠르게 안내한다.
-- `IMPLEMENTATION_SPEC.md`: 구현의 기술 기준이 되는 정본 문서. 구조, 메시지 흐름, 동작 규칙의 상세는 여기서 확인한다.
-- `INTENT_ALIGNMENT_NOTE.md`: 사용자 의도와 비타협 원칙을 정리한 가드레일 문서. 해석이 흔들릴 때 기준점으로 본다.
-- `AI_IMPLEMENTATION_BRIEF.md`: 현재 구현 상태와 작업 맥락을 요약한 living context 문서. 세션 인수인계나 다음 작업 출발점으로 사용한다.
-- `docs/history/PROCESS_SEPARATION_ARCHITECTURE.md`: 프로세스 분리 방향을 설명한 배경 문서. 현재 정답이라기보다 설계 변화의 맥락과 역사적 배경을 확인할 때 본다.
-- `docs/reference/`: 현재 작업에서 반복 참조하는 supporting reference 자료 경로. 사용자용 guide는 `docs/reference/network-project/guide/`에서 확인하고, preview 자산이나 참고용 PDF/PPTX 자료처럼 root current 문서를 대체하지 않는 live reference 자료도 여기서 관리한다.
-- `AGENTS.md`: root markdown 거버넌스 문서. 어떤 문서를 어디에 두는지, 새 root markdown를 만들지 말아야 하는지, 세션 맥락을 어디에 갱신해야 하는지의 기준을 정의한다.
-
-외부에서 가져오거나 새로 모은 미분류 자료의 임시 진입점이 필요하면 `docs/inbox/`를 사용한다.
-`docs/inbox/`는 OpenCode 자동 분류 대기 구역이며, 이후 자료 성격에 따라 `docs/reference/`, `docs/history/`, `docs/archive/` 또는 기존 canonical 문서로 이동·병합한다.
-
 ## 빠른 이해
 
 이 데모는 다음 흐름을 눈에 보이게 보여주는 데 초점을 둔다.
@@ -151,7 +138,7 @@ python -m web_ui.server --web-port 8080 --no-supervisor --control-token <token>
 
 Web UI의 주요 local endpoint는 다음과 같다.
 
-- `GET /`: `docs/reference/ui-preview/WEB_UI_SPEC.md`와 `preview.revised.jsx` visual parity를 따라야 하는 Web UI
+- `GET /`: Web UI 화면
 - `GET /api/state`: controller/gateway runtime state snapshot
 - `POST /api/control`: viewer/controller 명령 문자열 전달
 

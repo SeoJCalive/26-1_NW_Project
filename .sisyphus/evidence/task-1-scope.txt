@@ -1,5 +1,0 @@
-Task 1 scope check
-runtime_files_introduced=none
-package_or_server_files_found=[]
-preview_and_evidence_files_touched=['docs/reference/ui-preview/preview.revised.jsx', 'docs/reference/ui-preview/preview.revised.html', '.sisyphus/evidence/task-*.txt', '.sisyphus/evidence/task-*.png']
-status=pass

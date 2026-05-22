@@ -1,8 +1,0 @@
-Rendered label counts after dedup fix:
-처리 상태: 7
-대기열: 2
-ACK 대기: 13
-재시도: 10
-중복 처리: 3
-NodeCard keeps only processing-state compact slot; selected detail owns full dashboard slot set.
-No raw duplicate metric lines were found.

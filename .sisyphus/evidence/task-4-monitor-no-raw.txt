@@ -1,3 +1,0 @@
-Task 4 raw dump inspection
-raw_markers_found=[]
-status=pass

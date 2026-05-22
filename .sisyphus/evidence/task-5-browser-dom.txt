@@ -1,8 +1,0 @@
-Browser DOM parity QA
-url=file:///home/tjwocjf0915/workspace/NW_project/docs/reference/ui-preview/preview.revised.html
-chromium_args=--allow-file-access-from-files
-node_cards=host,agent,r1,r2,monitor
-non_monitor_detail=common,hop_summary,traffic_board verified
-monitor_board_sections=verified
-console_failures=[]
-page_errors=[]
