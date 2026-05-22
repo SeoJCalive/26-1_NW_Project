@@ -94,6 +94,30 @@ class HostSimulator(BaseNode):
 
     async def handle_network_message(self, message: dict[str, Any]) -> dict[str, Any] | None:
         if message.get("kind") == "get_host_state":
+            if not self.running:
+                response: dict[str, Any] = {"msg_type": "ERROR", "reason": "paused", "node_id": self.node_id}
+                self.record_peer_message(
+                    "previous_peer",
+                    "last_received",
+                    message,
+                    peer_node_id="local-agent",
+                    peer_role="agent",
+                    hop_state="request_received",
+                    logical_id="get_host_state",
+                    phase="host_request",
+                )
+                self.record_peer_message(
+                    "previous_peer",
+                    "last_sent",
+                    response,
+                    peer_node_id="local-agent",
+                    peer_role="agent",
+                    hop_state="paused",
+                    failure_reason="paused",
+                    logical_id="get_host_state",
+                    phase="host_response",
+                )
+                return response
             response = {"kind": "host_state", "host_state": self.snapshot()}
             self.record_peer_message(
                 "previous_peer",

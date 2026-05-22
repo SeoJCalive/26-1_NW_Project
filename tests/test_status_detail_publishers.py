@@ -70,6 +70,19 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("latency_state", host.snapshot())
         self.assertIsNone(host._fault_type)
 
+    async def test_paused_host_does_not_serve_host_state_to_agent(self) -> None:
+        host = HostSimulator("127.0.0.1", 9101, "127.0.0.1", 9110)
+        host.running = False
+
+        response = await host.handle_network_message({"kind": "get_host_state"})
+
+        self.assertEqual(response, {"msg_type": "ERROR", "reason": "paused", "node_id": "host-simulator"})
+        traffic = host.traffic_snapshot()["previous_peer"]
+        self.assertEqual(traffic["peer_node_id"], "local-agent")
+        self.assertEqual(traffic["hop_state"], "paused")
+        self.assertEqual(traffic["failure_reason"], "paused")
+        self.assertEqual(traffic["last_sent"]["payload"], response)
+
     async def test_host_latency_fault_is_raw_observation_with_injection_metadata(self) -> None:
         host = HostSimulator("127.0.0.1", 9101, "127.0.0.1", 9110)
         host._fault_type = "LATENCY_HIGH"

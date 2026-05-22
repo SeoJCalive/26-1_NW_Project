@@ -152,6 +152,25 @@ class LocalAgent(BaseNode):
             failure_reason="no_fault",
         )
 
+    def _record_host_response(self, response: dict[str, Any], *, hop_state: str, failure_reason: str | None = None) -> None:
+        self.record_peer_message(
+            "previous_peer",
+            "last_received",
+            response,
+            peer_node_id="host-simulator",
+            peer_role="host",
+            hop_state=hop_state,
+            failure_reason=failure_reason,
+            logical_id="get_host_state",
+            phase="host_response",
+        )
+
+    def _handle_paused_host_response(self, response: dict[str, Any]) -> None:
+        self._record_host_response(response, hop_state="paused", failure_reason="paused")
+        self.latest_input_result = {"status": "fetch_failed", "reason": "host_paused", "source": "host"}
+        self.last_detected_fault = None
+        self.last_downstream_result = {"status": "not_attempted", "reason": "host_paused"}
+
     def _build_event(self, event_type: str, host_state: dict[str, Any]) -> dict[str, Any]:
         self.seq_no += 1
         if event_type == "HOST_STATE_UPDATE":
@@ -461,31 +480,27 @@ class LocalAgent(BaseNode):
                     await asyncio.sleep(config.AGENT_POLL_SECONDS)
                     continue
 
-                self.record_peer_message(
-                    "previous_peer",
-                    "last_received",
-                    response,
-                    peer_node_id="host-simulator",
-                    peer_role="host",
-                    hop_state="acknowledged",
-                    logical_id="get_host_state",
-                    phase="host_response",
-                )
-
                 host_state = response.get("host_state") if isinstance(response, dict) else None
+                if isinstance(response, dict) and response.get("msg_type") == "ERROR" and response.get("reason") == "paused":
+                    self._handle_paused_host_response(response)
+                    await self.publish_status(note="host 일시정지")
+                    await asyncio.sleep(config.AGENT_POLL_SECONDS)
+                    continue
+
                 if not isinstance(host_state, dict):
-                    self.latest_input_result = {"status": "invalid_response", "source": "host"}
-                    self.last_downstream_result = {"status": "not_attempted", "reason": "invalid_host_state"}
-                    self.record_peer_state(
-                        "previous_peer",
-                        peer_node_id="host-simulator",
-                        peer_role="host",
+                    self._record_host_response(
+                        response if isinstance(response, dict) else {"response": response},
                         hop_state="invalid_response",
                         failure_reason="invalid_host_state",
                     )
+                    self.latest_input_result = {"status": "invalid_response", "source": "host"}
+                    self.last_downstream_result = {"status": "not_attempted", "reason": "invalid_host_state"}
                     await self.publish_status(note="host 상태 응답 이상")
                     await asyncio.sleep(config.AGENT_POLL_SECONDS)
                     continue
+
+                assert isinstance(response, dict)
+                self._record_host_response(response, hop_state="acknowledged")
 
                 self.latest_input_state = json_roundtrip(host_state)
                 self.latest_input_result = {"status": "ok", "source": "host"}

@@ -122,6 +122,32 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(delivered_event["route_trace"][0]["to_node"], "r1")
         self.assertEqual(delivered_event["route_trace"][0]["result"], "connection_error")
 
+    async def test_agent_classifies_paused_host_response_without_forwarding_event(self) -> None:
+        agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
+
+        async def stop_after_sleep(seconds: float) -> None:
+            agent.stopped = True
+
+        paused_response = {"msg_type": "ERROR", "reason": "paused", "node_id": "host-simulator"}
+        with (
+            patch("nw_demo.local_agent.send_request", new=AsyncMock(return_value=paused_response)),
+            patch("nw_demo.local_agent.asyncio.sleep", new=AsyncMock(side_effect=stop_after_sleep)),
+            patch.object(agent, "publish_status", new=AsyncMock()) as publish_status,
+            patch.object(agent, "_deliver_event", new=AsyncMock()) as deliver_event,
+        ):
+            await agent._run_loop()
+
+        self.assertEqual(agent.latest_input_result, {"status": "fetch_failed", "reason": "host_paused", "source": "host"})
+        self.assertIsNone(agent.last_detected_fault)
+        self.assertEqual(agent.last_downstream_result, {"status": "not_attempted", "reason": "host_paused"})
+        self.assertIsNone(agent.last_emitted_event)
+        deliver_event.assert_not_awaited()
+        publish_status.assert_awaited_with(note="host 일시정지")
+        traffic = agent.traffic_snapshot()["previous_peer"]
+        self.assertEqual(traffic["hop_state"], "paused")
+        self.assertEqual(traffic["failure_reason"], "paused")
+        self.assertEqual(traffic["last_received"]["payload"], paused_response)
+
     def test_agent_detects_faults_from_raw_observations_without_host_semantic_fields(self) -> None:
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
 
