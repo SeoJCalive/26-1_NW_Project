@@ -352,9 +352,9 @@ function commandTargetForNode(nodeId) {
   return nodeId;
 }
 
-function currentFaultType(adapted) {
+function currentInjectionType(adapted) {
   const host = adapted.nodesById["host-simulator"];
-  return getNested(host, ["runtime", "details", "detail", "host_state", "fault_mode"], "NORMAL");
+  return getNested(host, ["runtime", "details", "detail", "fault_type"], null);
 }
 
 function liveNodeCount(adapted) {
@@ -444,7 +444,7 @@ function activityChips(node) {
     return [
       ["cpu", "CPU", hostState.cpu_usage === undefined ? MISSING_VALUE : `${hostState.cpu_usage}%`],
       ["memory", "메모리", hostState.memory_usage === undefined ? MISSING_VALUE : `${hostState.memory_usage}%`],
-      ["fault", "fault", hostState.fault_mode || detail.fault_type],
+      ["injection", "주입", detail.fault_type || MISSING_VALUE],
     ];
   }
   if (node.id === "local-agent") {
@@ -713,7 +713,7 @@ function hostDetail(node) {
   const hostState = detail.host_state || getNested(node, ["runtime", "details", "host_state"], {});
   return [
     section("Host Metrics", keyValueRows(objectRows(hostState))),
-    section("Runtime Tick / Fault", keyValueRows([["tick", detail.tick], ["fault_active", detail.fault_active], ["fault_type", detail.fault_type]])),
+    section("Runtime Tick / Injection", keyValueRows([["tick", detail.tick], ["injection_active", detail.fault_active], ["injection_type", detail.fault_type]])),
     trafficSection(node),
   ].join("");
 }
@@ -896,9 +896,9 @@ function renderNodePower(adapted) {
 }
 
 function renderControls(adapted) {
-  const faultType = currentFaultType(adapted);
+  const injectionType = currentInjectionType(adapted);
   faultSwitches.innerHTML = FAULT_CONTROLS.map(function renderFault(control) {
-    const active = faultType === control.type;
+    const active = injectionType === control.type;
     const command = `fault ${control.key} ${active ? "off" : "on"}`;
     return switchButton(control.label, active ? "켜짐" : "꺼짐", command, active);
   }).join("");

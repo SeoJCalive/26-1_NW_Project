@@ -75,9 +75,7 @@ def build_host_status(*, state: str = "실행 중", note: str = "호스트 tick 
         "cpu_usage": 96,
         "memory_usage": 51,
         "service_state": "UP",
-        "latency_state": "NORMAL",
         "latency_ms": 28,
-        "fault_mode": "CPU_SPIKE",
         "last_update_time": "2026-04-27T10:00:00+00:00",
     }
     return _build_status(
@@ -125,9 +123,7 @@ def build_local_agent_status(*, state: str = "실행 중", note: str = "이벤�
         "cpu_usage": 96,
         "memory_usage": 51,
         "service_state": "UP",
-        "latency_state": "NORMAL",
         "latency_ms": 28,
-        "fault_mode": "CPU_SPIKE",
         "last_update_time": "2026-04-27T10:00:00+00:00",
     }
     last_event: dict[str, Any] = {

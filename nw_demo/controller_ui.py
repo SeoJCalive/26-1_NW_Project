@@ -567,18 +567,16 @@ class ControllerUI:
             lines.append("  세부 상태: 아직 host 상태 수신 없음")
             return
         lines.append(
-            "  host_id={host_id} cpu={cpu}% mem={mem}% service={service} latency={latency}ms ({latency_state}) mode={mode}".format(
+            "  host_id={host_id} cpu={cpu}% mem={mem}% service={service} latency={latency}ms".format(
                 host_id=host_state.get("host_id", "-"),
                 cpu=host_state.get("cpu_usage", "-"),
                 mem=host_state.get("memory_usage", "-"),
                 service=host_state.get("service_state", "-"),
                 latency=host_state.get("latency_ms", "-"),
-                latency_state=host_state.get("latency_state", "-"),
-                mode=host_state.get("fault_mode", "-"),
             )
         )
         lines.append(
-            "  host detail: tick={tick} fault_active={active} fault_type={fault_type}".format(
+            "  host detail: tick={tick} injection_active={active} injection_type={fault_type}".format(
                 tick=detail.get("tick", "-"),
                 active=detail.get("fault_active", False),
                 fault_type=_safe_text(detail.get("fault_type", "-")),
@@ -702,7 +700,7 @@ class ControllerUI:
                         cpu=_safe_text(payload.get("cpu", "-")),
                         memory=_safe_text(payload.get("memory", "-")),
                     ),
-                    "      서비스 : 상태={service} / 지연={latency}ms / 장애={mode}".format(
+                    "      서비스 : 상태={service} / 지연={latency}ms / 이벤트판단={mode}".format(
                         service=_display_keyword(payload.get("service_state", "-"), _DISPLAY_SERVICE_STATES),
                         latency=_safe_text(payload.get("latency_ms", "-")),
                         mode=_display_keyword(payload.get("fault_mode", "-"), _DISPLAY_FAULT_MODES),
@@ -901,7 +899,7 @@ class ControllerUI:
                         service=_display_keyword(payload.get("service_state", "-"), _DISPLAY_SERVICE_STATES),
                         latency=_safe_text(payload.get("latency_ms", "-")),
                     ),
-                    f"장애={_display_keyword(payload.get('fault_mode', '-'), _DISPLAY_FAULT_MODES)}",
+                    f"이벤트판단={_display_keyword(payload.get('fault_mode', '-'), _DISPLAY_FAULT_MODES)}",
                 ]
             )
         return rows[:6]
