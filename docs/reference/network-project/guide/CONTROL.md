@@ -137,11 +137,11 @@ exit
 
 `kill <node>`는 지정한 node에 shutdown 제어를 보낸다. `kill all`은 지원하지 않는다.
 
-`fault cpu on|off`는 Host Simulator의 `CPU_SPIKE` fault를 사용자가 직접 켜고 끈다.
+`fault cpu on|off`는 Host Simulator에 CPU 비정상 관측값 주입을 사용자가 직접 켜고 끈다. `CPU_SPIKE` EVENT 판단은 Local Agent가 수행한다.
 
-`fault service on|off`는 Host Simulator의 `SERVICE_DOWN` fault를 사용자가 직접 켜고 끈다.
+`fault service on|off`는 Host Simulator에 service 비정상 관측값 주입을 사용자가 직접 켜고 끈다. `SERVICE_DOWN` EVENT 판단은 Local Agent가 수행한다.
 
-`fault latency on|off`는 Host Simulator의 `LATENCY_HIGH` fault를 사용자가 직접 켜고 끈다.
+`fault latency on|off`는 Host Simulator에 latency 비정상 관측값 주입을 사용자가 직접 켜고 끈다. `LATENCY_HIGH` EVENT 판단은 Local Agent가 수행한다.
 
 `fault cpu 6`처럼 시간을 주는 형태는 controller/script 호환 경로로 유지되지만, Web UI 팔레트에서는 수동 on/off 스위치를 기본으로 쓴다.
 
