@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
 from nw_demo.messages import make_ack
@@ -10,8 +11,11 @@ from nw_demo.monitor import Monitor
 from nw_demo.relay import RelayNode
 
 
-def _captured_status(send_request: AsyncMock) -> dict[str, object]:
-    return send_request.await_args.args[2]
+def _captured_status(send_request: AsyncMock) -> dict[str, Any]:
+    await_args = send_request.await_args
+    if await_args is None:
+        raise AssertionError("status was not published")
+    return cast(dict[str, Any], await_args.args[2])
 
 
 class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
@@ -40,7 +44,10 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(detail["role"], "host")
         self.assertEqual(detail["tick"], 4)
         self.assertTrue(detail["fault_active"])
-        self.assertEqual(detail["host_state"]["fault_mode"], "CPU_SPIKE")
+        self.assertEqual(detail["fault_type"], "CPU_SPIKE")
+        self.assertEqual(detail["host_state"]["cpu_usage"], 96)
+        self.assertNotIn("fault_mode", detail["host_state"])
+        self.assertNotIn("latency_state", detail["host_state"])
         self.assertEqual(detail["traffic"]["previous_peer"]["peer_node_id"], "local-agent")
         self.assertEqual(detail["traffic"]["next_peer"]["hop_state"], "not_applicable")
 
@@ -50,16 +57,34 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         with patch("nw_demo.base.send_request", new=AsyncMock()):
             await host.on_control({"command": "set_fault", "params": {"fault_type": "SERVICE_DOWN", "enabled": True}})
 
-        self.assertEqual(host.snapshot()["fault_mode"], "SERVICE_DOWN")
         self.assertEqual(host.snapshot()["service_state"], "DOWN")
+        self.assertNotIn("fault_mode", host.snapshot())
+        self.assertNotIn("latency_state", host.snapshot())
         self.assertIsNone(host._fault_end_monotonic)
 
         with patch("nw_demo.base.send_request", new=AsyncMock()):
             await host.on_control({"command": "set_fault", "params": {"fault_type": "SERVICE_DOWN", "enabled": False}})
 
-        self.assertEqual(host.snapshot()["fault_mode"], "NORMAL")
         self.assertEqual(host.snapshot()["service_state"], "UP")
+        self.assertNotIn("fault_mode", host.snapshot())
+        self.assertNotIn("latency_state", host.snapshot())
         self.assertIsNone(host._fault_type)
+
+    async def test_host_latency_fault_is_raw_observation_with_injection_metadata(self) -> None:
+        host = HostSimulator("127.0.0.1", 9101, "127.0.0.1", 9110)
+        host._fault_type = "LATENCY_HIGH"
+        host._apply_fault_state("LATENCY_HIGH")
+
+        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+            await host.publish_status(note="fault 켜짐: LATENCY_HIGH")
+
+        status = _captured_status(send_request)
+        detail = status["detail"]
+        self.assertEqual(status["host_state"]["latency_ms"], 260)
+        self.assertNotIn("fault_mode", status["host_state"])
+        self.assertNotIn("latency_state", status["host_state"])
+        self.assertTrue(detail["fault_active"])
+        self.assertEqual(detail["fault_type"], "LATENCY_HIGH")
 
     async def test_local_agent_publishes_latest_input_fault_event_and_downstream_result(self) -> None:
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
@@ -68,9 +93,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             "cpu_usage": 96,
             "memory_usage": 51,
             "service_state": "UP",
-            "latency_state": "NORMAL",
             "latency_ms": 28,
-            "fault_mode": "CPU_SPIKE",
             "last_update_time": "2026-04-27T10:00:00+00:00",
         }
         agent.latest_input_result = {"status": "ok", "source": "host"}
@@ -163,7 +186,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_relay_reset_during_delivery_does_not_crash_or_reuse_cleared_pending_detail(self) -> None:
         relay = RelayNode("r1", "127.0.0.1", 9103, "127.0.0.1", 9110, "127.0.0.1", 9104)
-        event = {
+        event: dict[str, object] = {
             "msg_type": "EVENT",
             "event_id": "evt-host-1-9",
             "seq_no": 9,
@@ -172,7 +195,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             "timestamp": "2026-04-27T10:00:09+00:00",
         }
 
-        async def reset_then_ack(*args, **kwargs):
+        async def reset_then_ack(*args: object, **kwargs: object) -> dict[str, object]:
             await relay.reset_state()
             return make_ack("evt-host-1-9", "r2")
 
@@ -181,6 +204,8 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
                 accepted = await relay._deliver_with_retry(event)
 
         self.assertFalse(accepted)
+        if relay.last_downstream_result is None:
+            self.fail("relay did not store downstream result")
         self.assertEqual(relay.last_downstream_result["status"], "reset_interrupted")
         self.assertNotIn("evt-host-1-9", relay.pending_ack_table)
         self.assertNotIn("evt-host-1-9", relay.pending_ack_detail)
@@ -188,7 +213,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_relay_publishes_upstream_receipt_before_downstream_delivery(self) -> None:
         relay = RelayNode("r1", "127.0.0.1", 9103, "127.0.0.1", 9110, "127.0.0.1", 9104)
-        event = {
+        event: dict[str, object] = {
             "msg_type": "EVENT",
             "event_id": "evt-host-1-10",
             "seq_no": 10,
@@ -198,13 +223,13 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         }
         order: list[tuple[str, str | None, str | None]] = []
 
-        async def publish_status(*, extra=None, note=None):
+        async def publish_status(*, extra: object | None = None, note: str | None = None) -> None:
             snapshot = relay.traffic_snapshot()
             last_received = snapshot["previous_peer"]["last_received"]
             logical_id = last_received["logical_id"] if last_received else None
             order.append(("publish", note, logical_id))
 
-        async def deliver_with_retry(delivered_event):
+        async def deliver_with_retry(delivered_event: dict[str, object]) -> bool:
             order.append(("deliver", None, str(delivered_event["event_id"])))
             return False
 
@@ -212,6 +237,8 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(relay, "_deliver_with_retry", new=AsyncMock(side_effect=deliver_with_retry)):
                 response = await relay.handle_network_message(event)
 
+        if response is None:
+            self.fail("relay did not return a response")
         self.assertEqual(response["msg_type"], "ERROR")
         self.assertEqual(order[0], ("publish", "evt-host-1-10 upstream 수신", "evt-host-1-10"))
         self.assertEqual(order[1], ("deliver", None, "evt-host-1-10"))

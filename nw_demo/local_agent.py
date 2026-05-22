@@ -19,6 +19,9 @@ from .routing import (
 from .transport import send_request
 
 
+LATENCY_HIGH_THRESHOLD_MS = 200
+
+
 class LocalAgent(BaseNode):
     def __init__(
         self,
@@ -108,7 +111,7 @@ class LocalAgent(BaseNode):
             return "CPU_SPIKE"
         if host_state["service_state"] != "UP":
             return "SERVICE_DOWN"
-        if host_state["latency_state"] == "HIGH":
+        if host_state["latency_ms"] >= LATENCY_HIGH_THRESHOLD_MS:
             return "LATENCY_HIGH"
         return None
 
@@ -117,9 +120,7 @@ class LocalAgent(BaseNode):
             host_state.get("cpu_usage"),
             host_state.get("memory_usage"),
             host_state.get("service_state"),
-            host_state.get("latency_state"),
             host_state.get("latency_ms"),
-            host_state.get("fault_mode"),
         )
 
     def _select_event_type(self, host_state: dict[str, Any], detected_fault: str | None) -> str | None:
@@ -131,6 +132,25 @@ class LocalAgent(BaseNode):
         if host_state_signature != self.last_host_state_signature:
             return "HOST_STATE_UPDATE"
         return None
+
+    def _handle_no_selected_event(self, detected_fault: str | None) -> None:
+        if detected_fault is not None:
+            self.last_downstream_result = {
+                "status": "suppressed_duplicate_fault",
+                "fault": detected_fault,
+                "event_id": self.last_emitted_event.get("event_id") if self.last_emitted_event else None,
+            }
+            return
+        self.last_fault_signature = None
+        self.last_emitted_event = None
+        self.last_downstream_result = {"status": "idle", "reason": "no_fault"}
+        self.record_peer_state(
+            "next_peer",
+            peer_node_id="r1",
+            peer_role="relay",
+            hop_state="idle",
+            failure_reason="no_fault",
+        )
 
     def _build_event(self, event_type: str, host_state: dict[str, Any]) -> dict[str, Any]:
         self.seq_no += 1
@@ -153,7 +173,7 @@ class LocalAgent(BaseNode):
                     "memory": host_state["memory_usage"],
                     "service_state": host_state["service_state"],
                     "latency_ms": host_state["latency_ms"],
-                    "fault_mode": host_state["fault_mode"],
+                    "fault_mode": "NORMAL" if event_type == "HOST_STATE_UPDATE" else event_type,
                 },
             }
         )
@@ -474,16 +494,7 @@ class LocalAgent(BaseNode):
                 host_state_signature = self._host_state_signature(host_state)
                 event_type = self._select_event_type(host_state, detected_fault)
                 if event_type is None:
-                    self.last_fault_signature = None
-                    self.last_emitted_event = None
-                    self.last_downstream_result = {"status": "idle", "reason": "no_fault"}
-                    self.record_peer_state(
-                        "next_peer",
-                        peer_node_id="r1",
-                        peer_role="relay",
-                        hop_state="idle",
-                        failure_reason="no_fault",
-                    )
+                    self._handle_no_selected_event(detected_fault)
                 elif detected_fault is None or detected_fault != self.last_fault_signature:
                     event = self._build_event(event_type, host_state)
                     delivered_event, delivered = await self._deliver_event(event)

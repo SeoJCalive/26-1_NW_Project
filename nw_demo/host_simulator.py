@@ -82,7 +82,7 @@ class HostSimulator(BaseNode):
             "detail": {
                 "role": "host",
                 "tick": self._tick,
-                "fault_active": host_state.get("fault_mode") != "NORMAL",
+                "fault_active": self._fault_type is not None,
                 "fault_type": self._fault_type,
                 "host_state": host_state,
                 "traffic": self.traffic_snapshot(),
@@ -125,20 +125,18 @@ class HostSimulator(BaseNode):
             "cpu_usage": 18 + (phase * 4),
             "memory_usage": 42 + (phase * 3),
             "service_state": "UP",
-            "latency_state": "NORMAL",
             "latency_ms": 24 + (phase * 6),
-            "fault_mode": "NORMAL",
             "last_update_time": iso_now(),
         }
 
     def _apply_fault_state(self, fault_type: str) -> None:
         self._apply_normal_state()
         if fault_type == "CPU_SPIKE":
-            self.state.update({"cpu_usage": 96, "fault_mode": fault_type})
+            self.state.update({"cpu_usage": 96})
         elif fault_type == "SERVICE_DOWN":
-            self.state.update({"service_state": "DOWN", "fault_mode": fault_type})
+            self.state.update({"service_state": "DOWN"})
         elif fault_type == "LATENCY_HIGH":
-            self.state.update({"latency_state": "HIGH", "latency_ms": 260, "fault_mode": fault_type})
+            self.state.update({"latency_ms": 260})
         self.state["last_update_time"] = iso_now()
 
     async def _run_loop(self) -> None:
