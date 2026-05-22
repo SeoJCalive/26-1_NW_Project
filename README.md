@@ -37,7 +37,7 @@
 
 이 데모는 다음 흐름을 눈에 보이게 보여주는 데 초점을 둔다.
 
-- host 상태 기반 event 생성
+- Host 관측값 기반 Local Agent event 생성
 - JSON `EVENT` / `ACK` / `CONTROL` / `STATUS`
 - primary `Agent -> R1 -> R2 -> Monitor` forwarding
 - backup `Agent -> R1B -> R2B -> Monitor` forwarding
