@@ -946,6 +946,10 @@ tbody tr:last-child td { border-bottom: 0; }
   margin-top: 8px;
 }
 
+.traffic-peers[data-peer-count="1"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 @keyframes pathFlow {
   from { stroke-dashoffset: 36; }
   to { stroke-dashoffset: 0; }

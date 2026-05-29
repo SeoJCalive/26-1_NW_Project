@@ -822,6 +822,7 @@ function firstHostStateSummary(hostTable) {
 
 function trafficSection(node) {
   const traffic = trafficOf(node);
+  const peers = trafficPeerSpecs(node, traffic);
   const recentRows = (traffic.recent || []).map(function mapRecent(item) {
     const capture = item.capture || {};
     return {
@@ -842,7 +843,7 @@ function trafficSection(node) {
   });
   return section("Traffic Snapshot", [
     keyValueRows([["기록 번호", traffic.capture_seq], ["최근 기록 시각", traffic.captured_at]]),
-    `<div class="traffic-peers">${trafficPeer(traffic.previous_peer, "요청 측 노드")}${trafficPeer(traffic.next_peer, "다음 전달 노드")}</div>`,
+    `<div class="traffic-peers" data-peer-count="${peers.length}">${peers.map(function renderPeer(spec) { return trafficPeer(spec.peer, spec.title); }).join("")}</div>`,
     dataTable([
       { key: "direction", label: "direction" }, { key: "flow", label: "flow" }, { key: "peer_node_id", label: "peer_node_id" },
       { key: "peer_role", label: "peer_role" }, { key: "hop_state", label: "hop_state" }, { key: "failure_reason", label: "failure_reason" },
@@ -851,6 +852,47 @@ function trafficSection(node) {
       { key: "preview", label: "preview" },
     ], recentRows),
   ].join(""));
+}
+
+function isMissingPeerValue(value) {
+  return value === null || value === undefined || value === "" || value === MISSING_VALUE;
+}
+
+function isEndpointPlaceholderPeer(peer) {
+  if (!peer || peer.hop_state !== "not_applicable") return false;
+  return isMissingPeerValue(peer.peer_node_id)
+    && isMissingPeerValue(peer.peer_role)
+    && isMissingPeerValue(peer.last_received)
+    && isMissingPeerValue(peer.last_sent);
+}
+
+function endpointPeerSpecs(traffic, title) {
+  const specs = [{ peer: traffic.previous_peer, title: title }];
+  if (!isEndpointPlaceholderPeer(traffic.next_peer)) {
+    specs.push({ peer: traffic.next_peer, title: "다음 구간" });
+  }
+  return specs;
+}
+
+function trafficPeerSpecs(node, traffic) {
+  if (node.id === "host-simulator") return endpointPeerSpecs(traffic, "상태 조회 요청/응답");
+  if (node.id === "monitor") return endpointPeerSpecs(traffic, "이벤트 수신/ACK");
+  if (node.id === "local-agent") {
+    return [
+      { peer: traffic.previous_peer, title: "Host 상태 조회" },
+      { peer: traffic.next_peer, title: "이벤트 전달" },
+    ];
+  }
+  if (node.role === "Relay") {
+    return [
+      { peer: traffic.previous_peer, title: "이벤트 수신" },
+      { peer: traffic.next_peer, title: "이벤트 전달" },
+    ];
+  }
+  return [
+    { peer: traffic.previous_peer, title: "이전 구간" },
+    { peer: traffic.next_peer, title: "다음 구간" },
+  ];
 }
 
 function trafficPeer(peer, title) {
