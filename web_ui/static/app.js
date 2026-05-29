@@ -444,7 +444,8 @@ function activityChips(node) {
     return [
       ["cpu", "CPU", hostState.cpu_usage === undefined ? MISSING_VALUE : `${hostState.cpu_usage}%`],
       ["memory", "메모리", hostState.memory_usage === undefined ? MISSING_VALUE : `${hostState.memory_usage}%`],
-      ["injection", "주입", detail.fault_type || MISSING_VALUE],
+      ["latency", "latency", hostState.latency_ms === undefined ? MISSING_VALUE : `${hostState.latency_ms}ms`],
+      ["service", "service", hostState.service_state || MISSING_VALUE],
     ];
   }
   if (node.id === "local-agent") {
@@ -586,7 +587,8 @@ function renderNodes(adapted) {
     card.style.left = `${node.position.x}px`;
     card.style.top = `${node.position.y}px`;
     card.addEventListener("click", function onClick() { selectNode(node.id); });
-    const chips = activityChips(node).slice(0, 2).map(function chip(row) {
+    const chipRows = node.id === "host-simulator" ? activityChips(node) : activityChips(node).slice(0, 2);
+    const chips = chipRows.map(function chip(row) {
       return nodeInfoRow(row[1], row[2]);
     }).join("");
     card.innerHTML = `
@@ -665,7 +667,6 @@ function renderDetail(adapted) {
         <button id="detail-close-button" class="detail-close" type="button" aria-label="close detail inspector">X</button>
       </div>
       <div class="detail-meta">
-        <span>role · ${escapeHtml(node.role)}</span>
         <span>${reportedStateLamp(node.reported_state)}</span>
         <span>${connectionLamp(node.observed_liveness)}</span>
         <span>last_seen · ${escapeHtml(node.last_seen)}</span>
@@ -713,7 +714,7 @@ function hostDetail(node) {
   const hostState = detail.host_state || getNested(node, ["runtime", "details", "host_state"], {});
   return [
     section("Host Metrics", keyValueRows(objectRows(hostState))),
-    section("Runtime Tick / Injection", keyValueRows([["tick", detail.tick], ["injection_active", detail.fault_active], ["injection_type", detail.fault_type]])),
+    section("Host Runtime", keyValueRows([["tick", detail.tick]])),
     trafficSection(node),
   ].join("");
 }
@@ -840,13 +841,13 @@ function trafficSection(node) {
     };
   });
   return section("Traffic Snapshot", [
-    keyValueRows([["capture_seq", traffic.capture_seq], ["captured_at", traffic.captured_at]]),
-    `<div class="traffic-peers">${trafficPeer(traffic.previous_peer, "previous_peer")}${trafficPeer(traffic.next_peer, "next_peer")}</div>`,
+    keyValueRows([["기록 번호", traffic.capture_seq], ["최근 기록 시각", traffic.captured_at]]),
+    `<div class="traffic-peers">${trafficPeer(traffic.previous_peer, "요청 측 노드")}${trafficPeer(traffic.next_peer, "다음 전달 노드")}</div>`,
     dataTable([
       { key: "direction", label: "direction" }, { key: "flow", label: "flow" }, { key: "peer_node_id", label: "peer_node_id" },
       { key: "peer_role", label: "peer_role" }, { key: "hop_state", label: "hop_state" }, { key: "failure_reason", label: "failure_reason" },
       { key: "logical_id", label: "logical_id" }, { key: "attempt_no", label: "attempt_no" }, { key: "phase", label: "phase" },
-      { key: "captured_at", label: "captured_at" }, { key: "truncated", label: "truncated" }, { key: "original_size", label: "original_size" },
+      { key: "captured_at", label: "최근 기록 시각" }, { key: "truncated", label: "truncated" }, { key: "original_size", label: "original_size" },
       { key: "preview", label: "preview" },
     ], recentRows),
   ].join(""));
