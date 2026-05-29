@@ -87,6 +87,7 @@ let latestState = null;
 let selectedNodeId = null;
 let detailNodeId = null;
 let detailState = "closed";
+let renderedDetailNodeId = null;
 let closeTimer = null;
 let powerLockUntil = 0;
 let powerActionInFlight = false;
@@ -650,13 +651,36 @@ function updateDetailState() {
   detailInspector.hidden = detailState === "closed";
 }
 
+function captureDetailScrollState(nodeId) {
+  if (renderedDetailNodeId !== nodeId) return null;
+  return {
+    scrollTop: detailInspectorInner.scrollTop,
+    tables: Array.from(detailInspectorInner.querySelectorAll(".data-table-wrap")).map(function tableScroll(table) {
+      return { scrollLeft: table.scrollLeft, scrollTop: table.scrollTop };
+    }),
+  };
+}
+
+function restoreDetailScrollState(state) {
+  if (!state) return;
+  detailInspectorInner.scrollTop = state.scrollTop;
+  Array.from(detailInspectorInner.querySelectorAll(".data-table-wrap")).forEach(function restoreTableScroll(table, index) {
+    const tableState = state.tables[index];
+    if (!tableState) return;
+    table.scrollLeft = tableState.scrollLeft;
+    table.scrollTop = tableState.scrollTop;
+  });
+}
+
 function renderDetail(adapted) {
   const node = detailNodeId ? adapted.nodesById[detailNodeId] : null;
   updateDetailState();
   if (!node) {
     detailInspectorInner.innerHTML = "";
+    renderedDetailNodeId = null;
     return;
   }
+  const scrollState = captureDetailScrollState(node.id);
   detailInspectorInner.innerHTML = `
     <div class="detail-header">
       <div class="detail-header-top">
@@ -674,6 +698,8 @@ function renderDetail(adapted) {
     </div>
     <div class="detail-body">${roleDetail(node)}</div>
   `;
+  renderedDetailNodeId = node.id;
+  restoreDetailScrollState(scrollState);
   document.querySelector("#detail-close-button").addEventListener("click", closeDetail);
 }
 
@@ -700,8 +726,13 @@ function objectRows(object) {
   return Object.keys(object).map(function row(key) { return [key, object[key]]; });
 }
 
-function dataTable(columns, rows) {
-  if (!Array.isArray(rows) || !rows.length) return keyValueRows([["자료", MISSING_VALUE]]);
+function dataTable(columns, rows, emptyMessage) {
+  if (!Array.isArray(rows) || !rows.length) {
+    if (!emptyMessage) return keyValueRows([["자료", MISSING_VALUE]]);
+    return `<div class="data-table-wrap"><table><thead><tr>${columns.map(function head(column) {
+      return `<th>${escapeHtml(column.label)}</th>`;
+    }).join("")}</tr></thead><tbody><tr><td colspan="${columns.length}">${escapeHtml(emptyMessage)}</td></tr></tbody></table></div>`;
+  }
   return `<div class="data-table-wrap"><table><thead><tr>${columns.map(function head(column) {
     return `<th>${escapeHtml(column.label)}</th>`;
   }).join("")}</tr></thead><tbody>${rows.map(function row(item) {
@@ -745,7 +776,7 @@ function relayDetail(node) {
       { key: "event_id", label: "event_id" }, { key: "event_type", label: "event_type" }, { key: "seq_no", label: "seq_no" },
       { key: "downstream_target", label: "downstream_target" }, { key: "attempt", label: "attempt" }, { key: "state", label: "state" },
       { key: "last_outcome", label: "last_outcome" }, { key: "ack_from", label: "ack_from" },
-    ], detail.pending_ack_state)),
+    ], detail.pending_ack_state, "대기 중인 ACK 없음")),
     section("Retry / Dedup Counters", keyValueRows([["pending_ack_count", node.pending_ack_count], ["retry_total", node.retry_total], ["duplicate_dropped", node.duplicate_dropped], ["recent_received_event_ids", detail.recent_received_event_ids]])),
     section("Downstream / Forwarding Result", keyValueRows([["last_downstream_result", detail.last_downstream_result], ["last_forwarded_result", detail.last_forwarded_result]])),
     trafficSection(node),
