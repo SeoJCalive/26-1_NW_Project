@@ -17,8 +17,8 @@ class NodeViewContractTests(unittest.TestCase):
         candidate = getattr(controller_ui, name, None)
         if candidate is None:
             self.fail(
-                f"controller_ui.{name} is missing; {purpose} is not implemented yet. "
-                "Task 1 expects an explicit failing contract for this capability."
+                f"controller_ui.{name} is required for {purpose}. "
+                "The node view contract depends on this public helper."
             )
         return candidate
 
