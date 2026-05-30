@@ -9,6 +9,7 @@ from nw_demo.local_agent import LocalAgent
 from nw_demo.host_simulator import HostSimulator
 from nw_demo.monitor import Monitor
 from nw_demo.relay import RelayNode
+from nw_demo.routing import ROUTE_BACKUP, ROUTE_PRIMARY, ROUTE_STATE_BYPASS_ACTIVE, initialize_event_route_metadata, make_route_trace_entry
 
 
 def _captured_status(send_request: AsyncMock) -> dict[str, Any]:
@@ -310,6 +311,76 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(detail["last_ack_result"]["status"], "acknowledged")
         self.assertEqual(detail["traffic"]["previous_peer"]["peer_node_id"], "r2")
         self.assertEqual(detail["traffic"]["next_peer"]["hop_state"], "not_applicable")
+
+    async def test_monitor_publishes_downstream_failure_attribution_from_event_fields(self) -> None:
+        monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)
+        event = initialize_event_route_metadata({
+            "msg_type": "EVENT",
+            "event_id": "evt-host-1-7",
+            "seq_no": 7,
+            "host_id": "host-1",
+            "agent_id": "agent-1",
+            "event_type": "CPU_SPIKE",
+            "severity": "WARN",
+            "timestamp": "2026-05-21T00:00:00+00:00",
+            "payload": {"cpu": 96},
+        })
+        event["routing"] = {
+            "route_state": ROUTE_STATE_BYPASS_ACTIVE,
+            "active_route": ROUTE_BACKUP,
+            "failed_hop": "r1->r2",
+            "suspected_node": "r2",
+            "reroute_reason": "paused",
+        }
+        event["route_trace"] = [
+            make_route_trace_entry(
+                from_node="local-agent",
+                to_node="r1",
+                route_id=ROUTE_PRIMARY,
+                attempt_no=1,
+                phase="event_forward",
+                result="ack_missing",
+                failure_reason="ack_missing",
+                timestamp="2026-05-21T00:00:01+00:00",
+            ),
+            make_route_trace_entry(
+                from_node="r1",
+                to_node="r2",
+                route_id=ROUTE_PRIMARY,
+                attempt_no=1,
+                phase="event_forward",
+                result="failed",
+                failure_reason="paused",
+                timestamp="2026-05-21T00:00:02+00:00",
+            ),
+            make_route_trace_entry(
+                from_node="r1b",
+                to_node="r2b",
+                route_id=ROUTE_BACKUP,
+                attempt_no=1,
+                phase="event_forward",
+                result="acknowledged",
+                timestamp="2026-05-21T00:00:03+00:00",
+            ),
+        ]
+
+        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+            ack = await monitor.handle_network_message(event)
+
+        if ack is None:
+            self.fail("monitor did not ACK attributed event")
+        self.assertEqual(ack["msg_type"], "ACK")
+        status = _captured_status(send_request)
+        detail = status["detail"]
+        self.assertEqual(detail["last_route_summary"]["failed_hop"], "r1->r2")
+        self.assertEqual(detail["last_route_summary"]["suspected_node"], "r2")
+        self.assertEqual(detail["last_route_summary"]["reroute_reason"], "paused")
+        self.assertEqual(detail["last_fault_localization"]["failed_hop"], "r1->r2")
+        self.assertEqual(detail["last_fault_localization"]["suspected_node"], "r2")
+        self.assertEqual(detail["last_fault_localization"]["failure_reason"], "paused")
+        self.assertEqual(detail["last_fault_localization"]["basis"], "route_trace_failed_hop")
+        self.assertEqual(detail["last_route_trace"][1]["from_node"], "r1")
+        self.assertEqual(detail["last_route_trace"][1]["to_node"], "r2")
 
     async def test_monitor_publishes_structured_ack_drop_visibility(self) -> None:
         monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)

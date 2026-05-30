@@ -272,6 +272,39 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertIn("신뢰도=medium", frame)
         self.assertNotIn("node failure", frame.lower())
 
+    def test_focused_monitor_renders_downstream_pause_attribution_without_payload_dump(self) -> None:
+        controller = ControllerUI(
+            control_host=config.DEFAULT_HOST,
+            control_port=config.CONTROLLER_PORT,
+            node_endpoints=config.NODE_ENDPOINTS,
+            focus_node="monitor",
+        )
+        status = build_monitor_status()
+        status["detail"]["last_route_summary"] = {
+            "route_state": "BYPASS_ACTIVE",
+            "active_route": "backup",
+            "failed_hop": "r1->r2",
+            "suspected_node": "r2",
+            "reroute_reason": "paused",
+        }
+        status["detail"]["last_fault_localization"] = {
+            "failure_scope": "hop",
+            "failed_hop": "r1->r2",
+            "suspected_node": "r2",
+            "failure_reason": "paused",
+            "confidence": "medium",
+            "basis": "route_trace_failed_hop",
+        }
+        controller._apply_status(status)
+
+        frame = "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=100))
+
+        self.assertIn("관찰 실패 hop=r1->r2", frame)
+        self.assertIn("의심 node=r2", frame)
+        self.assertIn("paused", frame)
+        self.assertNotIn('"msg_type": "EVENT"', frame)
+        self.assertNotIn('"payload":', frame)
+
     def test_focused_monitor_renders_ack_drop_state_without_payload_dump(self) -> None:
         controller = ControllerUI(
             control_host=config.DEFAULT_HOST,
