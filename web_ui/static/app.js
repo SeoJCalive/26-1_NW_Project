@@ -3,6 +3,7 @@ const DIAGRAM_HEIGHT = 700;
 const NODE_CARD_WIDTH = 166;
 const PATH_LABEL_HORIZONTAL_PADDING = 10;
 const MISSING_VALUE = "—";
+const JSON_BLOCK_ROW = "json-block";
 const NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"];
 const NODE_POSITIONS = {
   "host-simulator": { x: 80, y: 100 },
@@ -114,6 +115,27 @@ function compactObject(value) {
     return JSON.stringify(value);
   } catch (error) {
     return String(value);
+  }
+}
+
+function formatJsonBlock(value) {
+  if (value === null || value === undefined || value === "") return MISSING_VALUE;
+  let parsed = value;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed[0] === "{" || trimmed[0] === "[") {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch (error) {
+        return value;
+      }
+    }
+  }
+  if (typeof parsed !== "object") return formatScalar(parsed);
+  try {
+    return JSON.stringify(parsed, null, 2);
+  } catch (error) {
+    return String(parsed);
   }
 }
 
@@ -658,6 +680,9 @@ function captureDetailScrollState(nodeId) {
     tables: Array.from(detailInspectorInner.querySelectorAll(".data-table-wrap")).map(function tableScroll(table) {
       return { scrollLeft: table.scrollLeft, scrollTop: table.scrollTop };
     }),
+    jsonBlocks: Array.from(detailInspectorInner.querySelectorAll(".json-block-value")).map(function jsonBlockState(block) {
+      return { height: block.getBoundingClientRect().height, scrollLeft: block.scrollLeft, scrollTop: block.scrollTop };
+    }),
   };
 }
 
@@ -669,6 +694,13 @@ function restoreDetailScrollState(state) {
     if (!tableState) return;
     table.scrollLeft = tableState.scrollLeft;
     table.scrollTop = tableState.scrollTop;
+  });
+  Array.from(detailInspectorInner.querySelectorAll(".json-block-value")).forEach(function restoreJsonBlock(block, index) {
+    const blockState = state.jsonBlocks[index];
+    if (!blockState) return;
+    block.style.minHeight = `${blockState.height}px`;
+    block.scrollLeft = blockState.scrollLeft;
+    block.scrollTop = blockState.scrollTop;
   });
 }
 
@@ -717,6 +749,9 @@ function section(title, body) {
 function keyValueRows(rows) {
   if (!rows.length) rows = [["자료", MISSING_VALUE]];
   return `<div class="key-value-box">${rows.map(function row(pair) {
+    if (pair[2] === JSON_BLOCK_ROW) {
+      return `<div class="key-value-row is-json-block"><span>${escapeHtml(pair[0])}</span><pre class="json-block-value">${escapeHtml(formatJsonBlock(pair[1]))}</pre></div>`;
+    }
     return `<div class="key-value-row"><span>${escapeHtml(pair[0])}</span><span>${escapeHtml(pair[1])}</span></div>`;
   }).join("")}</div>`;
 }
@@ -744,8 +779,8 @@ function hostDetail(node) {
   const detail = getNested(node, ["runtime", "details", "detail"], {});
   const hostState = detail.host_state || getNested(node, ["runtime", "details", "host_state"], {});
   return [
-    section("Host Metrics", keyValueRows(objectRows(hostState))),
-    section("Host Runtime", keyValueRows([["tick", detail.tick]])),
+    section("Host 지표", keyValueRows(objectRows(hostState))),
+    section("Host 실행 상태", keyValueRows([["tick", detail.tick]])),
     trafficSection(node),
   ].join("");
 }
@@ -754,16 +789,16 @@ function agentDetail(node) {
   const detail = getNested(node, ["runtime", "details", "detail"], {});
   const event = detail.emitted_event || {};
   return [
-    section("Host Input", keyValueRows(objectRows(detail.latest_input_state))),
-    section("Input Result / Fault", keyValueRows([["latest_input_result", detail.latest_input_result], ["detected_fault", detail.detected_fault]])),
-    section("Emitted Event", keyValueRows([
+    section("Host 입력", keyValueRows(objectRows(detail.latest_input_state))),
+    section("입력 결과 / 장애", keyValueRows([["latest_input_result", detail.latest_input_result], ["detected_fault", detail.detected_fault]])),
+    section("발생 이벤트", keyValueRows([
       ["msg_type", event.msg_type], ["event_id", event.event_id], ["seq_no", event.seq_no], ["host_id", event.host_id],
       ["agent_id", event.agent_id], ["event_type", event.event_type], ["severity", event.severity], ["timestamp", event.timestamp],
       ["payload.cpu", getNested(event, ["payload", "cpu"], MISSING_VALUE)], ["payload.memory", getNested(event, ["payload", "memory"], MISSING_VALUE)],
       ["payload.service_state", getNested(event, ["payload", "service_state"], MISSING_VALUE)], ["payload.latency_ms", getNested(event, ["payload", "latency_ms"], MISSING_VALUE)],
       ["payload.fault_mode", getNested(event, ["payload", "fault_mode"], MISSING_VALUE)],
     ])),
-    section("Downstream / Last Event", keyValueRows([["downstream_result", detail.downstream_result], ["last_event", detail.last_event || getNested(node, ["runtime", "details", "last_event"], MISSING_VALUE)]])),
+    section("Downstream / 최근 이벤트", keyValueRows([["downstream_result", detail.downstream_result], ["last_event", detail.last_event || getNested(node, ["runtime", "details", "last_event"], MISSING_VALUE), JSON_BLOCK_ROW]])),
     trafficSection(node),
   ].join("");
 }
@@ -771,14 +806,14 @@ function agentDetail(node) {
 function relayDetail(node) {
   const detail = getNested(node, ["runtime", "details", "detail"], {});
   return [
-    section("Received Event", keyValueRows(objectRows(detail.last_received_event))),
-    section("Pending ACK Table", dataTable([
+    section("수신 이벤트", keyValueRows([["last_received_event", detail.last_received_event, JSON_BLOCK_ROW]])),
+    section("ACK 대기 목록", dataTable([
       { key: "event_id", label: "event_id" }, { key: "event_type", label: "event_type" }, { key: "seq_no", label: "seq_no" },
       { key: "downstream_target", label: "downstream_target" }, { key: "attempt", label: "attempt" }, { key: "state", label: "state" },
       { key: "last_outcome", label: "last_outcome" }, { key: "ack_from", label: "ack_from" },
     ], detail.pending_ack_state, "대기 중인 ACK 없음")),
-    section("Retry / Dedup Counters", keyValueRows([["pending_ack_count", node.pending_ack_count], ["retry_total", node.retry_total], ["duplicate_dropped", node.duplicate_dropped], ["recent_received_event_ids", detail.recent_received_event_ids]])),
-    section("Downstream / Forwarding Result", keyValueRows([["last_downstream_result", detail.last_downstream_result], ["last_forwarded_result", detail.last_forwarded_result]])),
+    section("Retry / Dedup 카운터", keyValueRows([["pending_ack_count", node.pending_ack_count], ["retry_total", node.retry_total], ["duplicate_dropped", node.duplicate_dropped], ["recent_received_event_ids", detail.recent_received_event_ids]])),
+    section("Downstream / Forwarding 결과", keyValueRows([["last_downstream_result", detail.last_downstream_result], ["last_forwarded_result", detail.last_forwarded_result]])),
     trafficSection(node),
   ].join("");
 }
@@ -798,24 +833,24 @@ function monitorDetail(node) {
       ["ACK", getNested(detail, ["last_ack_result", "status"], MISSING_VALUE)],
       ["retry", node.retry_total],
     ])),
-    section("Route Summary", keyValueRows(routeSummaryRows(detail.last_route_summary))),
-    section("Fault Localization", keyValueRows(faultLocalizationRows(detail.last_fault_localization))),
+    section("Route 요약", keyValueRows(routeSummaryRows(detail.last_route_summary))),
+    section("장애 위치 추정", keyValueRows(faultLocalizationRows(detail.last_fault_localization))),
     section("Route Trace", dataTable([
       { key: "from_node", label: "from" }, { key: "to_node", label: "to" }, { key: "route_id", label: "route" },
       { key: "attempt_no", label: "attempt" }, { key: "phase", label: "phase" }, { key: "result", label: "result" },
       { key: "failure_reason", label: "reason" },
     ], detail.last_route_trace || [])),
-    section("Event Sink Summary", dataTable([
+    section("Event Sink 요약", dataTable([
       { key: "event_id", label: "event_id" }, { key: "event_type", label: "event_type" }, { key: "severity", label: "severity" },
       { key: "host_id", label: "host_id" }, { key: "seq_no", label: "seq_no" }, { key: "timestamp", label: "timestamp" },
     ], detail.recent_event_summaries || getNested(node, ["runtime", "details", "recent_events"], []))),
-    section("Last Processed Event", keyValueRows(objectRows(detail.last_processed_event))),
-    section("Sink / ACK Result", keyValueRows([["last_sink_result", detail.last_sink_result], ["last_ack_result", detail.last_ack_result]])),
-    section("Host State Table", dataTable([
+    section("최근 처리 이벤트", keyValueRows([["last_processed_event", detail.last_processed_event, JSON_BLOCK_ROW]])),
+    section("Sink / ACK 결과", keyValueRows([["last_sink_result", detail.last_sink_result], ["last_ack_result", detail.last_ack_result]])),
+    section("Host 상태 목록", dataTable([
       { key: "host_id", label: "host_id" }, { key: "event_type", label: "event_type" }, { key: "severity", label: "severity" },
       { key: "payload", label: "payload" }, { key: "timestamp", label: "timestamp" },
     ], hostRows)),
-    section("Counters", keyValueRows([["out_of_order_count", getNested(node, ["runtime", "details", "out_of_order_count"], 0)], ["total_logged", getNested(node, ["runtime", "details", "total_logged"], 0)], ["duplicate_count", getNested(node, ["runtime", "details", "duplicate_count"], 0)]])),
+    section("카운터", keyValueRows([["out_of_order_count", getNested(node, ["runtime", "details", "out_of_order_count"], 0)], ["total_logged", getNested(node, ["runtime", "details", "total_logged"], 0)], ["duplicate_count", getNested(node, ["runtime", "details", "duplicate_count"], 0)]])),
     trafficSection(node),
   ].join("");
 }
@@ -872,7 +907,7 @@ function trafficSection(node) {
       preview: capture.preview || compactObject(capture.payload),
     };
   });
-  return section("Traffic Snapshot", [
+  return section("최근 통신 상태", [
     keyValueRows([["기록 번호", traffic.capture_seq], ["최근 기록 시각", traffic.captured_at]]),
     `<div class="traffic-peers" data-peer-count="${peers.length}">${peers.map(function renderPeer(spec) { return trafficPeer(spec.peer, spec.title); }).join("")}</div>`,
     dataTable([
@@ -928,7 +963,7 @@ function trafficPeerSpecs(node, traffic) {
 
 function trafficPeer(peer, title) {
   const actual = peer || emptyPeer();
-  return `<div>${keyValueRows([[title, ""], ["node", actual.peer_node_id], ["role", actual.peer_role], ["hop_state", actual.hop_state], ["failure_reason", actual.failure_reason], ["last_received", actual.last_received], ["last_sent", actual.last_sent]])}</div>`;
+  return `<div>${keyValueRows([[title, ""], ["node", actual.peer_node_id], ["role", actual.peer_role], ["hop_state", actual.hop_state], ["failure_reason", actual.failure_reason], ["last_received", actual.last_received, JSON_BLOCK_ROW], ["last_sent", actual.last_sent, JSON_BLOCK_ROW]])}</div>`;
 }
 
 function renderLatest() {
