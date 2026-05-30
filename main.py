@@ -27,7 +27,7 @@ def set_process_label(node_name: str) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Minimal network project demo")
+    parser = argparse.ArgumentParser(description="Network fault monitoring and bypass routing simulation")
     parser.add_argument(
         "--role",
         choices=["controller", "host", "agent", "relay-r1", "relay-r2", "relay-r1b", "relay-r2b", "monitor"],
@@ -48,7 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--scripted",
         action="store_true",
-        help="Force the scripted demo sequence in the viewer.",
+        help="Force the scripted scenario sequence in the viewer.",
     )
     parser.add_argument(
         "--controller",
@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--control-token",
         default=None,
-        help="Shared control/status token for local demo processes and external controller connections.",
+        help="Shared control/status token for local role processes and external controller connections.",
     )
     parser.add_argument(
         "--allow-unauthenticated-control",

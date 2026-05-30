@@ -1051,7 +1051,7 @@ class ControllerUI:
             now=time.monotonic(),
         )
         lines = [
-            "=== 네트워크 프로젝트 최소 데모 ===",
+            "=== 네트워크 장애 감시 및 우회 라우팅 시뮬레이션 ===",
             f"실행 모드: {'scripted controller focus' if scripted_demo else 'focused node monitor'}",
             f"focus node: {node_id}",
             self._external_controller_line(),
@@ -1128,7 +1128,7 @@ class ControllerUI:
             self._renderer.close()
 
     async def _scripted_demo(self) -> None:
-        self._record_activity("자동 데모: CPU -> ACK 손실/재전송 -> SERVICE -> LATENCY", "system")
+        self._record_activity("자동 시나리오: CPU -> ACK 손실/재전송 -> SERVICE -> LATENCY", "system")
         await asyncio.sleep(config.SCRIPTED_STEP_SHORT_SECONDS)
         await self.send_control("drop_next_ack", "monitor")
         await asyncio.sleep(config.SCRIPTED_STEP_SHORT_SECONDS)
@@ -1386,7 +1386,7 @@ class ControllerUI:
         if self.focus_node is not None:
             return self._build_focused_frame_lines(scripted_demo, terminal_width)
         lines = [
-            "=== 네트워크 프로젝트 최소 데모 ===",
+            "=== 네트워크 장애 감시 및 우회 라우팅 시뮬레이션 ===",
             "데이터 경로: Host Simulator -> Local Agent -> Relay R1 -> Relay R2 -> Monitor",
             f"실행 모드: {'scripted viewer' if scripted_demo else 'viewer only'}",
             self._external_controller_line(),
