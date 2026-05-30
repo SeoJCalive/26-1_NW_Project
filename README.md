@@ -3,6 +3,7 @@
 이 저장소는 Python 표준 라이브러리만 사용해 구현한 네트워크 장애 감시 및 우회 라우팅 시뮬레이션이다. primary 경로와 constrained backup 경로를 가진 여러 node role을 독립 프로세스로 실행하고, TCP + 줄 단위 JSON 메시지로 event forwarding, ACK, retry, duplicate suppression, fault injection, monitoring을 보여준다.
 
 구조와 실행 흐름은 이 README에서 바로 확인할 수 있고, 역할별 동작과 검증 기준은 문서 안내의 overview에 정리했다.
+<img width="1645" height="898" alt="스크린샷 2026-05-30 오후 5 30 31" src="https://github.com/user-attachments/assets/779901ce-ab90-4ef4-842b-fd95861bbbe3" />
 
 ## 구성 역할
 
@@ -86,6 +87,7 @@ standalone role과 standalone controller UI는 기본적으로 shared control to
 일반 Web UI supervisor 실행은 node role process에 빈 포트를 자동 할당해 기존 `9101-9107` 점유와 충돌하지 않게 한다.
 
 ## Web UI
+<img width="1312" height="936" alt="스크린샷 2026-05-30 오후 5 33 14" src="https://github.com/user-attachments/assets/92a03cee-ea92-4617-8f4c-f8c9acf73779" />
 
 Web UI runtime은 `web_ui/`에서 실행된다. 이 화면은 TUI 출력을 파싱하지 않고, controller가 수신한 `STATUS_REPORT` / `STATUS`와 각 node의 `detail.traffic` 자료를 JSON API로 읽어 표시한다.
 
