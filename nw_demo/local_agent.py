@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Any, cast
 
 from . import config
 from .base import BaseNode
@@ -15,6 +15,7 @@ from .routing import (
     default_detail_routing,
     initialize_event_route_metadata,
     make_route_trace_entry,
+    validate_route_edge,
 )
 from .transport import send_request
 
@@ -226,6 +227,7 @@ class LocalAgent(BaseNode):
         self,
         event: dict[str, Any],
         *,
+        from_node: str = "local-agent",
         to_node: str,
         route_id: str,
         result: str,
@@ -235,7 +237,7 @@ class LocalAgent(BaseNode):
         if isinstance(route_trace, list):
             route_trace.append(
                 make_route_trace_entry(
-                    from_node="local-agent",
+                    from_node=from_node,
                     to_node=to_node,
                     route_id=route_id,
                     attempt_no=1,
@@ -244,6 +246,39 @@ class LocalAgent(BaseNode):
                     failure_reason=failure_reason,
                 )
             )
+
+    def _validated_downstream_error(self, response: dict[str, Any] | None, *, event_id: str) -> dict[str, str] | None:
+        if response is None:
+            return None
+        downstream_error = response.get("downstream_error")
+        if not isinstance(downstream_error, dict):
+            return None
+        downstream_error_fields = cast(dict[object, object], downstream_error)
+        failed_hop = downstream_error_fields.get("failed_hop")
+        suspected_node = downstream_error_fields.get("suspected_node")
+        failure_reason = downstream_error_fields.get("failure_reason")
+        if not isinstance(failed_hop, str) or not isinstance(suspected_node, str) or not isinstance(failure_reason, str):
+            return None
+        if failed_hop.count("->") != 1:
+            return None
+        from_node, to_node = failed_hop.split("->")
+        try:
+            route_id = validate_route_edge(from_node, to_node)
+        except ValueError:
+            return None
+        if route_id != ROUTE_PRIMARY or to_node != suspected_node:
+            return None
+        response_event_id = downstream_error_fields.get("event_id")
+        if isinstance(response_event_id, str) and response_event_id != event_id:
+            return None
+        return {
+            "failed_hop": failed_hop,
+            "suspected_node": suspected_node,
+            "failure_reason": failure_reason,
+            "from_node": from_node,
+            "to_node": to_node,
+            "route_id": route_id,
+        }
 
     def _set_event_routing(
         self,
@@ -347,21 +382,35 @@ class LocalAgent(BaseNode):
             self.last_downstream_result = {"status": "acknowledged", "event_id": event_id, "active_route": ROUTE_PRIMARY, "ack": primary_response}
             return routed_event, True
 
+        downstream_error = self._validated_downstream_error(primary_response, event_id=event_id)
+        failed_hop = downstream_error["failed_hop"] if downstream_error is not None else "local-agent->r1"
+        suspected_node = downstream_error["suspected_node"] if downstream_error is not None else "r1"
+        reroute_reason = downstream_error["failure_reason"] if downstream_error is not None else primary_reason
+        if downstream_error is not None:
+            self._append_route_trace(
+                routed_event,
+                from_node=downstream_error["from_node"],
+                to_node=downstream_error["to_node"],
+                route_id=downstream_error["route_id"],
+                result="failed",
+                failure_reason=downstream_error["failure_reason"],
+            )
+
         self._set_event_routing(
             routed_event,
             route_state=ROUTE_STATE_FAILED,
             active_route=ROUTE_PRIMARY,
-            failed_hop="local-agent->r1",
-            suspected_node="r1",
-            reroute_reason=primary_reason,
+            failed_hop=failed_hop,
+            suspected_node=suspected_node,
+            reroute_reason=reroute_reason,
         )
         self._set_routing_detail(
             route_state=ROUTE_STATE_FAILED,
             active_route=ROUTE_PRIMARY,
             active_downstream="r1",
             event_id=event_id,
-            failed_downstream="r1",
-            reroute_reason=primary_reason,
+            failed_downstream=suspected_node,
+            reroute_reason=reroute_reason,
         )
         if not self._has_backup_downstream():
             self.last_downstream_result = {"status": "send_failed", "reason": primary_reason, "event_id": event_id, "active_route": ROUTE_PRIMARY}
@@ -377,17 +426,17 @@ class LocalAgent(BaseNode):
             routed_event,
             route_state=ROUTE_STATE_BYPASS_ACTIVE,
             active_route=ROUTE_BACKUP,
-            failed_hop="local-agent->r1",
-            suspected_node="r1",
-            reroute_reason=primary_reason,
+            failed_hop=failed_hop,
+            suspected_node=suspected_node,
+            reroute_reason=reroute_reason,
         )
         self._set_routing_detail(
             route_state=ROUTE_STATE_BYPASS_ACTIVE,
             active_route=ROUTE_BACKUP,
             active_downstream="r1b",
             event_id=event_id,
-            failed_downstream="r1",
-            reroute_reason=primary_reason,
+            failed_downstream=suspected_node,
+            reroute_reason=reroute_reason,
         )
         backup_ok, backup_response, backup_reason = await self._send_event_to_downstream(
             routed_event,

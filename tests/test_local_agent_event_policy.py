@@ -109,6 +109,110 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(agent.last_routing_detail["route_state"], ROUTE_STATE_BYPASS_ACTIVE)
         self.assertEqual(agent.last_routing_detail["active_downstream"], "r1b")
 
+    async def test_agent_maps_valid_downstream_error_to_backup_route_event(self) -> None:
+        agent = LocalAgent(
+            "127.0.0.1",
+            9102,
+            "127.0.0.1",
+            9110,
+            "127.0.0.1",
+            9101,
+            "127.0.0.1",
+            9103,
+            backup_downstream_host="127.0.0.1",
+            backup_downstream_port=9106,
+        )
+        event = agent._build_event("CPU_SPIKE", build_host_state(cpu_usage=96))
+        captured_messages: list[dict[str, Any]] = []
+
+        async def primary_downstream_error_then_backup_ack(host: str, port: int, message: dict[str, Any], **kwargs: object) -> dict[str, object]:
+            captured_messages.append(json_roundtrip(message))
+            if port == 9103:
+                return {
+                    "msg_type": "ERROR",
+                    "reason": "delivery_failed",
+                    "event_id": message["event_id"],
+                    "node_id": "r1",
+                    "downstream_error": {
+                        "failed_hop": "r1->r2",
+                        "suspected_node": "r2",
+                        "failure_reason": "paused",
+                        "downstream_node_id": "r2",
+                        "event_id": message["event_id"],
+                        "basis": "reported_downstream_error",
+                    },
+                }
+            return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r1b"}
+
+        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=primary_downstream_error_then_backup_ack)):
+            delivered_event, delivered = await agent._deliver_event(event)
+
+        self.assertTrue(delivered)
+        self.assertEqual([message["event_id"] for message in captured_messages], [event["event_id"], event["event_id"]])
+        self.assertEqual(delivered_event["routing"]["route_state"], ROUTE_STATE_BYPASS_ACTIVE)
+        self.assertEqual(delivered_event["routing"]["active_route"], ROUTE_BACKUP)
+        self.assertEqual(delivered_event["routing"]["failed_hop"], "r1->r2")
+        self.assertEqual(delivered_event["routing"]["suspected_node"], "r2")
+        self.assertEqual(delivered_event["routing"]["reroute_reason"], "paused")
+        self.assertEqual(delivered_event["route_trace"][0]["from_node"], "local-agent")
+        self.assertEqual(delivered_event["route_trace"][0]["to_node"], "r1")
+        self.assertEqual(delivered_event["route_trace"][0]["result"], "ack_missing")
+        self.assertEqual(delivered_event["route_trace"][1]["from_node"], "r1")
+        self.assertEqual(delivered_event["route_trace"][1]["to_node"], "r2")
+        self.assertEqual(delivered_event["route_trace"][1]["route_id"], ROUTE_PRIMARY)
+        self.assertEqual(delivered_event["route_trace"][1]["result"], "failed")
+        self.assertEqual(delivered_event["route_trace"][1]["failure_reason"], "paused")
+        self.assertEqual(delivered_event["route_trace"][2]["to_node"], "r1b")
+        self.assertEqual(delivered_event["route_trace"][2]["result"], "acknowledged")
+        self.assertEqual(agent.last_routing_detail["route_state"], ROUTE_STATE_BYPASS_ACTIVE)
+        self.assertEqual(agent.last_routing_detail["active_downstream"], "r1b")
+        self.assertEqual(agent.last_routing_detail["failed_downstream"], "r2")
+        self.assertEqual(agent.last_routing_detail["reroute_reason"], "paused")
+
+    async def test_agent_ignores_invalid_downstream_error_and_preserves_generic_fallback(self) -> None:
+        agent = LocalAgent(
+            "127.0.0.1",
+            9102,
+            "127.0.0.1",
+            9110,
+            "127.0.0.1",
+            9101,
+            "127.0.0.1",
+            9103,
+            backup_downstream_host="127.0.0.1",
+            backup_downstream_port=9106,
+        )
+        event = agent._build_event("CPU_SPIKE", build_host_state(cpu_usage=96))
+
+        async def invalid_downstream_error_then_backup_ack(host: str, port: int, message: dict[str, Any], **kwargs: object) -> dict[str, object]:
+            if port == 9103:
+                return {
+                    "msg_type": "ERROR",
+                    "reason": "delivery_failed",
+                    "event_id": message["event_id"],
+                    "node_id": "r1",
+                    "downstream_error": {
+                        "failed_hop": "r1->r2b",
+                        "suspected_node": "r2b",
+                        "failure_reason": "paused",
+                    },
+                }
+            return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r1b"}
+
+        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=invalid_downstream_error_then_backup_ack)):
+            delivered_event, delivered = await agent._deliver_event(event)
+
+        self.assertTrue(delivered)
+        self.assertEqual(delivered_event["routing"]["route_state"], ROUTE_STATE_BYPASS_ACTIVE)
+        self.assertEqual(delivered_event["routing"]["active_route"], ROUTE_BACKUP)
+        self.assertEqual(delivered_event["routing"]["failed_hop"], "local-agent->r1")
+        self.assertEqual(delivered_event["routing"]["suspected_node"], "r1")
+        self.assertEqual(delivered_event["routing"]["reroute_reason"], "ack_missing")
+        self.assertEqual([entry["from_node"] for entry in delivered_event["route_trace"]], ["local-agent", "local-agent"])
+        self.assertEqual([entry["to_node"] for entry in delivered_event["route_trace"]], ["r1", "r1b"])
+        self.assertEqual(agent.last_routing_detail["failed_downstream"], "r1")
+        self.assertEqual(agent.last_routing_detail["reroute_reason"], "ack_missing")
+
     async def test_agent_reports_failed_primary_when_no_backup_is_configured(self) -> None:
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
         event = agent._build_event("CPU_SPIKE", build_host_state(cpu_usage=96))
