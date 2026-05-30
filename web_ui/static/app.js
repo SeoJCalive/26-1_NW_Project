@@ -742,8 +742,8 @@ function roleDetail(node) {
   return monitorDetail(node);
 }
 
-function section(title, body) {
-  return `<section class="detail-section"><h3>${escapeHtml(title)}</h3><div class="detail-section-content">${body}</div></section>`;
+function section(title, body, extraClass) {
+  return `<section class="detail-section${extraClass ? ` ${extraClass}` : ""}"><h3>${escapeHtml(title)}</h3><div class="detail-section-content">${body}</div></section>`;
 }
 
 function keyValueRows(rows) {
@@ -834,12 +834,12 @@ function monitorDetail(node) {
       ["retry", node.retry_total],
     ])),
     section("Route 요약", keyValueRows(routeSummaryRows(detail.last_route_summary))),
-    section("장애 위치 추정", keyValueRows(faultLocalizationRows(detail.last_fault_localization))),
     section("Route Trace", dataTable([
       { key: "from_node", label: "from" }, { key: "to_node", label: "to" }, { key: "route_id", label: "route" },
       { key: "attempt_no", label: "attempt" }, { key: "phase", label: "phase" }, { key: "result", label: "result" },
       { key: "failure_reason", label: "reason" },
     ], detail.last_route_trace || [])),
+    section("장애 위치 추정", keyValueRows(faultLocalizationRows(detail.last_fault_localization))),
     section("Event Sink 요약", dataTable([
       { key: "event_id", label: "event_id" }, { key: "event_type", label: "event_type" }, { key: "severity", label: "severity" },
       { key: "host_id", label: "host_id" }, { key: "seq_no", label: "seq_no" }, { key: "timestamp", label: "timestamp" },
@@ -917,7 +917,7 @@ function trafficSection(node) {
       { key: "captured_at", label: "최근 기록 시각" }, { key: "truncated", label: "truncated" }, { key: "original_size", label: "original_size" },
       { key: "preview", label: "preview" },
     ], recentRows),
-  ].join(""));
+  ].join(""), "detail-section--traffic");
 }
 
 function isMissingPeerValue(value) {
