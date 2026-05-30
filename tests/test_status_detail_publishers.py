@@ -298,6 +298,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         monitor.last_sink_result = {"status": "logged", "event_id": "evt-host-1-7", "host_id": "host-1", "seq_no": 7}
         monitor.last_ack_result = {"status": "acknowledged", "event_id": "evt-host-1-7", "duplicate": False}
         monitor.event_log.append({"event_id": "evt-host-1-7"})
+        monitor.total_logged = 1
 
         with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
             await monitor.publish_status(note="evt-host-1-7 기록 완료")
@@ -381,6 +382,54 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(detail["last_fault_localization"]["basis"], "route_trace_failed_hop")
         self.assertEqual(detail["last_route_trace"][1]["from_node"], "r1")
         self.assertEqual(detail["last_route_trace"][1]["to_node"], "r2")
+
+    async def test_monitor_total_logged_is_cumulative_beyond_retained_event_log(self) -> None:
+        monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)
+        ack: dict[str, object] | None = None
+
+        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+            for seq_no in range(1, 56):
+                ack = await monitor.handle_network_message({
+                    "msg_type": "EVENT",
+                    "event_id": f"evt-host-1-{seq_no}",
+                    "seq_no": seq_no,
+                    "host_id": "host-1",
+                    "agent_id": "agent-1",
+                    "event_type": "CPU_SPIKE",
+                    "severity": "WARN",
+                    "timestamp": f"2026-05-21T00:00:{seq_no:02d}+00:00",
+                    "payload": {"cpu": 96},
+                })
+
+        if ack is None:
+            self.fail("monitor did not ACK final event")
+        status = _captured_status(send_request)
+        self.assertEqual(status["total_logged"], 55)
+        self.assertEqual(len(monitor.event_log), 50)
+        self.assertEqual(len(status["detail"]["recent_event_summaries"]), 8)
+
+    async def test_monitor_total_logged_excludes_duplicate_events(self) -> None:
+        monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)
+        event = {
+            "msg_type": "EVENT",
+            "event_id": "evt-host-1-7",
+            "seq_no": 7,
+            "host_id": "host-1",
+            "agent_id": "agent-1",
+            "event_type": "CPU_SPIKE",
+            "severity": "WARN",
+            "timestamp": "2026-05-21T00:00:07+00:00",
+            "payload": {"cpu": 96},
+        }
+
+        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+            await monitor.handle_network_message(event)
+            await monitor.handle_network_message(event)
+
+        status = _captured_status(send_request)
+        self.assertEqual(status["total_logged"], 1)
+        self.assertEqual(status["duplicate_count"], 1)
+        self.assertEqual(len(monitor.event_log), 1)
 
     async def test_monitor_publishes_structured_ack_drop_visibility(self) -> None:
         monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)

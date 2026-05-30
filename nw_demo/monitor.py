@@ -20,6 +20,7 @@ class Monitor(BaseNode):
     ) -> None:
         super().__init__("monitor", listen_host, listen_port, controller_host, controller_port, control_token)
         self.event_log: deque[dict[str, Any]] = deque(maxlen=50)
+        self.total_logged: int = 0
         self.recent_events: deque[str] = deque(maxlen=config.RECENT_EVENT_LIMIT)
         self.recent_event_summaries: deque[dict[str, Any]] = deque(maxlen=config.RECENT_EVENT_LIMIT)
         self.received_id_cache: set[str] = set()
@@ -42,6 +43,7 @@ class Monitor(BaseNode):
     async def reset_state(self) -> None:
         await super().reset_state()
         self.event_log.clear()
+        self.total_logged = 0
         self.recent_events.clear()
         self.recent_event_summaries.clear()
         self.received_id_cache.clear()
@@ -62,7 +64,7 @@ class Monitor(BaseNode):
             "recent_events": list(self.recent_events),
             "host_state_table": json_roundtrip(self.host_state_table) if self.host_state_table else {},
             "out_of_order_count": self.out_of_order_count,
-            "total_logged": len(self.event_log),
+            "total_logged": self.total_logged,
             "duplicate_count": self.duplicate_count,
             "detail": {
                 "role": "monitor",
@@ -182,6 +184,7 @@ class Monitor(BaseNode):
         self.last_seq_by_host[host_id] = max(last_seq, seq_no)
         self.received_id_cache.add(event_id)
         self.event_log.append(event)
+        self.total_logged += 1
         self.recent_event_summaries.appendleft(event_summary)
         self.last_processed_event = event_summary
         self.recent_events.appendleft(
