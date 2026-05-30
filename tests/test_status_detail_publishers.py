@@ -4,12 +4,12 @@ import unittest
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
-from nw_demo.messages import make_ack
-from nw_demo.local_agent import LocalAgent
-from nw_demo.host_simulator import HostSimulator
-from nw_demo.monitor import Monitor
-from nw_demo.relay import RelayNode
-from nw_demo.routing import ROUTE_BACKUP, ROUTE_PRIMARY, ROUTE_STATE_BYPASS_ACTIVE, initialize_event_route_metadata, make_route_trace_entry
+from nw_sim.messages import make_ack
+from nw_sim.local_agent import LocalAgent
+from nw_sim.host_simulator import HostSimulator
+from nw_sim.monitor import Monitor
+from nw_sim.relay import RelayNode
+from nw_sim.routing import ROUTE_BACKUP, ROUTE_PRIMARY, ROUTE_STATE_BYPASS_ACTIVE, initialize_event_route_metadata, make_route_trace_entry
 
 
 def _captured_status(send_request: AsyncMock) -> dict[str, Any]:
@@ -36,7 +36,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             phase="host_request",
         )
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await host.publish_status(note="호스트 tick 4")
 
         status = _captured_status(send_request)
@@ -55,7 +55,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
     async def test_host_fault_can_be_manually_enabled_and_disabled(self) -> None:
         host = HostSimulator("127.0.0.1", 9101, "127.0.0.1", 9110)
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()):
+        with patch("nw_sim.base.send_request", new=AsyncMock()):
             await host.on_control({"command": "set_fault", "params": {"fault_type": "SERVICE_DOWN", "enabled": True}})
 
         self.assertEqual(host.snapshot()["service_state"], "DOWN")
@@ -63,7 +63,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("latency_state", host.snapshot())
         self.assertIsNone(host._fault_end_monotonic)
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()):
+        with patch("nw_sim.base.send_request", new=AsyncMock()):
             await host.on_control({"command": "set_fault", "params": {"fault_type": "SERVICE_DOWN", "enabled": False}})
 
         self.assertEqual(host.snapshot()["service_state"], "UP")
@@ -89,7 +89,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         host._fault_type = "LATENCY_HIGH"
         host._apply_fault_state("LATENCY_HIGH")
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await host.publish_status(note="fault 켜짐: LATENCY_HIGH")
 
         status = _captured_status(send_request)
@@ -119,7 +119,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             "ack": {"msg_type": "ACK", "ack_for": agent.last_emitted_event["event_id"], "from_node": "r1"},
         }
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await agent.publish_status(note=f"이벤트 생성 {agent.last_emitted_event['event_id']}")
 
         status = _captured_status(send_request)
@@ -186,7 +186,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             phase="downstream_ack",
         )
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await relay.publish_status(note="evt-host-1-7 재시도 1회")
 
         status = _captured_status(send_request)
@@ -214,7 +214,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             return make_ack("evt-host-1-9", "r2")
 
         with patch.object(relay, "publish_status", new=AsyncMock()) as publish_status:
-            with patch("nw_demo.relay.send_request", new=AsyncMock(side_effect=reset_then_ack)):
+            with patch("nw_sim.relay.send_request", new=AsyncMock(side_effect=reset_then_ack)):
                 accepted = await relay._deliver_with_retry(event)
 
         self.assertFalse(accepted)
@@ -260,7 +260,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
     async def test_status_publish_does_not_expose_control_token_in_status_payload(self) -> None:
         relay = RelayNode("r1", "127.0.0.1", 9103, "127.0.0.1", 9110, "127.0.0.1", 9104, control_token="secret-token")
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await relay.publish_status(note="token hidden")
 
         outbound = _captured_status(send_request)
@@ -300,7 +300,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         monitor.event_log.append({"event_id": "evt-host-1-7"})
         monitor.total_logged = 1
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await monitor.publish_status(note="evt-host-1-7 기록 완료")
 
         status = _captured_status(send_request)
@@ -365,7 +365,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             ),
         ]
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             ack = await monitor.handle_network_message(event)
 
         if ack is None:
@@ -387,7 +387,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)
         ack: dict[str, object] | None = None
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             for seq_no in range(1, 56):
                 ack = await monitor.handle_network_message({
                     "msg_type": "EVENT",
@@ -422,7 +422,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
             "payload": {"cpu": 96},
         }
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await monitor.handle_network_message(event)
             await monitor.handle_network_message(event)
 
@@ -436,7 +436,7 @@ class StatusDetailPublisherTests(unittest.IsolatedAsyncioTestCase):
         monitor.last_ack_result = {"status": "dropped", "event_id": "evt-host-1-7", "duplicate": False}
         monitor.record_peer_state("previous_peer", peer_node_id="r2", peer_role="relay", hop_state="ack_dropped", failure_reason="drop_next_ack")
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             await monitor.publish_status(note="evt-host-1-7 ACK 의도적으로 드롭")
 
         status = _captured_status(send_request)

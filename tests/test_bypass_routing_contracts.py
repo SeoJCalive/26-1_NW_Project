@@ -4,9 +4,9 @@ import unittest
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
-from nw_demo.monitor import Monitor
-from nw_demo.relay import RelayNode
-from nw_demo.routing import (
+from nw_sim.monitor import Monitor
+from nw_sim.relay import RelayNode
+from nw_sim.routing import (
     BACKUP_PATH,
     PRIMARY_PATH,
     ROUTE_BACKUP,
@@ -162,7 +162,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
             captured_outbound.append(message)
             return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r2b"}
 
-        with patch("nw_demo.relay.send_request", new=AsyncMock(side_effect=ack_downstream)):
+        with patch("nw_sim.relay.send_request", new=AsyncMock(side_effect=ack_downstream)):
             ack = await relay.handle_network_message(event)
 
         if ack is None:
@@ -187,7 +187,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
             "reroute_reason": "timeout",
         }
 
-        with patch("nw_demo.relay.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.relay.send_request", new=AsyncMock()) as send_request:
             response = await relay.handle_network_message(event)
 
         if response is None:
@@ -207,7 +207,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
         async def paused_downstream(host: str, port: int, message: dict[str, Any], **kwargs: object) -> dict[str, object]:
             return {"msg_type": "ERROR", "reason": "paused", "node_id": "r2", "payload": {"raw": True}}
 
-        with patch("nw_demo.relay.send_request", new=AsyncMock(side_effect=paused_downstream)):
+        with patch("nw_sim.relay.send_request", new=AsyncMock(side_effect=paused_downstream)):
             response = await relay.handle_network_message(event)
 
         if response is None:
@@ -236,7 +236,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_monitor_publishes_trace_unavailable_fallback_for_legacy_event(self) -> None:
         monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             ack = await monitor.handle_network_message(_event_without_route_trace())
 
         if ack is None:
@@ -304,7 +304,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
             ),
         ]
 
-        with patch("nw_demo.base.send_request", new=AsyncMock()) as send_request:
+        with patch("nw_sim.base.send_request", new=AsyncMock()) as send_request:
             ack = await monitor.handle_network_message(event)
 
         if ack is None:

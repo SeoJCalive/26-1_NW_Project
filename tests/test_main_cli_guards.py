@@ -28,13 +28,13 @@ class MainCliGuardTests(unittest.TestCase):
         self.assertIn("Standalone role 'host-simulator'는 control token이 필요합니다", result.stderr)
 
     def test_focus_node_is_rejected_for_external_controller_mode(self) -> None:
-        result = self._run("--controller", "--focus-node", "r1", "--control-token", "demo123")
+        result = self._run("--controller", "--focus-node", "r1", "--control-token", "token123")
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("--focus-node는 standalone controller UI(--role controller)에서만 사용할 수 있습니다.", result.stderr)
 
     def test_focus_node_is_rejected_for_non_controller_role(self) -> None:
-        result = self._run("--role", "host", "--focus-node", "r1", "--control-token", "demo123")
+        result = self._run("--role", "host", "--focus-node", "r1", "--control-token", "token123")
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("--focus-node는 standalone controller UI(--role controller)에서만 사용할 수 있습니다.", result.stderr)

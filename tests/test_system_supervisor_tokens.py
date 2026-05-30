@@ -4,7 +4,7 @@ import unittest
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
-from nw_demo.system import LocalProcessSupervisor
+from nw_sim.system import LocalProcessSupervisor
 
 
 class SupervisorTokenPropagationTests(unittest.IsolatedAsyncioTestCase):

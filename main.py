@@ -7,9 +7,9 @@ import os
 import secrets
 import sys
 
-from nw_demo import config
-from nw_demo.controller_client import run_controller_client
-from nw_demo.system import run_controller_ui, run_demo, run_role
+from nw_sim import config
+from nw_sim.controller_client import run_controller_client
+from nw_sim.system import run_controller_ui, run_simulation, run_role
 
 
 CONTROL_TOKEN_ENV_VAR = "NW_CONTROL_TOKEN"
@@ -129,18 +129,18 @@ def main() -> None:
         if args.role == "controller":
             set_process_label("controller")
             viewer_mode = args.interactive or sys.stdin.isatty()
-            scripted_demo = args.scripted or not viewer_mode
+            scripted_scenario = args.scripted or not viewer_mode
             duration = args.duration
             if control_token is None and not args.allow_unauthenticated_control:
                 raise SystemExit(
                     "Standalone controller UI는 control token이 필요합니다. --control-token, NW_CONTROL_TOKEN 또는 --allow-unauthenticated-control을 사용하세요."
                 )
-            if duration is None and scripted_demo:
+            if duration is None and scripted_scenario:
                 duration = config.SCRIPTED_DEFAULT_DURATION_SECONDS
             asyncio.run(
                 run_controller_ui(
                     duration=duration,
-                    scripted_demo=scripted_demo,
+                    scripted_scenario=scripted_scenario,
                     control_host=args.host,
                     control_port=args.port,
                     control_token=control_token,
@@ -175,16 +175,16 @@ def main() -> None:
     if args.focus_node is not None:
         raise SystemExit("--focus-node는 standalone controller UI(--role controller)에서만 사용할 수 있습니다.")
     viewer_mode = args.interactive or sys.stdin.isatty()
-    scripted_demo = args.scripted or not viewer_mode
+    scripted_scenario = args.scripted or not viewer_mode
     duration = args.duration
     if control_token is None:
         control_token = secrets.token_urlsafe(12)
-    if duration is None and scripted_demo:
+    if duration is None and scripted_scenario:
         duration = config.SCRIPTED_DEFAULT_DURATION_SECONDS
     asyncio.run(
-        run_demo(
+        run_simulation(
             duration=duration,
-            scripted_demo=scripted_demo,
+            scripted_scenario=scripted_scenario,
             control_host=args.host,
             control_port=args.port,
             control_token=control_token,

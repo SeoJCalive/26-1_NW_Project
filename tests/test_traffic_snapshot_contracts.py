@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo.base import BaseNode, TRAFFIC_PAYLOAD_PREVIEW_LIMIT
+from nw_sim.base import BaseNode, TRAFFIC_PAYLOAD_PREVIEW_LIMIT
 
 from tests.status_builders import (
     build_host_status,
@@ -78,7 +78,7 @@ class TrafficSnapshotContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(snapshot["next_peer"]["last_sent"])
 
     async def test_control_path_does_not_overwrite_existing_data_plane_peers(self) -> None:
-        from nw_demo.local_agent import LocalAgent
+        from nw_sim.local_agent import LocalAgent
 
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
         before = agent.traffic_snapshot()["previous_peer"]["peer_node_id"]
@@ -88,7 +88,7 @@ class TrafficSnapshotContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(after, "host-simulator")
 
     async def test_subclass_reset_keeps_peer_descriptors(self) -> None:
-        from nw_demo.local_agent import LocalAgent
+        from nw_sim.local_agent import LocalAgent
 
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
         before = agent.traffic_snapshot()

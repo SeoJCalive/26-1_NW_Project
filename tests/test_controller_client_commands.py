@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from nw_demo.controller_client import build_requests, run_controller_client
+from nw_sim.controller_client import build_requests, run_controller_client
 
 
 class ControllerClientCommandTests(unittest.TestCase):
@@ -152,7 +152,7 @@ class ControllerClientCommandTests(unittest.TestCase):
 class ControllerClientRuntimeTests(unittest.IsolatedAsyncioTestCase):
     async def test_runtime_sends_raw_control_message_with_token(self) -> None:
         with patch("builtins.input", side_effect=["kill monitor", EOFError]):
-            with patch("nw_demo.controller_client.send_request", new=AsyncMock()) as send_request:
+            with patch("nw_sim.controller_client.send_request", new=AsyncMock()) as send_request:
                 await run_controller_client("127.0.0.1", 9110, "token-123")
 
         send_call = send_request.await_args
@@ -166,7 +166,7 @@ class ControllerClientRuntimeTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_runtime_sends_controller_shutdown_for_exit(self) -> None:
         with patch("builtins.input", side_effect=["exit"]):
-            with patch("nw_demo.controller_client.send_request", new=AsyncMock()) as send_request:
+            with patch("nw_sim.controller_client.send_request", new=AsyncMock()) as send_request:
                 await run_controller_client("127.0.0.1", 9110, "token-123")
 
         send_call = send_request.await_args

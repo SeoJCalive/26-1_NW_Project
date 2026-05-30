@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo import config
-from nw_demo.controller_ui import ControllerUI, _display_cell_width
+from nw_sim import config
+from nw_sim.controller_ui import ControllerUI, _display_cell_width
 
 from tests.status_builders import build_local_agent_status, build_monitor_status, build_relay_status
 
@@ -18,7 +18,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         )
         if status is not None:
             controller._apply_status(status)
-        return "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=terminal_width))
+        return "\n".join(controller._build_frame_lines(scripted_scenario=False, terminal_width=terminal_width))
 
     def assertFrameFitsWidth(self, frame: str, terminal_width: int) -> None:
         for line in frame.splitlines():
@@ -33,7 +33,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         )
         controller._apply_status(build_relay_status(node_id="r1"))
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=80))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False, terminal_width=80))
 
         self.assertIn("focused node monitor", frame)
         self.assertIn("focus node: r1", frame)
@@ -52,7 +52,7 @@ class NodeMonitorModeTests(unittest.TestCase):
             focus_node="local-agent",
         )
         agent_controller._apply_status(build_local_agent_status())
-        agent_frame = "\n".join(agent_controller._build_frame_lines(scripted_demo=False, terminal_width=80))
+        agent_frame = "\n".join(agent_controller._build_frame_lines(scripted_scenario=False, terminal_width=80))
         self.assertIn("agent detail:", agent_frame)
         self.assertIn("host_state", agent_frame)
 
@@ -63,7 +63,7 @@ class NodeMonitorModeTests(unittest.TestCase):
             focus_node="monitor",
         )
         monitor_controller._apply_status(build_monitor_status())
-        monitor_frame = "\n".join(monitor_controller._build_frame_lines(scripted_demo=False, terminal_width=80))
+        monitor_frame = "\n".join(monitor_controller._build_frame_lines(scripted_scenario=False, terminal_width=80))
         self.assertIn("현재 상황", monitor_frame)
         self.assertIn("Host 최신 상태", monitor_frame)
         self.assertIn("최근 알림/이벤트", monitor_frame)
@@ -157,7 +157,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         relay_status = build_relay_status(node_id="r1")
         relay_status["detail"]["traffic"]["next_peer"]["hop_state"] = "unknown"
         not_started_controller._apply_status(relay_status)
-        not_started_frame = "\n".join(not_started_controller._build_frame_lines(scripted_demo=False))
+        not_started_frame = "\n".join(not_started_controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("다음 노드: peer=r2 role=relay hop=not_started", not_started_frame)
 
         timeout_controller = ControllerUI(
@@ -170,7 +170,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         timeout_status["detail"]["traffic"]["next_peer"]["hop_state"] = "timeout"
         timeout_status["detail"]["traffic"]["next_peer"]["failure_reason"] = "timeout"
         timeout_controller._apply_status(timeout_status)
-        timeout_frame = "\n".join(timeout_controller._build_frame_lines(scripted_demo=False))
+        timeout_frame = "\n".join(timeout_controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("다음 노드: peer=r2 role=relay hop=timeout reason=timeout", timeout_frame)
 
     def test_runtime_focus_switch_reuses_existing_focused_and_overview_frames(self) -> None:
@@ -184,21 +184,21 @@ class NodeMonitorModeTests(unittest.TestCase):
         controller._apply_status(build_monitor_status())
 
         controller.focus_node = "local-agent"
-        agent_frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        agent_frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("focus node: local-agent", agent_frame)
         self.assertIn("Local Agent 모니터링", agent_frame)
         self.assertIn("agent detail:", agent_frame)
         self.assertNotIn("노드별 모니터링:", agent_frame)
 
         controller.focus_node = "r1"
-        relay_frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        relay_frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("focus node: r1", relay_frame)
         self.assertIn("Relay R1 모니터링", relay_frame)
         self.assertIn("relay detail:", relay_frame)
         self.assertNotIn("Local Agent 모니터링", relay_frame)
 
         controller.focus_node = "monitor"
-        monitor_frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        monitor_frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("focus node: monitor", monitor_frame)
         self.assertIn("Monitor 모니터링", monitor_frame)
         self.assertIn("현재 상황", monitor_frame)
@@ -212,7 +212,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         self.assertNotIn("sink detail:", monitor_frame)
 
         controller.focus_node = None
-        overview_frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        overview_frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("노드별 모니터링:", overview_frame)
         self.assertIn("Local Agent 모니터링", overview_frame)
         self.assertIn("Relay R1 모니터링", overview_frame)
@@ -226,7 +226,7 @@ class NodeMonitorModeTests(unittest.TestCase):
             focus_node="monitor",
         )
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("focus node: monitor", frame)
         self.assertIn("Monitor 모니터링", frame)
@@ -263,7 +263,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         status["detail"]["traffic"]["previous_peer"]["peer_node_id"] = "r2b"
         controller._apply_status(status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=100))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False, terminal_width=100))
 
         self.assertIn("수신 구간=r2b -> monitor", frame)
         self.assertIn("우회 경로 사용", frame)
@@ -297,7 +297,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         }
         controller._apply_status(status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False, terminal_width=100))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False, terminal_width=100))
 
         self.assertIn("관찰 실패 hop=r1->r2", frame)
         self.assertIn("의심 node=r2", frame)
@@ -320,7 +320,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         }
         controller._apply_status(status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("확인 응답 / 재시도", frame)
         self.assertIn("확인 응답 생략됨", frame)
@@ -337,7 +337,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         )
         controller._record_activity("알 수 없는 focus 대상: bogus", "control")
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("최근 제어 활동:", frame)
         self.assertIn("알 수 없는 focus 대상: bogus", frame)
@@ -358,7 +358,7 @@ class NodeMonitorModeTests(unittest.TestCase):
             controller._record_activity(f"r1: activity-{index}", "node")
         controller._record_activity("r2: hidden-global-activity", "node")
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("최근 노드 활동:", frame)
         self.assertIn("r1: activity-10", frame)
@@ -375,7 +375,7 @@ class NodeMonitorModeTests(unittest.TestCase):
         )
         controller._record_activity("r2: unrelated activity", "node")
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("최근 노드 활동:", frame)
         self.assertIn("(아직 해당 노드 활동 없음)", frame)

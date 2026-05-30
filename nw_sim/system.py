@@ -149,9 +149,9 @@ async def run_role(
         await node.stop()
 
 
-async def run_demo(
+async def run_simulation(
     duration: float | None,
-    scripted_demo: bool,
+    scripted_scenario: bool,
     control_host: str,
     control_port: int,
     control_token: str | None,
@@ -166,12 +166,12 @@ async def run_demo(
         control_token=control_token,
         public_external_control=public_external_control,
     )
-    await controller.run(duration=duration, scripted_demo=scripted_demo, startup=supervisor.start, shutdown=supervisor.stop)
+    await controller.run(duration=duration, scripted_scenario=scripted_scenario, startup=supervisor.start, shutdown=supervisor.stop)
 
 
 async def run_controller_ui(
     duration: float | None,
-    scripted_demo: bool,
+    scripted_scenario: bool,
     control_host: str,
     control_port: int,
     control_token: str | None,
@@ -185,4 +185,4 @@ async def run_controller_ui(
         public_external_control=True,
         focus_node=focus_node,
     )
-    await controller.run(duration=duration, scripted_demo=scripted_demo)
+    await controller.run(duration=duration, scripted_scenario=scripted_scenario)

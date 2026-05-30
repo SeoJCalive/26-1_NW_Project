@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo import config
-from nw_demo.controller_ui import ControllerUI
+from nw_sim import config
+from nw_sim.controller_ui import ControllerUI
 
 from tests.status_builders import (
     build_host_status,
@@ -32,7 +32,7 @@ class IntegratedMonitorPreservationTests(unittest.TestCase):
         ]:
             self.controller._apply_status(message)
 
-        frame = "\n".join(self.controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(self.controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("노드별 모니터링:", frame)
         for node_id in config.NODE_ORDER:
@@ -48,7 +48,7 @@ class IntegratedMonitorPreservationTests(unittest.TestCase):
         ]:
             self.controller._apply_status(message)
 
-        frame = "\n".join(self.controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(self.controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn(config.HOST_ID, frame)
         self.assertIn(f"evt-{config.HOST_ID}-7", frame)
@@ -66,7 +66,7 @@ class IntegratedMonitorPreservationTests(unittest.TestCase):
         ]:
             self.controller._apply_status(message)
 
-        frame = "\n".join(self.controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(self.controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("관찰: liveness=live", frame)
         self.assertIn("제어: start=host-simulator", frame)
@@ -85,7 +85,7 @@ class IntegratedMonitorPreservationTests(unittest.TestCase):
     def test_overview_frame_documents_focus_switching_without_payload_dump(self) -> None:
         self.controller._apply_status(build_local_agent_status())
 
-        frame = "\n".join(self.controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(self.controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("focus host|agent|r1|r2|r1b|r2b|monitor", frame)
         self.assertIn("overview", frame)

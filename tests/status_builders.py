@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from nw_demo import config
-from nw_demo.messages import make_status
+from nw_sim import config
+from nw_sim.messages import make_status
 
 
 def _capture(

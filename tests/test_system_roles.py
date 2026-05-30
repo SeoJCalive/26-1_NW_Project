@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo import config
-from nw_demo.relay import RelayNode
-from nw_demo.system import ROLE_START_ORDER, build_role
+from nw_sim import config
+from nw_sim.relay import RelayNode
+from nw_sim.system import ROLE_START_ORDER, build_role
 
 
 class SystemRoleRegistryTests(unittest.TestCase):

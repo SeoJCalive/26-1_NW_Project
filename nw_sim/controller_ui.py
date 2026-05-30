@@ -1042,7 +1042,7 @@ class ControllerUI:
 
         return lines
 
-    def _build_focused_frame_lines(self, scripted_demo: bool, terminal_width: int = 80) -> list[str]:
+    def _build_focused_frame_lines(self, scripted_scenario: bool, terminal_width: int = 80) -> list[str]:
         node_id = self.focus_node or config.NODE_ORDER[0]
         node_view = normalize_node_view(
             node_id=node_id,
@@ -1052,7 +1052,7 @@ class ControllerUI:
         )
         lines = [
             "=== 네트워크 장애 감시 및 우회 라우팅 시뮬레이션 ===",
-            f"실행 모드: {'scripted controller focus' if scripted_demo else 'focused node monitor'}",
+            f"실행 모드: {'scripted scenario focus' if scripted_scenario else 'focused node monitor'}",
             f"focus node: {node_id}",
             self._external_controller_line(),
             "",
@@ -1096,7 +1096,7 @@ class ControllerUI:
     async def run(
         self,
         duration: float | None,
-        scripted_demo: bool,
+        scripted_scenario: bool,
         startup: Callable[[], Awaitable[None]] | None = None,
         shutdown: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
@@ -1104,11 +1104,11 @@ class ControllerUI:
         self._record_activity(f"외부 컨트롤러 대기 중: {self.control_host}:{self.control_port}", "system")
         if startup is not None:
             await startup()
-        self._tasks.append(asyncio.create_task(self._render_loop(scripted_demo), name="controller-render"))
-        if sys.stdin.isatty() and not scripted_demo:
-            self._tasks.append(asyncio.create_task(self._interactive_command_loop(scripted_demo), name="controller-input"))
-        if scripted_demo:
-            self._tasks.append(asyncio.create_task(self._scripted_demo(), name="controller-scripted"))
+        self._tasks.append(asyncio.create_task(self._render_loop(scripted_scenario), name="controller-render"))
+        if sys.stdin.isatty() and not scripted_scenario:
+            self._tasks.append(asyncio.create_task(self._interactive_command_loop(scripted_scenario), name="controller-input"))
+        if scripted_scenario:
+            self._tasks.append(asyncio.create_task(self._scripted_scenario(), name="controller-scripted"))
         try:
             if duration is None:
                 while not self._stop_requested:
@@ -1127,7 +1127,7 @@ class ControllerUI:
                 await self._control_server.wait_closed()
             self._renderer.close()
 
-    async def _scripted_demo(self) -> None:
+    async def _scripted_scenario(self) -> None:
         self._record_activity("자동 시나리오: CPU -> ACK 손실/재전송 -> SERVICE -> LATENCY", "system")
         await asyncio.sleep(config.SCRIPTED_STEP_SHORT_SECONDS)
         await self.send_control("drop_next_ack", "monitor")
@@ -1190,7 +1190,7 @@ class ControllerUI:
             await self._apply_remote_request(request)
         return should_exit, None
 
-    async def _interactive_command_loop(self, scripted_demo: bool) -> None:
+    async def _interactive_command_loop(self, scripted_scenario: bool) -> None:
         while not self._stop_requested:
             try:
                 if isinstance(self._renderer, InPlaceRenderer) and sys.stdin.isatty():
@@ -1210,7 +1210,7 @@ class ControllerUI:
             should_exit, _ = await self.handle_local_command(line)
             if isinstance(self._renderer, InPlaceRenderer):
                 self._renderer.force_repaint()
-            self._renderer.render(self._build_frame_lines(scripted_demo))
+            self._renderer.render(self._build_frame_lines(scripted_scenario))
             if should_exit:
                 self._stop_requested = True
                 break
@@ -1373,22 +1373,22 @@ class ControllerUI:
             {"fault_type": fault_type, "enabled": enabled},
         )
 
-    async def _render_loop(self, scripted_demo: bool) -> None:
+    async def _render_loop(self, scripted_scenario: bool) -> None:
         while not self._stop_requested:
             terminal_width = shutil.get_terminal_size(fallback=(80, 24)).columns
-            self._renderer.render(self._build_frame_lines(scripted_demo, terminal_width=terminal_width))
+            self._renderer.render(self._build_frame_lines(scripted_scenario, terminal_width=terminal_width))
             if self._input_waiting and isinstance(self._renderer, InPlaceRenderer):
                 self._renderer.render_prompt(self._input_buffer)
             await asyncio.sleep(config.STATUS_REFRESH_SECONDS)
 
-    def _build_frame_lines(self, scripted_demo: bool, terminal_width: int | None = None) -> list[str]:
+    def _build_frame_lines(self, scripted_scenario: bool, terminal_width: int | None = None) -> list[str]:
         terminal_width = 80 if terminal_width is None else max(1, terminal_width)
         if self.focus_node is not None:
-            return self._build_focused_frame_lines(scripted_demo, terminal_width)
+            return self._build_focused_frame_lines(scripted_scenario, terminal_width)
         lines = [
             "=== 네트워크 장애 감시 및 우회 라우팅 시뮬레이션 ===",
             "데이터 경로: Host Simulator -> Local Agent -> Relay R1 -> Relay R2 -> Monitor",
-            f"실행 모드: {'scripted viewer' if scripted_demo else 'viewer only'}",
+            f"실행 모드: {'scripted scenario' if scripted_scenario else 'viewer only'}",
             self._external_controller_line(),
             "",
             "노드별 모니터링:",

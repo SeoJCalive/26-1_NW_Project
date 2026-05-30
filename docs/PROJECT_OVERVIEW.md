@@ -71,5 +71,5 @@
 - `python -m unittest` 기준 121개 테스트가 통과한다.
 - Python LSP error diagnostics 기준 error가 없다.
 - `GIT_MASTER=1 git diff --check`가 통과한다.
-- `python main.py --duration 8 --scripted`로 scripted viewer smoke를 확인했다.
+- `python main.py --duration 8 --scripted`로 scripted scenario smoke를 확인했다.
 - `python -m web_ui.server --web-port 18080 --control-port 19110 --duration 8`로 Web UI runtime smoke를 확인했다.

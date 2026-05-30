@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo import config
-from nw_demo.controller_ui import ControllerUI, normalize_node_view
+from nw_sim import config
+from nw_sim.controller_ui import ControllerUI, normalize_node_view
 
 from tests.status_builders import build_host_status, build_local_agent_status, build_monitor_status, build_relay_status
 
@@ -32,7 +32,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         controller._apply_status(relay_status)
         controller._apply_status(build_local_agent_status())
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
 
         self.assertIn("hop summary: prev=acknowledged next=connection_error", frame)
         self.assertNotIn('"msg_type": "EVENT"', frame)
@@ -48,7 +48,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         relay_status["detail"]["traffic"]["previous_peer"]["hop_state"] = "unknown"
         controller._apply_status(relay_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("hop summary: prev=not_started next=not_started", frame)
 
     def test_partial_topology_host_only_keeps_other_nodes_not_started(self) -> None:
@@ -59,7 +59,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         )
         controller._apply_status(build_host_status())
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("Host Simulator 모니터링", frame)
         self.assertIn("Local Agent 모니터링", frame)
         self.assertIn("Local Agent 모니터링\n  요약: state=UNKNOWN", frame)
@@ -78,7 +78,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         controller._apply_status(relay_status)
         controller._apply_status(build_monitor_status())
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("Relay R1 모니터링", frame)
         self.assertIn("hop summary: prev=acknowledged next=not_started", frame)
 
@@ -94,7 +94,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         relay_status["detail"]["traffic"]["next_peer"]["hop_state"] = "unknown"
         controller._apply_status(relay_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("Relay R1 모니터링", frame)
         self.assertIn("hop summary: prev=acknowledged next=not_started", frame)
 
@@ -114,7 +114,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         controller._apply_status(build_host_status())
         controller._apply_status(agent_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("agent detail: input=ok fault=None downstream=idle", frame)
         self.assertIn("hop summary: prev=acknowledged next=idle", frame)
 
@@ -129,7 +129,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         relay_status["detail"]["traffic"]["next_peer"]["failure_reason"] = "timeout"
         controller._apply_status(relay_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("hop summary: prev=acknowledged next=timeout", frame)
 
     def test_full_chain_baseline_keeps_acknowledged_hops(self) -> None:
@@ -144,7 +144,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         controller._apply_status(build_relay_status(node_id="r2"))
         controller._apply_status(build_monitor_status())
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("hop summary: prev=acknowledged next=acknowledged", frame)
         self.assertIn("sink detail: sink=logged ack=acknowledged", frame)
 
@@ -164,7 +164,7 @@ class HopStateVisibilityTests(unittest.TestCase):
         monitor_status["detail"]["traffic"]["previous_peer"]["failure_reason"] = "drop_next_ack"
         controller._apply_status(monitor_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("sink detail: sink=logged ack=dropped", frame)
         self.assertIn("hop summary: prev=ack_dropped next=not_applicable", frame)
 

@@ -5,8 +5,8 @@ import os
 import unittest
 from unittest.mock import Mock, patch
 
-from nw_demo import config
-from nw_demo.controller_ui import ControllerUI, InPlaceRenderer, _display_cell_width, _fit_display_text
+from nw_sim import config
+from nw_sim.controller_ui import ControllerUI, InPlaceRenderer, _display_cell_width, _fit_display_text
 
 
 class SpyInPlaceRenderer(InPlaceRenderer):
@@ -50,7 +50,7 @@ class InPlaceRendererTests(unittest.TestCase):
         stream = io.StringIO()
         renderer = InPlaceRenderer(stream)
 
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
             renderer.render(["line 1", "line 2"])
 
         output = stream.getvalue()
@@ -62,11 +62,11 @@ class InPlaceRendererTests(unittest.TestCase):
         stream = io.StringIO()
         renderer = InPlaceRenderer(stream)
 
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
             renderer.render(["line 1", "line 2"])
         stream.seek(0)
         stream.truncate(0)
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 2))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 2))):
             renderer.render(["updated line 1"])
 
         output = stream.getvalue()
@@ -78,7 +78,7 @@ class InPlaceRendererTests(unittest.TestCase):
         stream = io.StringIO()
         renderer = InPlaceRenderer(stream)
 
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 4))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 4))):
             renderer.render(["line 1", "line 2", "line 3", "line 4", "line 5"])
 
         output = stream.getvalue()
@@ -92,13 +92,13 @@ class InPlaceRendererTests(unittest.TestCase):
         stream = io.StringIO()
         renderer = InPlaceRenderer(stream)
 
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
             renderer.render(["line 1", "line 2"])
         stream.seek(0)
         stream.truncate(0)
 
         renderer.force_repaint()
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 3))):
             renderer.render(["line 1", "line 2"])
 
         output = stream.getvalue()
@@ -110,7 +110,7 @@ class InPlaceRendererTests(unittest.TestCase):
         stream = io.StringIO()
         renderer = InPlaceRenderer(stream)
 
-        with patch("nw_demo.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 4))):
+        with patch("nw_sim.controller_ui.shutil.get_terminal_size", return_value=os.terminal_size((80, 4))):
             renderer.render_prompt("overview")
 
         self.assertEqual(stream.getvalue(), "\x1b[4;1H\x1b[2Kviewer> overview\x1b[?25h")
@@ -127,8 +127,8 @@ class ControllerUIInteractiveLoopTests(unittest.IsolatedAsyncioTestCase):
         controller._renderer = renderer
         controller._read_in_place_line = Mock(side_effect=["", None])
 
-        with patch("nw_demo.controller_ui.sys.stdin.isatty", return_value=True):
-            await controller._interactive_command_loop(scripted_demo=False)
+        with patch("nw_sim.controller_ui.sys.stdin.isatty", return_value=True):
+            await controller._interactive_command_loop(scripted_scenario=False)
 
         self.assertEqual(renderer.force_repaint_count, 0)
         self.assertEqual(renderer.render_count, 0)

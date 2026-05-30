@@ -3,9 +3,9 @@ from __future__ import annotations
 import unittest
 from unittest.mock import AsyncMock
 
-from nw_demo import config
-from nw_demo.controller_ui import ControllerUI
-from nw_demo.messages import make_control
+from nw_sim import config
+from nw_sim.controller_ui import ControllerUI
+from nw_sim.messages import make_control
 
 
 class ControllerUILocalCommandTests(unittest.IsolatedAsyncioTestCase):
@@ -228,7 +228,7 @@ class ControllerUILocalCommandTests(unittest.IsolatedAsyncioTestCase):
 
         from unittest.mock import patch
 
-        with patch("nw_demo.controller_ui.send_request", new=AsyncMock(side_effect=rejected)):
+        with patch("nw_sim.controller_ui.send_request", new=AsyncMock(side_effect=rejected)):
             await controller._broadcast_control(make_control("shutdown", "monitor"))
 
         self.assertTrue(any("제어 거부" in entry for entry in controller.control_activity_log))

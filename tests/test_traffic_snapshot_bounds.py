@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo.base import BaseNode, TRAFFIC_HISTORY_LIMIT, TRAFFIC_PAYLOAD_PREVIEW_LIMIT
+from nw_sim.base import BaseNode, TRAFFIC_HISTORY_LIMIT, TRAFFIC_PAYLOAD_PREVIEW_LIMIT
 
 
 class TrafficSnapshotBoundsTests(unittest.IsolatedAsyncioTestCase):

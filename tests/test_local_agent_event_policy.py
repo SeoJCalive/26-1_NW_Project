@@ -5,9 +5,9 @@ import asyncio
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
-from nw_demo.local_agent import LocalAgent
-from nw_demo.routing import ROUTE_BACKUP, ROUTE_PRIMARY, ROUTE_STATE_BYPASS_ACTIVE, ROUTE_STATE_FAILED
-from nw_demo.messages import json_roundtrip
+from nw_sim.local_agent import LocalAgent
+from nw_sim.routing import ROUTE_BACKUP, ROUTE_PRIMARY, ROUTE_STATE_BYPASS_ACTIVE, ROUTE_STATE_FAILED
+from nw_sim.messages import json_roundtrip
 
 
 def build_host_state(**overrides: object) -> dict[str, Any]:
@@ -86,7 +86,7 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
                 raise asyncio.TimeoutError
             return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r1b"}
 
-        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=primary_timeout_then_backup_ack)):
+        with patch("nw_sim.local_agent.send_request", new=AsyncMock(side_effect=primary_timeout_then_backup_ack)):
             delivered_event, delivered = await agent._deliver_event(event)
 
         self.assertTrue(delivered)
@@ -144,7 +144,7 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
                 }
             return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r1b"}
 
-        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=primary_downstream_error_then_backup_ack)):
+        with patch("nw_sim.local_agent.send_request", new=AsyncMock(side_effect=primary_downstream_error_then_backup_ack)):
             delivered_event, delivered = await agent._deliver_event(event)
 
         self.assertTrue(delivered)
@@ -199,7 +199,7 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
                 }
             return {"msg_type": "ACK", "ack_for": message["event_id"], "from_node": "r1b"}
 
-        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=invalid_downstream_error_then_backup_ack)):
+        with patch("nw_sim.local_agent.send_request", new=AsyncMock(side_effect=invalid_downstream_error_then_backup_ack)):
             delivered_event, delivered = await agent._deliver_event(event)
 
         self.assertTrue(delivered)
@@ -217,7 +217,7 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
         agent = LocalAgent("127.0.0.1", 9102, "127.0.0.1", 9110, "127.0.0.1", 9101, "127.0.0.1", 9103)
         event = agent._build_event("CPU_SPIKE", build_host_state(cpu_usage=96))
 
-        with patch("nw_demo.local_agent.send_request", new=AsyncMock(side_effect=ConnectionError)):
+        with patch("nw_sim.local_agent.send_request", new=AsyncMock(side_effect=ConnectionError)):
             delivered_event, delivered = await agent._deliver_event(event)
 
         self.assertFalse(delivered)
@@ -234,8 +234,8 @@ class LocalAgentEventPolicyTests(unittest.IsolatedAsyncioTestCase):
 
         paused_response = {"msg_type": "ERROR", "reason": "paused", "node_id": "host-simulator"}
         with (
-            patch("nw_demo.local_agent.send_request", new=AsyncMock(return_value=paused_response)),
-            patch("nw_demo.local_agent.asyncio.sleep", new=AsyncMock(side_effect=stop_after_sleep)),
+            patch("nw_sim.local_agent.send_request", new=AsyncMock(return_value=paused_response)),
+            patch("nw_sim.local_agent.asyncio.sleep", new=AsyncMock(side_effect=stop_after_sleep)),
             patch.object(agent, "publish_status", new=AsyncMock()) as publish_status,
             patch.object(agent, "_deliver_event", new=AsyncMock()) as deliver_event,
         ):

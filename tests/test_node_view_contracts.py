@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from nw_demo import config, controller_ui
+from nw_sim import config, controller_ui
 
 from tests.status_builders import (
     build_host_status,
@@ -210,7 +210,7 @@ class NodeViewContractTests(unittest.TestCase):
         relay_status["detail"]["traffic"]["next_peer"]["hop_state"] = "unknown"
         controller._apply_status(relay_status)
 
-        frame = "\n".join(controller._build_frame_lines(scripted_demo=False))
+        frame = "\n".join(controller._build_frame_lines(scripted_scenario=False))
         self.assertIn("hop summary: prev=acknowledged next=not_started", frame)
 
 

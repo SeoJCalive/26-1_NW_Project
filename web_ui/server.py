@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from nw_demo import config
-from nw_demo.controller_client import build_requests
-from nw_demo.controller_ui import ControllerUI
-from nw_demo.system import LocalProcessSupervisor
+from nw_sim import config
+from nw_sim.controller_client import build_requests
+from nw_sim.controller_ui import ControllerUI
+from nw_sim.system import LocalProcessSupervisor
 
 
 CONTROL_TOKEN_ENV_VAR = "NW_CONTROL_TOKEN"
