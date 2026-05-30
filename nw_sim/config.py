@@ -1,0 +1,81 @@
+import json
+import os
+
+HOST_ID = "host-1"
+AGENT_ID = "agent-1"
+PROCESS_LABEL_PREFIX = "[NW] :"
+NODE_ENDPOINTS_ENV_VAR = "NW_NODE_ENDPOINTS"
+
+BASE_TICK_SECONDS = 1.0
+BASE_AGENT_POLL_SECONDS = 1.0
+BASE_RELAY_DELAY_SECONDS = 0.75
+BASE_ACK_TIMEOUT_SECONDS = 2.0
+BASE_STATUS_REFRESH_SECONDS = 1.0
+TIMING_SCALE = 2.0
+
+DEFAULT_HOST = "127.0.0.1"
+HOST_SIMULATOR_PORT = 9101
+LOCAL_AGENT_PORT = 9102
+RELAY_R1_PORT = 9103
+RELAY_R2_PORT = 9104
+MONITOR_PORT = 9105
+RELAY_R1B_PORT = 9106
+RELAY_R2B_PORT = 9107
+CONTROLLER_PORT = 9110
+
+NODE_ENDPOINTS = {
+    "host-simulator": (DEFAULT_HOST, HOST_SIMULATOR_PORT),
+    "local-agent": (DEFAULT_HOST, LOCAL_AGENT_PORT),
+    "r1": (DEFAULT_HOST, RELAY_R1_PORT),
+    "r2": (DEFAULT_HOST, RELAY_R2_PORT),
+    "monitor": (DEFAULT_HOST, MONITOR_PORT),
+    "r1b": (DEFAULT_HOST, RELAY_R1B_PORT),
+    "r2b": (DEFAULT_HOST, RELAY_R2B_PORT),
+}
+
+
+def runtime_node_endpoints() -> dict[str, tuple[str, int]]:
+    raw = os.environ.get(NODE_ENDPOINTS_ENV_VAR)
+    if not raw:
+        return dict(NODE_ENDPOINTS)
+    parsed = json.loads(raw)
+    endpoints: dict[str, tuple[str, int]] = {}
+    for node_id, value in parsed.items():
+        if not isinstance(value, list) or len(value) != 2:
+            raise ValueError(f"invalid node endpoint for {node_id}: {value!r}")
+        host, port = value
+        endpoints[str(node_id)] = (str(host), int(port))
+    return endpoints
+
+ROLE_TO_NODE_ID = {
+    "host": "host-simulator",
+    "agent": "local-agent",
+    "relay-r1": "r1",
+    "relay-r2": "r2",
+    "relay-r1b": "r1b",
+    "relay-r2b": "r2b",
+    "monitor": "monitor",
+}
+
+NODE_ORDER = ["host-simulator", "local-agent", "r1", "r2", "monitor", "r1b", "r2b"]
+
+TICK_SECONDS = BASE_TICK_SECONDS * TIMING_SCALE
+AGENT_POLL_SECONDS = BASE_AGENT_POLL_SECONDS * TIMING_SCALE
+RELAY_DELAY_SECONDS = BASE_RELAY_DELAY_SECONDS * TIMING_SCALE
+MAX_RELAY_DELAY_SECONDS = 3.0
+ACK_TIMEOUT_SECONDS = BASE_ACK_TIMEOUT_SECONDS * TIMING_SCALE
+MAX_RETRY_COUNT = 3
+STATUS_REFRESH_SECONDS = BASE_STATUS_REFRESH_SECONDS * TIMING_SCALE
+RECENT_EVENT_LIMIT = 8
+RECENT_ACTIVITY_LIMIT = 12
+RECENT_ACTIVITY_SECTION_LIMIT = 4
+
+SCRIPTED_STEP_SHORT_SECONDS = 2.0
+SCRIPTED_STEP_LONG_SECONDS = 16.0
+SCRIPTED_DEFAULT_DURATION_SECONDS = 56.0
+VIEWER_IDLE_SLEEP_SECONDS = 0.5
+SUPERVISOR_START_SPACING_SECONDS = 0.5
+CONTROL_REQUEST_TIMEOUT_SECONDS = 2.0
+
+RELAY_DOWNSTREAM_RESPONSE_TIMEOUT_SECONDS = (MAX_RETRY_COUNT * (MAX_RELAY_DELAY_SECONDS + ACK_TIMEOUT_SECONDS)) + 1.0
+AGENT_DOWNSTREAM_RESPONSE_TIMEOUT_SECONDS = (MAX_RETRY_COUNT * (MAX_RELAY_DELAY_SECONDS + RELAY_DOWNSTREAM_RESPONSE_TIMEOUT_SECONDS)) + 1.0
