@@ -168,6 +168,7 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
         if ack is None:
             self.fail("relay did not ACK backup event")
         self.assertEqual(ack["msg_type"], "ACK")
+        self.assertNotIn("downstream_error", ack)
         self.assertEqual(len(captured_outbound), 1)
         outbound_trace = captured_outbound[0]["route_trace"]
         self.assertEqual(outbound_trace[-1]["from_node"], "r1b")
@@ -197,6 +198,40 @@ class BypassRoutingContractTests(unittest.IsolatedAsyncioTestCase):
         if relay.last_downstream_result is None:
             self.fail("relay did not store route mismatch result")
         self.assertEqual(relay.last_downstream_result["reason"], "route_mismatch")
+
+    async def test_primary_relay_preserves_paused_downstream_error_in_final_failure(self) -> None:
+        relay = RelayNode("r1", "127.0.0.1", 9103, "127.0.0.1", 9110, "127.0.0.1", 9104)
+        relay.processing_delay = 0
+        event = initialize_event_route_metadata(_event_without_route_trace())
+
+        async def paused_downstream(host: str, port: int, message: dict[str, Any], **kwargs: object) -> dict[str, object]:
+            return {"msg_type": "ERROR", "reason": "paused", "node_id": "r2", "payload": {"raw": True}}
+
+        with patch("nw_demo.relay.send_request", new=AsyncMock(side_effect=paused_downstream)):
+            response = await relay.handle_network_message(event)
+
+        if response is None:
+            self.fail("relay did not return final delivery failure")
+        self.assertEqual(response["msg_type"], "ERROR")
+        self.assertEqual(response["reason"], "delivery_failed")
+        downstream_error = response.get("downstream_error")
+        if not isinstance(downstream_error, dict):
+            self.fail("relay did not preserve downstream_error")
+        self.assertEqual(downstream_error["failed_hop"], "r1->r2")
+        self.assertEqual(downstream_error["suspected_node"], "r2")
+        self.assertEqual(downstream_error["failure_reason"], "paused")
+        self.assertEqual(downstream_error["downstream_node_id"], "r2")
+        self.assertEqual(downstream_error["event_id"], event["event_id"])
+        self.assertEqual(downstream_error["basis"], "reported_downstream_error")
+        self.assertNotIn("payload", downstream_error)
+        self.assertNotIn("raw", downstream_error)
+        self.assertEqual(relay.last_downstream_result, {
+            "status": "delivery_failed",
+            "event_id": event["event_id"],
+            "attempts": 3,
+            "last_outcome": "ack_missing",
+            "downstream_error": downstream_error,
+        })
 
     async def test_monitor_publishes_trace_unavailable_fallback_for_legacy_event(self) -> None:
         monitor = Monitor("127.0.0.1", 9105, "127.0.0.1", 9110)

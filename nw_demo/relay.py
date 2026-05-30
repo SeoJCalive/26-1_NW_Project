@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import deque
-from typing import Any
+from typing import Any, cast
 
 from . import config
 from .base import BaseNode
@@ -154,6 +154,23 @@ class RelayNode(BaseNode):
             "timestamp": event.get("timestamp"),
         }
 
+    def _make_downstream_error(
+        self,
+        *,
+        event_id: str,
+        downstream_node_id: str,
+        failure_reason: str,
+        basis: str,
+    ) -> dict[str, str]:
+        return {
+            "failed_hop": f"{self.node_id}->{downstream_node_id}",
+            "suspected_node": downstream_node_id,
+            "failure_reason": failure_reason,
+            "downstream_node_id": downstream_node_id,
+            "event_id": event_id,
+            "basis": basis,
+        }
+
     async def handle_network_message(self, message: dict[str, object]) -> dict[str, object] | None:
         self.record_peer_message(
             "previous_peer",
@@ -303,6 +320,15 @@ class RelayNode(BaseNode):
             "event_id": event_id,
             "node_id": self.node_id,
         }
+        downstream_error: object | None = None
+        if self.last_downstream_result is not None:
+            downstream_error = self.last_downstream_result.get("downstream_error")
+        if isinstance(downstream_error, dict):
+            filtered_downstream_error: dict[str, str] = {}
+            for key, value in cast(dict[object, object], downstream_error).items():
+                if isinstance(key, str) and isinstance(value, str):
+                    filtered_downstream_error[key] = value
+            response["downstream_error"] = filtered_downstream_error
         self.record_peer_message(
             "previous_peer",
             "last_sent",
@@ -332,6 +358,8 @@ class RelayNode(BaseNode):
         self.pending_ack_detail[event_id] = pending_detail
         accepted = False
         reset_interrupted = False
+        preferred_downstream_error: dict[str, str] | None = None
+        generic_downstream_error: dict[str, str] | None = None
 
         async def mark_reset_interrupted(attempt: int) -> None:
             nonlocal reset_interrupted
@@ -422,6 +450,33 @@ class RelayNode(BaseNode):
                         }
                         await self.publish_status(note=f"{event_id} downstream ACK 수신")
                         break
+                    if isinstance(response, dict) and response.get("msg_type") == "ERROR":
+                        response_node_id = response.get("node_id")
+                        response_reason = response.get("reason")
+                        downstream_node_id = response_node_id if isinstance(response_node_id, str) else self._downstream_target_label()
+                        failure_reason = response_reason if isinstance(response_reason, str) else "delivery_failed"
+                        preferred_downstream_error = self._make_downstream_error(
+                            event_id=event_id,
+                            downstream_node_id=downstream_node_id,
+                            failure_reason=failure_reason,
+                            basis="reported_downstream_error",
+                        )
+                    pending_detail.update({"state": "retry_pending", "last_outcome": "ack_missing"})
+                    self.record_peer_message(
+                        "next_peer",
+                        "last_received",
+                        response if isinstance(response, dict) else {"response": response},
+                        peer_node_id=self._peer_store("next_peer").get("peer_node_id"),
+                        peer_role=self._peer_store("next_peer").get("peer_role"),
+                        hop_state="invalid_response",
+                        failure_reason="ack_missing",
+                        logical_id=event_id,
+                        attempt_no=attempt,
+                        phase="downstream_response",
+                    )
+                    if attempt == config.MAX_RETRY_COUNT:
+                        break
+                    await self.publish_status(note=f"{event_id} downstream ACK 누락")
                 except asyncio.TimeoutError:
                     self.record_peer_state(
                         "next_peer",
@@ -437,6 +492,12 @@ class RelayNode(BaseNode):
                         "attempt": attempt,
                         "reason": "timeout",
                     }
+                    generic_downstream_error = self._make_downstream_error(
+                        event_id=event_id,
+                        downstream_node_id=self._downstream_target_label(),
+                        failure_reason="timeout",
+                        basis="downstream_delivery_failure",
+                    )
                     if attempt == config.MAX_RETRY_COUNT:
                         break
                     await self.publish_status(note=f"{event_id} ACK 대기 timeout")
@@ -455,6 +516,12 @@ class RelayNode(BaseNode):
                         "attempt": attempt,
                         "reason": "connection_error",
                     }
+                    generic_downstream_error = self._make_downstream_error(
+                        event_id=event_id,
+                        downstream_node_id=self._downstream_target_label(),
+                        failure_reason="connection_error",
+                        basis="downstream_delivery_failure",
+                    )
                     if attempt == config.MAX_RETRY_COUNT:
                         break
                     await self.publish_status(note=f"{event_id} downstream 연결 실패")
@@ -475,6 +542,9 @@ class RelayNode(BaseNode):
                     "attempts": pending_detail["attempt"],
                     "last_outcome": pending_detail.get("last_outcome"),
                 }
+                downstream_error = preferred_downstream_error or generic_downstream_error
+                if downstream_error is not None:
+                    self.last_downstream_result["downstream_error"] = downstream_error
                 self.last_forwarded_result = {
                     "status": "failed",
                     "event_id": event_id,
